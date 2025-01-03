@@ -163,7 +163,7 @@ export function HomeHero({ sx, ...other }) {
           >
             <span>
             Демо нұсқа
-              <Box
+              {/* <Box
                 component="small"
                 sx={{
                   mt: '-3px',
@@ -174,11 +174,11 @@ export function HomeHero({ sx, ...other }) {
                 }}
               >
                 v{CONFIG.appVersion}
-              </Box>
+              </Box> */}
             </span>
           </Button>
 
-          <Link
+          {/* <Link
             color="inherit"
             variant="body2"
             target="_blank"
@@ -189,7 +189,7 @@ export function HomeHero({ sx, ...other }) {
           >
             <Iconify width={16} icon="eva:external-link-fill" />
             Тегін нұсқаны алу
-          </Link>
+          </Link> */}
         </Stack>
       </m.div>
 
@@ -284,7 +284,7 @@ export function HomeHero({ sx, ...other }) {
 
           <m.div style={{ y: y3 }}>{renderRatings()}</m.div>
           <m.div style={{ y: y4 }}>{renderButtons()}</m.div>
-          <m.div style={{ y: y5 }}>{renderIcons()}</m.div>
+          {/* <m.div style={{ y: y5 }}>{renderIcons()}</m.div> */}
         </Container>
 
         <HeroBackground />

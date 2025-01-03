@@ -28,10 +28,10 @@ export function HomePricing({ sx, ...other }) {
 
   const renderDescription = () => (
     <SectionTitle
-      caption="plans"
-      title="Transparent"
-      txtGradient="pricing"
-      description="Choose from flexible pricing options designed to fit your business needs and budget with no hidden fees."
+      caption="Тарифтер"
+      title="Біздің тарифтер"
+      // txtGradient="pricing"
+      description="Бизнестің қажеттіліктеріне және бюджетіңізге сәйкес келетін икемді тарифтік жоспарларды таңдаңыз."
       sx={{ mb: 8, textAlign: 'center' }}
     />
   );
@@ -182,7 +182,7 @@ function PlanCard({ plan, sx, ...other }) {
 
           <m.div variants={varFade('inLeft', { distance: 24 })}>
             <Box component="span" sx={{ typography: 'h3' }}>
-              ${plan.price}
+            ₸{plan.price}
             </Box>
           </m.div>
         </Box>
@@ -269,7 +269,7 @@ function PlanCard({ plan, sx, ...other }) {
             rel="noopener"
             href={paths.minimalStore}
           >
-            Get started
+            Тіркелу
           </Button>
         </m.div>
       </Box>
@@ -281,19 +281,19 @@ function PlanCard({ plan, sx, ...other }) {
 
 const PLANS = Array.from({ length: 3 }, (_, index) => ({
   license: ['Standard', 'Plus', 'Extended'][index],
-  price: [69, 129, 599][index],
+  price: [9990, 19990, 29990][index],
   commons: [
-    'One end products',
-    '12 months updates',
-    '6 months of support',
-    'One-time payments',
-    'Lifetime perpetual license.',
+    'Бизнес диагностикасы',
+    'Команда өнімділігін бағалау',
+    'Автоматтандырылған есеп беру',
+    'Нәтижелерді бағалау жүйесі',
+    'Қаржылық жоспарлау.',
   ],
   options: [
-    'JavaScript version',
-    'TypeScript version',
-    'Design resources (Figma)',
-    'Commercial applications',
+    'Дэшборд',
+    'Мониторинг жүйесі',
+    '24/7 онлайн қолдау',
+    'AI-талдау құралдары',
   ],
   icons: [
     `${CONFIG.assetsDir}/assets/icons/platforms/ic-js.svg`,

@@ -131,17 +131,17 @@ export function HomeMinimal({ sx, ...other }) {
 const ITEMS = [
   {
     icon: `${CONFIG.assetsDir}/assets/icons/home/ic_analytics.svg`,
-    title: 'Бизнес-аналитика',
-    description: 'Отслеживайте все важные показатели вашего бизнеса в одном месте.'
+    title: 'Бизнес-талдау',
+    description: 'Бизнесіңіздің барлық маңызды көрсеткіштерін бір жерде бақылаңыз.'
   },
   {
     icon: `${CONFIG.assetsDir}/assets/icons/home/ic_reports.svg`,
-    title: 'Подробная отчетность',
-    description: 'Глубокий анализ состояния бизнеса через автоматические отчеты.'
+    title: 'Толық есептілік',
+    description: 'Автоматты есептер арқылы бизнестің жай-күйін терең талдау.'
   },
   {
     icon: `${CONFIG.assetsDir}/assets/icons/home/ic_optimization.svg`,
-    title: 'Оптимизация',
-    description: 'Улучшайте и развивайте свой бизнес с помощью рекомендаций системы.'
+    title: 'Оңтайландыру',
+    description: 'Жүйенің ұсыныстары арқылы бизнесіңізді жақсартыңыз және дамытыңыз.'
   }
 ];

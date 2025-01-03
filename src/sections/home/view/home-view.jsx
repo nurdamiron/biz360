@@ -44,7 +44,7 @@ export function HomeView() {
 
         {/* <HomeForDesigner /> */}
 
-        <HomeHighlightFeatures />
+        {/* <HomeHighlightFeatures /> */}
 
         <HomeIntegrations />
 

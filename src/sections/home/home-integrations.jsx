@@ -43,21 +43,21 @@ const renderLines = () => (
 export function HomeIntegrations({ sx, ...other }) {
   const renderDescription = () => (
     <SectionTitle
-      caption="Integrations"
-      title="Robust integration"
-      txtGradient="framework"
+      caption="Интеграциялар"
+      title="Кеңейтілген интеграция"
+      txtGradient=""
       description={
         <>
           <Box component="span" sx={{ mb: 1, display: 'block' }}>
-            A comprehensive suite of integrations offers diverse functionalities.
+            Интеграциялардың толық жиынтығы әртүрлі функционалдық мүмкіндіктерді ұсынады.
           </Box>
 
           <Box
             component="span"
             sx={{ fontStyle: 'italic', color: 'text.disabled', typography: 'caption' }}
           >
-            * Only includes authentication methods.
-            <br />* Database not included.
+            * Тек аутентификация әдістері кіреді.
+            <br />* Дерекқор қосылмаған.
           </Box>
         </>
       }
@@ -69,7 +69,7 @@ export function HomeIntegrations({ sx, ...other }) {
     <Box
       component={m.img}
       variants={{ ...varScale('in'), initial: { scale: 0.8, opacity: 0 } }}
-      alt="Integration"
+      alt="Интеграция"
       src={`${CONFIG.assetsDir}/assets/illustrations/illustration-integration.webp`}
       sx={{ width: 720, objectFit: 'cover', aspectRatio: '1/1' }}
     />
