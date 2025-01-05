@@ -93,7 +93,7 @@ const sortImportsRules = () => {
     'perfectionist/sort-named-imports': [1, { type: 'line-length', order: 'asc' }],
     'perfectionist/sort-named-exports': [1, { type: 'line-length', order: 'asc' }],
     'perfectionist/sort-exports': [
-      1,
+      0,
       {
         order: 'asc',
         type: 'line-length',
@@ -101,7 +101,7 @@ const sortImportsRules = () => {
       },
     ],
     'perfectionist/sort-imports': [
-      2,
+      0,
       {
         order: 'asc',
         ignoreCase: false,
