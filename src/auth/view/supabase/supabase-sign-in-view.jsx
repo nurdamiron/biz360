@@ -129,12 +129,12 @@ export function SupabaseSignInView() {
   return (
     <>
       <FormHead
-        title="Sign in to your account"
+        title="Вход в личный кабинет"
         description={
           <>
             {`Don’t have an account? `}
             <Link component={RouterLink} href={paths.auth.supabase.signUp} variant="subtitle2">
-              Get started
+            Начать сейчас
             </Link>
           </>
         }

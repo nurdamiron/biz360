@@ -57,7 +57,7 @@ export function Auth0SignInView() {
   return (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h5" sx={{ textAlign: 'center' }}>
-        Sign in to your account
+      Вход в личный кабинет
       </Typography>
 
       <Button

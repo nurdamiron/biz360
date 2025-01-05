@@ -134,12 +134,12 @@ export function CenteredSignUpView() {
       <AnimateLogoRotate sx={{ mb: 3, mx: 'auto' }} />
 
       <FormHead
-        title="Get started absolutely free"
+        title="Начните работу абсолютно бесплатно"
         description={
           <>
-            {`Already have an account? `}
+            {`У вас уже есть учетная запись? `}
             <Link component={RouterLink} href={paths.authDemo.centered.signIn} variant="subtitle2">
-              Get started
+              Войти
             </Link>
           </>
         }

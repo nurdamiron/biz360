@@ -118,12 +118,12 @@ export function CenteredSignInView() {
       <AnimateLogoRotate sx={{ mb: 3, mx: 'auto' }} />
 
       <FormHead
-        title="Sign in to your account"
+        title="Войдите в свою учетную запись"
         description={
           <>
-            {`Don’t have an account? `}
+            {`Нет аккаунта? `}
             <Link component={RouterLink} href={paths.authDemo.centered.signUp} variant="subtitle2">
-              Get started
+              Начать сейчас
             </Link>
           </>
         }

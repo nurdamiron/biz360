@@ -83,8 +83,8 @@ const renderDescription = () => (
         typography: { xs: 'h2', md: 'h1' },
       }}
     >
-      Get started with
-      <br /> Minimal kit
+      Начните работу с
+      <br /> Biz360
       <Box
         component="span"
         sx={(theme) => ({

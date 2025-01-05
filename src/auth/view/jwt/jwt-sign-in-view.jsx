@@ -129,12 +129,12 @@ export function JwtSignInView() {
   return (
     <>
       <FormHead
-        title="Sign in to your account"
+        title="Вход в личный кабинет"
         description={
           <>
-            {`Don’t have an account? `}
+            {`У вас нет учетной записи? `}
             <Link component={RouterLink} href={paths.auth.jwt.signUp} variant="subtitle2">
-              Get started
+              Зарегистрируйтесь
             </Link>
           </>
         }

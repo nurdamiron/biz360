@@ -26,7 +26,7 @@ const authJwt = {
         <GuestGuard>
           <AuthSplitLayout
             slotProps={{
-              section: { title: 'Hi, Welcome back' },
+              section: { title: 'Добро пожаловать в BIZ360' },
             }}
           >
             <Jwt.SignInPage />
@@ -67,7 +67,7 @@ const authAmplify = {
         <GuestGuard>
           <AuthSplitLayout
             slotProps={{
-              section: { title: 'Hi, Welcome back' },
+              section: { title: 'Добро пожаловать в BIZ360' },
             }}
           >
             <Amplify.SignInPage />
@@ -131,7 +131,7 @@ const authFirebase = {
         <GuestGuard>
           <AuthSplitLayout
             slotProps={{
-              section: { title: 'Hi, Welcome back' },
+              section: { title: 'Добро пожаловать в BIZ360' },
             }}
           >
             <Firebase.SignInPage />
@@ -185,7 +185,7 @@ const authAuth0 = {
         <GuestGuard>
           <AuthSplitLayout
             slotProps={{
-              section: { title: 'Hi, Welcome back' },
+              section: { title: 'Добро пожаловать в BIZ360' },
             }}
           >
             <Auth0.SignInPage />
@@ -224,7 +224,7 @@ const authSupabase = {
         <GuestGuard>
           <AuthSplitLayout
             slotProps={{
-              section: { title: 'Hi, Welcome back' },
+              section: { title: 'Добро пожаловать в BIZ360' },
             }}
           >
             <Supabase.SignInPage />

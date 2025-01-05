@@ -121,12 +121,12 @@ export function SplitSignUpView() {
   return (
     <>
       <FormHead
-        title="Get started absolutely free"
+        title="Начните работу абсолютно бесплатно"
         description={
           <>
-            {`Already have an account? `}
+            {`У вас уже есть учетная запись? `}
             <Link component={RouterLink} href={paths.authDemo.split.signIn} variant="subtitle2">
-              Get started
+              Войдите
             </Link>
           </>
         }

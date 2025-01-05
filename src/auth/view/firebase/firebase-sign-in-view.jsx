@@ -160,12 +160,12 @@ export function FirebaseSignInView() {
   return (
     <>
       <FormHead
-        title="Sign in to your account"
+        title="Войдите в свою учетную запись"
         description={
           <>
-            {`Don’t have an account? `}
+            {`У вас нет учетной записи? `}
             <Link component={RouterLink} href={paths.auth.firebase.signUp} variant="subtitle2">
-              Get started
+              Зарегистрируйтесь
             </Link>
           </>
         }

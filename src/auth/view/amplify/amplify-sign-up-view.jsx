@@ -143,12 +143,12 @@ export function AmplifySignUpView() {
   return (
     <>
       <FormHead
-        title="Get started absolutely free"
+        title="Начните работу абсолютно бесплатно"
         description={
           <>
             {`Already have an account? `}
             <Link component={RouterLink} href={paths.auth.amplify.signIn} variant="subtitle2">
-              Get started
+              Начать сейчас
             </Link>
           </>
         }
