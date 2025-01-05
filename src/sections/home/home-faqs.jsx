@@ -14,11 +14,10 @@ import AccordionSummary, { accordionSummaryClasses } from '@mui/material/Accordi
 
 import { Iconify } from 'src/components/iconify';
 import { varFade, MotionViewport } from 'src/components/animate';
+import { paths } from 'src/routes/paths';
 
 import { SectionTitle } from './components/section-title';
 import { FloatLine, FloatPlusIcon, FloatTriangleDownIcon } from './components/svg-elements';
-
-import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 

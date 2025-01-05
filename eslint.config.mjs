@@ -104,7 +104,7 @@ const sortImportsRules = () => {
       2,
       {
         order: 'asc',
-        ignoreCase: true,
+        ignoreCase: false,
         type: 'line-length',
         environment: 'node',
         maxLineLength: undefined,
