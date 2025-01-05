@@ -22,7 +22,7 @@ const LINKS = [
     headline: 'Minimal',
     children: [
       { name: 'About us', href: paths.about },
-      { name: 'Contact us', href: paths.contact },
+      { name: 'Связаться', href: paths.contact },
       { name: 'FAQs', href: paths.faqs },
     ],
   },
@@ -144,7 +144,7 @@ export function Footer({ sx, layoutQuery = 'md', ...other }) {
         </Grid>
 
         <Typography variant="body2" sx={{ mt: 10 }}>
-          © All rights reserved.
+          © Все права защищены.
         </Typography>
       </Container>
     </FooterRoot>
@@ -168,9 +168,9 @@ export function HomeFooter({ sx, ...other }) {
       <Container>
         <Logo />
         <Box sx={{ mt: 1, typography: 'caption' }}>
-          © All rights reserved.
-          <br /> made by
-          <Link href="https://minimals.cc/"> minimals.cc </Link>
+          © Все права защищены.
+          <br /> powered by
+          <Link href="https://respondy.net/"> Respondy Solutions </Link>
         </Box>
       </Container>
     </FooterRoot>

@@ -113,7 +113,7 @@ const renderDescription = () => (
           variant="contained"
           target="_blank"
           rel="noopener"
-          href={paths.minimalStore}
+          href={paths.auth.supabase.signIn}
         >
           Purchase now
         </Button>
@@ -126,7 +126,7 @@ const renderDescription = () => (
           variant="outlined"
           target="_blank"
           rel="noopener"
-          href={paths.freeUI}
+          href={paths.auth.supabase.signIn}
           startIcon={<Iconify width={16} icon="eva:external-link-fill" sx={{ mr: 0.5 }} />}
           sx={{
             color: 'common.white',

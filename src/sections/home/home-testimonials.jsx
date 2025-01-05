@@ -73,8 +73,8 @@ export function HomeTestimonials({ sx, ...other }) {
   const renderDescription = () => (
     <SectionTitle
       caption="testimonials"
-      title="Rumors are flying"
-      txtGradient="that..."
+      title="Предприниматели"
+      txtGradient="говорят..."
       sx={{ mb: { xs: 5, md: 8 }, textAlign: 'center' }}
     />
   );
@@ -179,16 +179,16 @@ export function HomeTestimonials({ sx, ...other }) {
         sx={{ gap: 5, flexDirection: { xs: 'column', md: 'row' } }}
       >
         {[
-          { label: 'Purchased order', value: 12.121 },
-          { label: 'Happy customers', value: 160 },
-          { label: 'Review rate', value: 4.9 },
+          { label: 'Успешных анализов', value: 12.121 },
+          { label: 'Оптимизированных компаний', value: 160 },
+          { label: 'Индекс удовлетворенности', value: 4.9 },
         ].map((item) => (
           <Stack key={item.label} spacing={2} sx={{ textAlign: 'center', width: 1 }}>
             <m.div variants={varFade('inUp', { distance: 24 })}>
               <AnimateCountUp
                 to={item.value}
-                unit={item.label === 'Purchased order' ? 'k+' : '+'}
-                toFixed={item.label === 'Happy customers' ? 0 : 1}
+                unit={item.label === 'Успешных анализов' ? 'k+' : '+'}
+                toFixed={item.label === 'Оптимизированных компаний' ? 0 : 1}
                 sx={[
                   (theme) => ({
                     fontWeight: 'fontWeightBold',

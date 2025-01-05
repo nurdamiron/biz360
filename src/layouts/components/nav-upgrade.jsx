@@ -64,7 +64,7 @@ export function NavUpgrade({ sx, ...other }) {
           </Typography>
         </Box>
 
-        <Button variant="contained" href={paths.minimalStore} target="_blank" rel="noopener">
+        <Button variant="contained" href={paths.auth} target="_blank" rel="noopener">
           Upgrade to Pro
         </Button>
       </Box>

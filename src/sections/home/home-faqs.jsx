@@ -18,40 +18,38 @@ import { varFade, MotionViewport } from 'src/components/animate';
 import { SectionTitle } from './components/section-title';
 import { FloatLine, FloatPlusIcon, FloatTriangleDownIcon } from './components/svg-elements';
 
+import { paths } from 'src/routes/paths';
+
 // ----------------------------------------------------------------------
 
 const FAQs = [
   {
-    question: 'How can I get the update?',
+    question: 'Как начать использовать Biz360?',
     answer: (
       <Typography>
-        You will get 12 months of free
+        Начать работу с Biz360 просто:
         <Link
-          href="https://support.mui.com/hc/en-us/articles/360008775240-How-do-I-get-access-to-an-item-I-purchased"
+          href={paths.auth.supabase.signUp}
           target="_blank"
           rel="noopener"
           sx={{ mx: 0.5 }}
         >
-          updates
+          зарегистрируйтесь на платформе
         </Link>
-        with the purchase. Please renew your license to get updates after that.
+        загрузите данные вашего бизнеса через удобный интерфейс или интегрируйте существующие системы. Наши специалисты помогут с настройкой и проведут обучение вашей команды.
       </Typography>
     ),
   },
   {
-    question: 'Which license is right for you?',
+    question: 'Какие данные анализирует система?',
     answer: (
       <Box component="ul" sx={{ pl: 3, listStyleType: 'disc' }}>
-        <li> All licenses do not apply to open source.</li>
-        <li> One licenses / one end product (3 licenses / 3 products...).</li>
-        <li>
-          <strong>Standard / Plus</strong> license used in free products (Internal management...).
-        </li>
-        <li>
-          <strong>Extended</strong> license used in charge products, collect fees from users
-          (SAAS...).
-        </li>
-        <li>
+        <li> Финансовые показатели (выручка, расходы, прибыль)</li>
+        <li> Операционные метрики (продажи, конверсии, эффективность сотрудников)</li>
+        <li>Клиентские данные (поведение, удовлетворенность, LTV)</li>
+        <li>Производственные процессы (загрузка мощностей, простои, брак)</li>
+        <li>Маркетинговые показатели (ROI рекламных кампаний, стоимость привлечения)</li>
+        {/* <li>
           Learn more about the
           <Link
             href="https://docs.minimals.cc/package/"
@@ -61,61 +59,68 @@ const FAQs = [
           >
             package & license
           </Link>
-        </li>
+        </li> */}
       </Box>
     ),
   },
   {
-    question: 'How long is my license valid for?',
+    question: 'Насколько безопасно хранение данных?',
     answer: (
       <Box component="ul" sx={{ pl: 3, listStyleType: 'disc' }}>
-        <li> The license is lifetime.</li>
-        <li> You get 12 months of free updates.</li>
+        <li> Шифрование данных по стандарту AES-256</li>
+        <li> Ежедневное резервное копирование</li>
+        <li> Доступ только для авторизованных пользователей с двухфакторной аутентификацией</li>
       </Box>
     ),
   },
   {
-    question: 'Which platforms will the template support?',
+    question: 'Возможна ли интеграция с моими текущими системами?',
     answer: (
       <Typography>
-        {`The components in MUI are designed to work in the latest, stable releases of all major browsers, including Chrome, Firefox, Safari, and Edge. We don't support Internet Explorer 11. `}
-        Learn more about the
-        <Link
-          href="https://mui.com/material-ui/getting-started/supported-platforms/"
-          target="_blank"
-          rel="noopener"
-          sx={{ mx: 0.5 }}
-        >
-          supported platforms
-        </Link>
+        {`Да, Biz360 легко интегрируется с популярными системами: `}
+        <Box component="ul" sx={{ pl: 3, listStyleType: 'disc' }}>
+        <li> 1С</li>
+        <li> CRM-системы (Bitrix24, amoCRM)</li>
+        <li> Системы учета и ERP</li>
+        <li> Онлайн-кассы  </li>
+        <li> Excel/Google Таблицы.</li>
+      </Box>При необходимости мы можем разработать индивидуальное решение для интеграции.
+      </Typography>
+      
+    ),
+  },
+  {
+    question: 'Как быстро я увижу результаты?',
+    answer: (
+      <Typography>
+         Первые аналитические данные доступны сразу после загрузки информации. 
+         Базовые рекомендации по оптимизации вы получите в течение первой недели использования. 
+         Заметные улучшения в бизнес-процессах наши клиенты отмечают уже через 1-2 месяца активного использования платформы.
       </Typography>
     ),
   },
   {
-    question: 'For what kind of projects is the Standard license intended?',
+    question: 'Предоставляете ли вы обучение?',
     answer: (
       <Typography>
-        The Standard license is designed for internal applications in which staff will access the
-        application. An example could be the back-office dashboard of a public-facing e-commerce
-        website in which staff would sign in and manage inventory, customers, etc.
+        Мы обеспечиваем полную поддержку на всех этапах:
+        <li>Бесплатное начальное обучение для всей команды</li>
+        <li>Библиотека обучающих материалов и видеоуроков</li>
+        <li>Регулярные вебинары по новым функциям</li>
+        <li>Персональный менеджер для корпоративных клиентов</li>
+        <li>Техническая поддержка 24/7</li>
       </Typography>
     ),
   },
   {
-    question: 'Do you have a free demo to review the code before purchasing?',
+    question: 'Есть ли тестовый период?',
     answer: (
       <Typography>
-        Yes, you can check out our
-        <Link
-          href="https://mui.com/store/items/minimal-dashboard-free/"
-          target="_blank"
-          rel="noopener"
-          sx={{ mx: 0.5 }}
-        >
-          open source
-        </Link>
-        dashboard template which should give you an overview of the code quality and folder
-        structure. Keep in mind that some aspects may differ from this Paid version.
+        Да, мы предоставляем бесплатный 14-дневный тестовый период со всеми функциями системы. За это время вы сможете:
+        <li>Загрузить свои данные</li>
+        <li>Получить первичный анализ</li>
+        <li>Опробовать все инструменты</li>
+        <li>Оценить эффективность платформы для вашего бизнеса</li>
       </Typography>
     ),
   },
@@ -132,9 +137,9 @@ export function HomeFAQs({ sx, ...other }) {
 
   const renderDescription = () => (
     <SectionTitle
-      caption="FAQs"
-      title="We’ve got the"
-      txtGradient="answers"
+      caption="Часто задаваемые вопросы"
+      title="У нас есть "
+      txtGradient="ответы"
       sx={{ textAlign: 'center' }}
     />
   );
@@ -214,12 +219,12 @@ export function HomeFAQs({ sx, ...other }) {
       ]}
     >
       <m.div variants={varFade('in')}>
-        <Typography variant="h4">Still have questions?</Typography>
+        <Typography variant="h4">У вас все еще есть вопросы?</Typography>
       </m.div>
 
       <m.div variants={varFade('in')}>
         <Typography sx={{ mt: 2, mb: 3, color: 'text.secondary' }}>
-          Please describe your case to receive the most accurate advice
+        Пожалуйста, опишите свой случай, чтобы получить наиболее точную консультацию
         </Typography>
       </m.div>
 
@@ -230,7 +235,7 @@ export function HomeFAQs({ sx, ...other }) {
           href="mailto:support@minimals.cc?subject=[Feedback] from Customer"
           startIcon={<Iconify icon="fluent:mail-24-filled" />}
         >
-          Contact us
+          Связаться
         </Button>
       </m.div>
     </Box>

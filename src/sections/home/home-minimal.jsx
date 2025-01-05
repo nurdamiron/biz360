@@ -31,9 +31,9 @@ export function HomeMinimal({ sx, ...other }) {
   const renderDescription = () => (
     <>
       <SectionTitle
-        caption="Табысқа жету"
-        title="BIZ360"
-        txtGradient="платформасы"
+        caption="Преимущества"
+        title="Преимущества"
+        txtGradient=""
         sx={{ mb: { xs: 5, md: 8 }, textAlign: { xs: 'center', md: 'left' } }}
       />
 
@@ -131,17 +131,17 @@ export function HomeMinimal({ sx, ...other }) {
 const ITEMS = [
   {
     icon: `${CONFIG.assetsDir}/assets/icons/home/ic_analytics.svg`,
-    title: 'Бизнес-талдау',
-    description: 'Бизнесіңіздің барлық маңызды көрсеткіштерін бір жерде бақылаңыз.'
+    title: 'Бизнес-анализ',
+    description: 'Отслеживайте все важные показатели вашего бизнеса в одном месте.'
   },
   {
-    icon: `${CONFIG.assetsDir}/assets/icons/home/ic_reports.svg`,
-    title: 'Толық есептілік',
+    icon: `${CONFIG.assetsDir}/assets/icons/home/ic_reports.png`,
+    title: 'Полная отчетность',
     description: 'Автоматты есептер арқылы бизнестің жай-күйін терең талдау.'
   },
   {
-    icon: `${CONFIG.assetsDir}/assets/icons/home/ic_optimization.svg`,
-    title: 'Оңтайландыру',
-    description: 'Жүйенің ұсыныстары арқылы бизнесіңізді жақсартыңыз және дамытыңыз.'
+    icon: `${CONFIG.assetsDir}/assets/icons/home/ic_optimization.png`,
+    title: 'Оптимизация',
+    description: 'Улучшайте и развивайте свой бизнес через системные рекомендации.'
   }
 ];

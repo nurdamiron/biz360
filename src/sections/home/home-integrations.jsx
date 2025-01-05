@@ -43,21 +43,21 @@ const renderLines = () => (
 export function HomeIntegrations({ sx, ...other }) {
   const renderDescription = () => (
     <SectionTitle
-      caption="Интеграциялар"
-      title="Кеңейтілген интеграция"
+      caption="Интеграции"
+      title="Расширенная интеграция"
       txtGradient=""
       description={
         <>
           <Box component="span" sx={{ mb: 1, display: 'block' }}>
-            Интеграциялардың толық жиынтығы әртүрлі функционалдық мүмкіндіктерді ұсынады.
+          Полный набор функциональных возможностей для всех поддерживаемых интеграций.
           </Box>
 
           <Box
             component="span"
             sx={{ fontStyle: 'italic', color: 'text.disabled', typography: 'caption' }}
           >
-            * Тек аутентификация әдістері кіреді.
-            <br />* Дерекқор қосылмаған.
+            * Включены только методы аутентификации.
+            <br />* База данных не включена.
           </Box>
         </>
       }

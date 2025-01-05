@@ -75,9 +75,9 @@ export function HomeHero({ sx, ...other }) {
         ]}
       >
         <Box component="span" sx={{ width: 1, opacity: 0.24 }}>
-        Бизнесіңізді жаңа
+        Поднимите 
         </Box>
-        деңгейге көтеріңіз
+        ваш бизнес
         <Box
           component={m.span}
           animate={{ backgroundPosition: '200% center' }}
@@ -95,7 +95,7 @@ export function HomeHero({ sx, ...other }) {
             ml: { xs: 0.75, md: 1, xl: 1.5 },
           }}
         >
-          Minimal
+           на новый уровень
         </Box>
       </Box>
     </m.div>
@@ -111,7 +111,7 @@ export function HomeHero({ sx, ...other }) {
           [theme.breakpoints.up(lgKey)]: { fontSize: 20, lineHeight: '36px' },
         }}
       >
-        {`Заманауи бизнес аналитика құралы. \nТез талдау, нақты шешімдер, жақсы нәтижелер.`}
+        {`Современный инструмент бизнес-аналитики. \nБыстрый анализ, точные решения, отличные результаты.`}
       </Typography>
     </m.div>
   );
@@ -137,7 +137,7 @@ export function HomeHero({ sx, ...other }) {
             />
           ))}
         </AvatarGroup>
-        50+ Белсенді қолданушы
+        50+ активных пользователей
       </Box>
     </m.div>
   );
@@ -162,7 +162,7 @@ export function HomeHero({ sx, ...other }) {
             startIcon={<Iconify width={24} icon="iconoir:flash" />}
           >
             <span>
-            Демо нұсқа
+            Получить доступ
               {/* <Box
                 component="small"
                 sx={{

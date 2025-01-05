@@ -24,14 +24,14 @@ import { FloatLine, FloatXIcon } from './components/svg-elements';
 // ----------------------------------------------------------------------
 
 export function HomePricing({ sx, ...other }) {
-  const tabs = useTabs('Standard');
+  const tabs = useTabs('Standart');
 
   const renderDescription = () => (
     <SectionTitle
-      caption="Тарифтер"
-      title="Біздің тарифтер"
+      caption="Тарифы"
+      title="Наши тарифы"
       // txtGradient="pricing"
-      description="Бизнестің қажеттіліктеріне және бюджетіңізге сәйкес келетін икемді тарифтік жоспарларды таңдаңыз."
+      description="Выберите тарифный план, соответствующий потребностям и бюджету вашего бизнеса."
       sx={{ mb: 8, textAlign: 'center' }}
     />
   );
@@ -135,7 +135,7 @@ const renderLines = () => (
 );
 
 function PlanCard({ plan, sx, ...other }) {
-  const standardLicense = plan.license === 'Standard';
+  const standartLicense = plan.license === 'Standart';
 
   const plusLicense = plan.license === 'Plus';
 
@@ -173,7 +173,7 @@ function PlanCard({ plan, sx, ...other }) {
                   opacity: 0.24,
                   borderRadius: 1,
                   bgcolor: 'error.main',
-                  ...(standardLicense && { bgcolor: 'primary.main' }),
+                  ...(standartLicense && { bgcolor: 'primary.main' }),
                   ...(plusLicense && { bgcolor: 'secondary.main' }),
                 }}
               />
@@ -198,11 +198,11 @@ function PlanCard({ plan, sx, ...other }) {
               sx={{
                 width: 24,
                 height: 24,
-                ...(standardLicense && [1, 2].includes(index) && { display: 'none' }),
+                ...(standartLicense && [1, 2].includes(index) && { display: 'none' }),
               }}
             />
           ))}
-          {standardLicense && (
+          {standartLicense && (
             <Box component={m.span} variants={varFade('in')} sx={{ ml: -1 }}>
               (only)
             </Box>
@@ -233,7 +233,7 @@ function PlanCard({ plan, sx, ...other }) {
 
           {plan.options.map((option, index) => {
             const disabled =
-              (standardLicense && [1, 2, 3].includes(index)) ||
+              (standartLicense && [1, 2, 3].includes(index)) ||
               (plusLicense && [3].includes(index));
 
             return (
@@ -267,7 +267,7 @@ function PlanCard({ plan, sx, ...other }) {
             size="large"
             target="_blank"
             rel="noopener"
-            href={paths.minimalStore}
+            href={paths.auth}
           >
             Тіркелу
           </Button>
@@ -280,24 +280,22 @@ function PlanCard({ plan, sx, ...other }) {
 // ----------------------------------------------------------------------
 
 const PLANS = Array.from({ length: 3 }, (_, index) => ({
-  license: ['Standard', 'Plus', 'Extended'][index],
+  license: ['Standart', 'Plus', 'Premium'][index],
   price: [9990, 19990, 29990][index],
   commons: [
-    'Бизнес диагностикасы',
-    'Команда өнімділігін бағалау',
-    'Автоматтандырылған есеп беру',
-    'Нәтижелерді бағалау жүйесі',
-    'Қаржылық жоспарлау.',
+    'Бизнес-диагностика',
+    'Оценка эффективности команды',
+    'Автоматизированная отчетность',
+    'Система оценки результатов',
+    'Финансовое планирование',
   ],
   options: [
     'Дэшборд',
-    'Мониторинг жүйесі',
-    '24/7 онлайн қолдау',
-    'AI-талдау құралдары',
+    'Система мониторинга',
+    'Поддержка 24/7',
+    'Инструменты AI-анализа',
   ],
   icons: [
-    `${CONFIG.assetsDir}/assets/icons/platforms/ic-js.svg`,
-    `${CONFIG.assetsDir}/assets/icons/platforms/ic-ts.svg`,
-    `${CONFIG.assetsDir}/assets/icons/platforms/ic-figma.svg`,
+
   ],
 }));

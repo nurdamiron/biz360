@@ -54,9 +54,9 @@ export function HomeView() {
 
         <HomeFAQs />
 
-        <HomeZoneUI />
+        {/* <HomeZoneUI /> */}
 
-        <HomeAdvertisement />
+        {/* <HomeAdvertisement /> */}
       </Stack>
     </>
   );
