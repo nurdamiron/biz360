@@ -290,7 +290,7 @@ export function TourNewEditForm({ currentTour }) {
         loading={isSubmitting}
         sx={{ ml: 2 }}
       >
-        {!currentTour ? 'Create tour' : 'Save changes'}
+        {!currentTour ? 'Create tour' : 'Сохранить изменения'}
       </LoadingButton>
     </Box>
   );

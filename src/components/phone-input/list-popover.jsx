@@ -156,7 +156,7 @@ export function CountryListPopover({
             fullWidth
             value={searchCountry}
             onChange={(event) => onSearchCountry(event.target.value)}
-            placeholder="Search..."
+            placeholder="Поиск..."
             slotProps={{
               input: {
                 startAdornment: (

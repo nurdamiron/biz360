@@ -237,7 +237,7 @@ export function DataGridCustom({ data: rows }) {
       columnVisibilityModel={columnVisibilityModel}
       onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
       initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-      pageSizeOptions={[5, 10, 20, 50, { value: -1, label: 'All' }]}
+      pageSizeOptions={[10, 20, 50, { value: -1, label: 'Все' }]}
       slots={{
         toolbar: CustomToolbar,
         noRowsOverlay: () => <EmptyContent />,

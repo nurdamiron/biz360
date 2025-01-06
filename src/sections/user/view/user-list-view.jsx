@@ -42,14 +42,14 @@ import { UserTableFiltersResult } from '../user-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
+const STATUS_OPTIONS = [{ value: 'all', label: 'Все' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name' },
-  { id: 'phoneNumber', label: 'Phone number', width: 180 },
-  { id: 'company', label: 'Company', width: 220 },
-  { id: 'role', label: 'Role', width: 180 },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'name', label: 'ФИО' },
+  { id: 'phoneNumber', label: 'Номер телефона', width: 180 },
+  { id: 'company', label: 'Отдел', width: 220 },
+  { id: 'role', label: 'Роль', width: 180 },
+  { id: 'status', label: 'Доступ', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -82,7 +82,7 @@ export function UserListView() {
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
 
-      toast.success('Delete success!');
+      toast.success('Успешно удалено!');
 
       setTableData(deleteRow);
 
@@ -94,7 +94,7 @@ export function UserListView() {
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
 
-    toast.success('Delete success!');
+    toast.success('Успешно удалено!');
 
     setTableData(deleteRows);
 
@@ -116,7 +116,7 @@ export function UserListView() {
       title="Delete"
       content={
         <>
-          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+          Вы уверены, что хотите удалить <strong> {table.selected.length} </strong> элементов?
         </>
       }
       action={
@@ -128,7 +128,7 @@ export function UserListView() {
             confirmDialog.onFalse();
           }}
         >
-          Delete
+          Удалить
         </Button>
       }
     />
@@ -138,11 +138,11 @@ export function UserListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Список"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
-            { name: 'List' },
+            { name: 'Дэшборд', href: paths.dashboard.root },
+            // { name: 'Пользователь', href: paths.dashboard.user.root },
+            { name: 'Список' },
           ]}
           action={
             <Button
@@ -151,7 +151,7 @@ export function UserListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New user
+              Новый пользователь
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}

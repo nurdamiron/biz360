@@ -99,7 +99,7 @@ export function AddressNewForm({ open, onClose, onCreate }) {
             >
               <Field.Text name="name" label="Full name" />
 
-              <Field.Phone name="phoneNumber" label="Phone number" country="US" />
+              <Field.Phone name="phoneNumber" label="Номер телефона" country="US" />
             </Box>
 
             <Field.Text name="address" label="Address" />

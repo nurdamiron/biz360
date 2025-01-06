@@ -225,7 +225,7 @@ export function PostNewEditForm({ currentPost }) {
           loading={isSubmitting}
           sx={{ ml: 2 }}
         >
-          {!currentPost ? 'Create post' : 'Save changes'}
+          {!currentPost ? 'Create post' : 'Сохранить изменения'}
         </LoadingButton>
       </div>
     </Box>

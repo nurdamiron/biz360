@@ -151,23 +151,23 @@ export function AccountGeneral() {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <Field.Text name="displayName" label="Name" />
-              <Field.Text name="email" label="Email address" />
-              <Field.Phone name="phoneNumber" label="Phone number" />
-              <Field.Text name="address" label="Address" />
+              <Field.Text name="displayName" label="ФИО" />
+              <Field.Text name="email" label="Эл. почта" />
+              <Field.Phone name="phoneNumber" label="Номер телефона" />
+              <Field.Text name="address" label="Адрес" />
 
-              <Field.CountrySelect name="country" label="Country" placeholder="Choose a country" />
+              <Field.CountrySelect name="country" label="Отдел" placeholder="Выберите отдел" />
 
-              <Field.Text name="state" label="State/region" />
-              <Field.Text name="city" label="City" />
-              <Field.Text name="zipCode" label="Zip/code" />
+              <Field.Text name="state" label="Область/Регион" />
+              <Field.Text name="city" label="Город" />
+              <Field.Text name="zipCode" label="050000" />
             </Box>
 
             <Stack spacing={3} sx={{ mt: 3, alignItems: 'flex-end' }}>
               <Field.Text name="about" multiline rows={4} label="About" />
 
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                Save changes
+                Сохранить изменения
               </LoadingButton>
             </Stack>
           </Card>

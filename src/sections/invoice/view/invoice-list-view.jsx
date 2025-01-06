@@ -111,7 +111,7 @@ export function InvoiceListView() {
   const TABS = [
     {
       value: 'all',
-      label: 'All',
+      label: 'Все',
       color: 'default',
       count: tableData.length,
     },

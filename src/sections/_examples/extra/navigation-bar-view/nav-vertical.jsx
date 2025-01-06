@@ -239,7 +239,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }) {
 
       {/* Role */}
       <Stack spacing={1}>
-        <Typography variant="subtitle2">Role</Typography>
+        <Typography variant="subtitle2">Роль</Typography>
         <ToggleButtonGroup
           exclusive
           size="small"

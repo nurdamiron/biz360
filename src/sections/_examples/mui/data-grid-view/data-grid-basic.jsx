@@ -48,19 +48,19 @@ const columns = [
       <GridActionsCellItem
         showInMenu
         icon={<Iconify icon="solar:eye-bold" />}
-        label="View"
+        label="Посмотреть"
         onClick={() => console.info('VIEW', params.row.id)}
       />,
       <GridActionsCellItem
         showInMenu
         icon={<Iconify icon="solar:pen-bold" />}
-        label="Edit"
+        label="Изменить"
         onClick={() => console.info('EDIT', params.row.id)}
       />,
       <GridActionsCellItem
         showInMenu
         icon={<Iconify icon="solar:trash-bin-trash-bold" />}
-        label="Delete"
+        label="Удалить"
         onClick={() => console.info('DELETE', params.row.id)}
         sx={{ color: 'error.main' }}
       />,
@@ -76,7 +76,7 @@ export function DataGridBasic({ data }) {
       checkboxSelection
       disableRowSelectionOnClick
       initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-      pageSizeOptions={[5, 10, 20]}
+      pageSizeOptions={[10, 20]}
     />
   );
 }

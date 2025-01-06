@@ -31,12 +31,12 @@ export const UserQuickEditSchema = zod.object({
     // message for null value
     message: 'Country is required!',
   }),
-  state: zod.string().min(1, { message: 'State is required!' }),
-  city: zod.string().min(1, { message: 'City is required!' }),
-  address: zod.string().min(1, { message: 'Address is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-  company: zod.string().min(1, { message: 'Company is required!' }),
-  role: zod.string().min(1, { message: 'Role is required!' }),
+  state: zod.string().min(1, { message: 'Требуется указать область/регион!' }),
+  city: zod.string().min(1, { message: 'Требуется указать город!' }),
+  address: zod.string().min(1, { message: 'Требуется указать адрес!' }),
+  zipCode: zod.string().min(1, { message: 'Требуется указать индекс!' }),
+  company: zod.string().min(1, { message: 'Требуется указать отдел!' }),
+  role: zod.string().min(1, { message: 'Требуется указать роль!' }),
   // Not required
   status: zod.string(),
 });
@@ -100,13 +100,12 @@ export function UserQuickEditForm({ currentUser, open, onClose }) {
       onClose={onClose}
       PaperProps={{ sx: { maxWidth: 720 } }}
     >
-      <DialogTitle>Quick update</DialogTitle>
+      <DialogTitle>Быстрое обновление</DialogTitle>
 
       <Form methods={methods} onSubmit={onSubmit}>
         <DialogContent>
           <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
-            Account is waiting for confirmation
-          </Alert>
+          Учетная запись ожидает подтверждения          </Alert>
 
           <Box
             sx={{
@@ -133,26 +132,26 @@ export function UserQuickEditForm({ currentUser, open, onClose }) {
             <Field.CountrySelect
               fullWidth
               name="country"
-              label="Country"
-              placeholder="Choose a country"
+              label="Страна"
+              placeholder="Выберите страну"
             />
 
-            <Field.Text name="state" label="State/region" />
-            <Field.Text name="city" label="City" />
-            <Field.Text name="address" label="Address" />
-            <Field.Text name="zipCode" label="Zip/code" />
-            <Field.Text name="company" label="Company" />
-            <Field.Text name="role" label="Role" />
+            <Field.Text name="state" label="Область/регион" />
+            <Field.Text name="city" label="Город" />
+            <Field.Text name="address" label="Адрес" />
+            <Field.Text name="zipCode" label="Индекс" />
+            <Field.Text name="company" label="Отдел" />
+            <Field.Text name="role" label="Роль" />
           </Box>
         </DialogContent>
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
-            Cancel
+            Отмена
           </Button>
 
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Update
+            Обновить
           </LoadingButton>
         </DialogActions>
       </Form>

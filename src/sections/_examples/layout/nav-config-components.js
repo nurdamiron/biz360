@@ -28,7 +28,7 @@ const MUI_X_COMPONENTS = ['Data grid', 'Date pickers', 'Tree view'];
 
 const muiNav = [
   'Chip',
-  'List',
+  'Список',
   'Menu',
   'Tabs',
   'Alert',

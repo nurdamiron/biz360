@@ -157,7 +157,7 @@ export function CalendarForm({ currentEvent, colorOptions, onClose }) {
           loading={isSubmitting}
           disabled={dateError}
         >
-          Save changes
+          Сохранить изменения
         </LoadingButton>
       </DialogActions>
     </Form>

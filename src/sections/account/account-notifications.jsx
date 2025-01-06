@@ -135,7 +135,7 @@ export function AccountNotifications({ sx, ...other }) {
         ))}
 
         <LoadingButton type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-          Save changes
+        Сохранить изменения
         </LoadingButton>
       </Card>
     </Form>

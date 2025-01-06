@@ -9,7 +9,7 @@ export function TablePaginationCustom({
   sx,
   dense,
   onChangeDense,
-  rowsPerPageOptions = [5, 10, 25],
+  rowsPerPageOptions = [10, 20],
   ...other
 }) {
   return (
@@ -21,9 +21,9 @@ export function TablePaginationCustom({
         sx={{ borderTopColor: 'transparent' }}
       />
 
-      {onChangeDense && (
+      {/* {onChangeDense && (
         <FormControlLabel
-          label="Dense"
+          label="Плотный"
           control={
             <Switch checked={dense} onChange={onChangeDense} inputProps={{ id: 'dense-switch' }} />
           }
@@ -34,7 +34,7 @@ export function TablePaginationCustom({
             position: { sm: 'absolute' },
           }}
         />
-      )}
+      )} */}
     </Box>
   );
 }

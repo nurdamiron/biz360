@@ -79,7 +79,7 @@ export function FileManagerFilters({
     <TextField
       value={currentFilters.name}
       onChange={handleFilterName}
-      placeholder="Search..."
+      placeholder="Поиск..."
       slotProps={{
         input: {
           startAdornment: (
@@ -171,11 +171,11 @@ export function FileManagerFilters({
             }}
           >
             <Button variant="outlined" color="inherit" onClick={handleResetType}>
-              Clear
+              Очистить
             </Button>
 
             <Button variant="contained" onClick={menuActions.onClose}>
-              Apply
+              Применить
             </Button>
           </Box>
         </Stack>

@@ -234,8 +234,8 @@ export function WalktourView() {
           <Grid size={{ xs: 12, md: 8 }}>
             <EcommerceWelcome
               id="demo__1"
-              title={`Congratulations 🎉  \n Jaydon Frankie`}
-              description="Best seller of the month you have done 57.6% more sales today."
+              title={`Поздравляю 🎉  \n Айдос`}
+              description="Лучший продавец месяца за сегодняшний день вы продали на 57,6% больше товаров."
               img={<MotivationIllustration hideBackground />}
               action={
                 <Button variant="contained" color="primary">

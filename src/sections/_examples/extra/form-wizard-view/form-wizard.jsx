@@ -161,8 +161,8 @@ export function FormWizard() {
 
             {activeStep === STEPS.length - 1 && (
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                Save changes
-              </LoadingButton>
+                Сохранить изменения
+                </LoadingButton>
             )}
           </Box>
         )}

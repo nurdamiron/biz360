@@ -43,11 +43,11 @@ export function PostListView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="List"
+        heading="Список"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Blog', href: paths.dashboard.post.root },
-          { name: 'List' },
+          { name: 'Дэшборд', href: paths.dashboard.root },
+          { name: 'Блог', href: paths.dashboard.post.root },
+          { name: 'Список' },
         ]}
         action={
           <Button

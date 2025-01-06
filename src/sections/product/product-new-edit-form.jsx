@@ -386,7 +386,7 @@ export function ProductNewEditForm({ currentProduct }) {
       />
 
       <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-        {!currentProduct ? 'Create product' : 'Save changes'}
+        {!currentProduct ? 'Create product' : 'Сохранить изменения'}
       </LoadingButton>
     </Box>
   );

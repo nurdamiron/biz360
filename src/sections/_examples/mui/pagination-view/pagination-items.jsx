@@ -78,7 +78,7 @@ export function PaginationItems() {
         />
 
         <FormControl size="small" sx={{ width: 120 }}>
-          <InputLabel htmlFor="demo-pagination-select">Items per page</InputLabel>
+          <InputLabel htmlFor="demo-pagination-select">Количество элементов на странице</InputLabel>
           <Select
             value={String(rowsPerPage)}
             label="Item per page"

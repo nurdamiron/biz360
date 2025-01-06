@@ -69,7 +69,7 @@ export function KanbanColumnToolBar({
       <MenuList>
         <MenuItem onClick={menuActions.onClose}>
           <Iconify icon="solar:pen-bold" />
-          Rename
+          Переименовать
         </MenuItem>
 
         <MenuItem
@@ -79,7 +79,7 @@ export function KanbanColumnToolBar({
           }}
         >
           <Iconify icon="solar:eraser-bold" />
-          Clear
+          Очистить
         </MenuItem>
 
         <MenuItem
@@ -90,7 +90,7 @@ export function KanbanColumnToolBar({
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Удалить
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -103,9 +103,9 @@ export function KanbanColumnToolBar({
       title="Delete"
       content={
         <>
-          Are you sure want to delete column?
+          Вы уверены, что хотите удалить столбец?
           <Box sx={{ typography: 'caption', color: 'error.main', mt: 2 }}>
-            <strong> NOTE: </strong> All tasks related to this category will also be deleted.
+            <strong> Внимание! </strong> Все задачи, относящиеся к этой категории, также будут удалены.
           </Box>
         </>
       }
@@ -118,7 +118,7 @@ export function KanbanColumnToolBar({
             confirmDialog.onFalse();
           }}
         >
-          Delete
+          Удалить
         </Button>
       }
     />

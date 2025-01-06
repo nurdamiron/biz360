@@ -191,9 +191,9 @@ export function AccountDrawer({ data = [], sx, ...other }) {
 
           {renderList()}
 
-          <Box sx={{ px: 2.5, py: 3 }}>
+          {/* <Box sx={{ px: 2.5, py: 3 }}>
             <UpgradeBlock />
-          </Box>
+          </Box> */}
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>

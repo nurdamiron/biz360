@@ -78,7 +78,7 @@ export function PaginationView() {
       ),
     },
     {
-      name: 'Sizes',
+      name: 'Размеры',
       component: (
         <ComponentBox sx={componentBoxStyles}>
           {SIZES.map((size) => (

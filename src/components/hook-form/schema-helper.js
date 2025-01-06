@@ -11,12 +11,12 @@ export const schemaHelper = {
   phoneNumber: (props) =>
     zod
       .string({
-        required_error: props?.message?.required ?? 'Phone number is required!',
-        invalid_type_error: props?.message?.invalid_type ?? 'Invalid phone number!',
+        required_error: props?.message?.required ?? 'Требуется номер телефона!',
+        invalid_type_error: props?.message?.invalid_type ?? 'Неверный номер телефона!',
       })
-      .min(1, { message: props?.message?.required ?? 'Phone number is required!' })
+      .min(1, { message: props?.message?.required ?? 'Требуется номер телефона!' })
       .refine((data) => props?.isValid?.(data), {
-        message: props?.message?.invalid_type ?? 'Invalid phone number!',
+        message: props?.message?.invalid_type ?? 'Неверный номер телефона!',
       }),
   /**
    * Date
@@ -34,7 +34,7 @@ export const schemaHelper = {
         if (!dateString) {
           ctx.addIssue({
             code: zod.ZodIssueCode.custom,
-            message: props?.message?.required ?? 'Date is required!',
+            message: props?.message?.required ?? 'Дата обязательна!',
           });
           return null;
         }
@@ -42,7 +42,7 @@ export const schemaHelper = {
         if (!stringToDate.safeParse(date).success) {
           ctx.addIssue({
             code: zod.ZodIssueCode.invalid_date,
-            message: props?.message?.invalid_type ?? 'Invalid Date!!',
+            message: props?.message?.invalid_type ?? 'Неверная дата!!',
           });
         }
 

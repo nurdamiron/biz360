@@ -35,12 +35,12 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 export const NewJobSchema = zod.object({
-  title: zod.string().min(1, { message: 'Title is required!' }),
-  content: zod.string().min(1, { message: 'Content is required!' }),
-  employmentTypes: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  role: schemaHelper.nullableInput(zod.string().min(1, { message: 'Role is required!' }), {
+  title: zod.string().min(1, { message: 'Требуется название!' }),
+  content: zod.string().min(1, { message: 'Контент обязателен!' }),
+  employmentTypes: zod.string().array().min(1, { message: 'Выберите хотя бы один вариант!' }),
+  role: schemaHelper.nullableInput(zod.string().min(1, { message: 'Требуется роль!' }), {
     // message for null value
-    message: 'Role is required!',
+    message: 'Требуется роль!',
   }),
   skills: zod.string().array().min(1, { message: 'Choose at least one option!' }),
   workingSchedule: zod.string().array().min(1, { message: 'Choose at least one option!' }),
@@ -48,10 +48,10 @@ export const NewJobSchema = zod.object({
   expiredDate: schemaHelper.date({ message: { required: 'Expired date is required!' } }),
   salary: zod.object({
     price: schemaHelper.nullableInput(
-      zod.number({ coerce: true }).min(1, { message: 'Price is required!' }),
+      zod.number({ coerce: true }).min(1, { message: 'Цена обязательна!' }),
       {
         // message for null value
-        message: 'Price is required!',
+        message: 'Цена обязательна!',
       }
     ),
     // Not required
@@ -160,7 +160,7 @@ export function JobNewEditForm({ currentJob }) {
         </Stack>
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Role</Typography>
+          <Typography variant="subtitle2">Роль</Typography>
           <Field.Autocomplete
             name="role"
             autoHighlight
@@ -332,7 +332,7 @@ export function JobNewEditForm({ currentJob }) {
         loading={isSubmitting}
         sx={{ ml: 2 }}
       >
-        {!currentJob ? 'Create job' : 'Save changes'}
+        {!currentJob ? 'Create job' : 'Сохранить изменения'}
       </LoadingButton>
     </Box>
   );

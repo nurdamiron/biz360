@@ -72,7 +72,7 @@ export function PostSearch({ redirectPath, sx }) {
       renderInput={(params) => (
         <TextField
           {...params}
-          placeholder="Search..."
+          placeholder="Поиск..."
           slotProps={{
             input: {
               ...params.InputProps,

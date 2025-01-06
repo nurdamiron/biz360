@@ -180,7 +180,7 @@ export function Searchbar({ data: navItems = [], sx, ...other }) {
         <InputBase
           fullWidth
           autoFocus={open}
-          placeholder="Search..."
+          placeholder="Поиск..."
           value={searchQuery}
           onChange={handleSearch}
           startAdornment={

@@ -203,7 +203,7 @@ export function Toolbar({ sx, editor, fullItem, fullScreen, onToggleFullScreen, 
           }
         />
         <ToolbarItem
-          aria-label="Clear"
+          aria-label="Очистить"
           className={editorClasses.toolbar.clear}
           onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
           icon={

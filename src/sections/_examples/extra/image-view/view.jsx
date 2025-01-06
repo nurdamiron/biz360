@@ -28,7 +28,7 @@ const boxStyles = {
 
 const DEMO_COMPONENTS = [
   {
-    name: 'List',
+    name: 'Список',
     component: (
       <Box sx={boxStyles}>
         {IMAGES.map((img) => (

@@ -36,12 +36,12 @@ export const NewUserSchema = zod.object({
     // message for null value
     message: 'Country is required!',
   }),
-  address: zod.string().min(1, { message: 'Address is required!' }),
-  company: zod.string().min(1, { message: 'Company is required!' }),
-  state: zod.string().min(1, { message: 'State is required!' }),
-  city: zod.string().min(1, { message: 'City is required!' }),
-  role: zod.string().min(1, { message: 'Role is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
+  address: zod.string().min(1, { message: 'Требуется указать адрес!' }),
+  company: zod.string().min(1, { message: 'Вам необходимо указать отдел!' }),
+  state: zod.string().min(1, { message: 'Требуется указать область/регион!' }),
+  city: zod.string().min(1, { message: 'Требуется указать город!' }),
+  role: zod.string().min(1, { message: 'Требуется указать роль!' }),
+  zipCode: zod.string().min(1, { message: 'Требуется указать индекс!' }),
   // Not required
   status: zod.string(),
   isVerified: zod.boolean(),
@@ -158,10 +158,10 @@ export function UserNewEditForm({ currentUser }) {
                 label={
                   <>
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
+                      Заблокирован
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
+                      Применить отключение учетной записи
                     </Typography>
                   </>
                 }
@@ -180,10 +180,10 @@ export function UserNewEditForm({ currentUser }) {
               label={
                 <>
                   <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Email verified
+                    Адрес электронной почты подтвержден
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Disabling this will automatically send the user a verification email
+                  При отключении этой функции пользователю будет автоматически отправлено электронное письмо с подтверждением
                   </Typography>
                 </>
               }
@@ -193,7 +193,7 @@ export function UserNewEditForm({ currentUser }) {
             {currentUser && (
               <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
                 <Button variant="soft" color="error">
-                  Delete user
+                Удалить пользователя
                 </Button>
               </Stack>
             )}
@@ -214,7 +214,7 @@ export function UserNewEditForm({ currentUser }) {
               <Field.Text name="email" label="Email address" />
               <Field.Phone
                 name="phoneNumber"
-                label="Phone number"
+                label="Номер телефона"
                 country={!currentUser ? 'DE' : undefined}
               />
 
@@ -225,17 +225,17 @@ export function UserNewEditForm({ currentUser }) {
                 placeholder="Choose a country"
               />
 
-              <Field.Text name="state" label="State/region" />
-              <Field.Text name="city" label="City" />
-              <Field.Text name="address" label="Address" />
-              <Field.Text name="zipCode" label="Zip/code" />
-              <Field.Text name="company" label="Company" />
-              <Field.Text name="role" label="Role" />
+              <Field.Text name="state" label="Область/Регион" />
+              <Field.Text name="city" label="Город" />
+              <Field.Text name="address" label="Адрес" />
+              <Field.Text name="zipCode" label="Индекс" />
+              <Field.Text name="company" label="Отдел" />
+              <Field.Text name="role" label="Роль" />
             </Box>
 
             <Stack sx={{ mt: 3, alignItems: 'flex-end' }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Create user' : 'Save changes'}
+                {!currentUser ? 'Создать пользователя' : 'Сохранить изменения'}
               </LoadingButton>
             </Stack>
           </Card>

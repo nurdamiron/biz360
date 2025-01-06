@@ -192,7 +192,7 @@ export function FieldsDemo({ debug, onCloseDebug }) {
   const renderPhoneAndOtp = () => (
     <>
       <FieldContainer label="RHFPhone">
-        <Field.Phone name="phoneNumber" label="Phone number" country="US" />
+        <Field.Phone name="phoneNumber" label="Номер телефона" country="US" />
       </FieldContainer>
 
       <FieldContainer label="RHFCode">

@@ -32,7 +32,7 @@ export function MailHeader({ onOpenNav, onOpenMail, sx, ...other }) {
       <TextField
         fullWidth
         size="small"
-        placeholder="Search..."
+        placeholder="Поиск..."
         slotProps={{
           input: {
             startAdornment: (

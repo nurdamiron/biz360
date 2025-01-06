@@ -6,7 +6,7 @@ import { ListView } from 'src/sections/_examples/mui/list-view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `List | MUI - ${CONFIG.appName}` };
+const metadata = { title: `Список | ${CONFIG.appName}` };
 
 export default function Page() {
   return (

@@ -34,8 +34,8 @@ export function OverviewAppView() {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 8 }}>
           <AppWelcome
-            title={`Добро пожаловать👋 \n ${user?.displayName}`}
-            description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
+            title={`Добро пожаловать в BIZ360👋 \n ${user?.displayName}`}
+            description=""
             img={<SeoIllustration hideBackground />}
             action={
               <Button variant="contained" color="primary">
