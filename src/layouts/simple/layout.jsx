@@ -41,7 +41,7 @@ export function SimpleLayout({ sx, cssVars, children, slotProps, layoutQuery = '
           </Link>
 
           {/** @slot Settings button */}
-          <SettingsButton />
+          {/* <SettingsButton /> */}
         </Box>
       ),
     };
