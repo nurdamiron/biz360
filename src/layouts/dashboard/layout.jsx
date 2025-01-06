@@ -120,7 +120,7 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
           <ContactsPopover data={_contacts} />
 
           {/** @slot Settings button */}
-          <SettingsButton />
+          {/* <SettingsButton /> */}
 
           {/** @slot Account drawer */}
           <AccountDrawer data={_account} />

@@ -41,15 +41,15 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
       leftArea: (
         <>
           {/** @slot Nav mobile */}
-          <MenuButton
+          {/* <MenuButton
             onClick={onOpen}
             sx={(theme) => ({
               mr: 1,
               ml: -1,
               [theme.breakpoints.up(layoutQuery)]: { display: 'none' },
             })}
-          />
-          <NavMobile data={navData} open={open} onClose={onClose} />
+          /> */}
+          {/* <NavMobile data={navData} open={open} onClose={onClose} /> */}
 
           {/** @slot Logo */}
           <Logo />
