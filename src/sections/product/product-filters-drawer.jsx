@@ -89,7 +89,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
         }}
       >
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Filters
+          Фильтры
         </Typography>
 
         <Tooltip title="Reset">
@@ -133,7 +133,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
   const renderCategory = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Category
+        Категория
       </Typography>
       {options.categories.map((option) => (
         <FormControlLabel
@@ -155,7 +155,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
   const renderColor = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Color
+        Цвет
       </Typography>
 
       <ColorPicker
@@ -169,7 +169,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
 
   const renderPrice = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="subtitle2">Price</Typography>
+      <Typography variant="subtitle2">Цена</Typography>
 
       <Box sx={{ my: 2, gap: 5, display: 'flex' }}>
         <InputRange type="min" value={currentFilters.priceRange} onChange={updateFilters} />
@@ -193,7 +193,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
   const renderRating = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 2 }}>
-        Rating
+        Рейтинг
       </Typography>
 
       {options.ratings.map((item, index) => (
@@ -214,7 +214,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
             ...(currentFilters.rating === item && { bgcolor: 'action.selected' }),
           }}
         >
-          <Rating readOnly value={4 - index} /> & Up
+          <Rating readOnly value={4 - index} /> & Выше
         </Box>
       ))}
     </Box>
@@ -232,7 +232,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
         }
         onClick={onOpen}
       >
-        Filters
+        Фильтры
       </Button>
 
       <Drawer

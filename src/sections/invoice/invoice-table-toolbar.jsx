@@ -70,17 +70,17 @@ export function InvoiceTableToolbar({ filters, options, dateError, onResetPage }
       <MenuList>
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
+          Печать
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:import-bold" />
-          Import
+          Импорт
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:export-bold" />
-          Export
+          Экспорт
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -99,7 +99,7 @@ export function InvoiceTableToolbar({ filters, options, dateError, onResetPage }
         }}
       >
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 180 } }}>
-          <InputLabel htmlFor="filter-service-select">Service</InputLabel>
+          <InputLabel htmlFor="filter-service-select">Услуга</InputLabel>
 
           <Select
             multiple
@@ -128,7 +128,7 @@ export function InvoiceTableToolbar({ filters, options, dateError, onResetPage }
         </FormControl>
 
         <DatePicker
-          label="Start date"
+          label="Дата начала"
           value={currentFilters.endDate}
           onChange={handleFilterStartDate}
           slotProps={{ textField: { fullWidth: true } }}
@@ -136,14 +136,14 @@ export function InvoiceTableToolbar({ filters, options, dateError, onResetPage }
         />
 
         <DatePicker
-          label="End date"
+          label="Дата окончания"
           value={currentFilters.endDate}
           onChange={handleFilterEndDate}
           slotProps={{
             textField: {
               fullWidth: true,
               error: dateError,
-              helperText: dateError ? 'End date must be later than start date' : null,
+              helperText: dateError ? 'Дата окончания должна быть позже даты начала' : null,
             },
           }}
           sx={{
@@ -168,7 +168,7 @@ export function InvoiceTableToolbar({ filters, options, dateError, onResetPage }
             fullWidth
             value={currentFilters.name}
             onChange={handleFilterName}
-            placeholder="Search customer or invoice number..."
+            placeholder="Найдите номер клиента или счета-фактуры..."
             slotProps={{
               input: {
                 startAdornment: (

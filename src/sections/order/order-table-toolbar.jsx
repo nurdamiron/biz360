@@ -54,17 +54,17 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
       <MenuList>
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
+          Печать
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:import-bold" />
-          Import
+          Импорт
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:export-bold" />
-          Export
+          Экспорт
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -83,7 +83,7 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
         }}
       >
         <DatePicker
-          label="Start date"
+          label="Дата начала"
           value={currentFilters.startDate}
           onChange={handleFilterStartDate}
           slotProps={{ textField: { fullWidth: true } }}
@@ -91,14 +91,14 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
         />
 
         <DatePicker
-          label="End date"
+          label="Дата окончания"
           value={currentFilters.endDate}
           onChange={handleFilterEndDate}
           slotProps={{
             textField: {
               fullWidth: true,
               error: dateError,
-              helperText: dateError ? 'End date must be later than start date' : null,
+              helperText: dateError ? 'Дата окончания должна быть позже даты начала' : null,
             },
           }}
           sx={{
@@ -123,7 +123,7 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
             fullWidth
             value={currentFilters.name}
             onChange={handleFilterName}
-            placeholder="Search customer or order number..."
+            placeholder="Найдите клиента или номер заказа..."
             slotProps={{
               input: {
                 startAdornment: (

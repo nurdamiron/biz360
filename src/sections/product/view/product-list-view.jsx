@@ -44,8 +44,8 @@ import {
 // ----------------------------------------------------------------------
 
 const PUBLISH_OPTIONS = [
-  { value: 'published', label: 'Published' },
-  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'В наличии' },
+  { value: 'draft', label: 'Нету в наличии' },
 ];
 
 const HIDE_COLUMNS = { category: false };
@@ -119,7 +119,7 @@ export function ProductListView() {
     { field: 'category', headerName: 'Category', filterable: false },
     {
       field: 'name',
-      headerName: 'Product',
+      headerName: 'Название',
       flex: 1,
       minWidth: 360,
       hideable: false,
@@ -129,13 +129,13 @@ export function ProductListView() {
     },
     {
       field: 'createdAt',
-      headerName: 'Create at',
+      headerName: 'Создан',
       width: 160,
       renderCell: (params) => <RenderCellCreatedAt params={params} />,
     },
     {
       field: 'inventoryType',
-      headerName: 'Stock',
+      headerName: 'Наличие',
       width: 160,
       type: 'singleSelect',
       valueOptions: PRODUCT_STOCK_OPTIONS,
@@ -143,14 +143,14 @@ export function ProductListView() {
     },
     {
       field: 'price',
-      headerName: 'Price',
+      headerName: 'Стоимость',
       width: 140,
       editable: true,
       renderCell: (params) => <RenderCellPrice params={params} />,
     },
     {
       field: 'publish',
-      headerName: 'Publish',
+      headerName: 'Статус',
       width: 110,
       type: 'singleSelect',
       editable: true,
@@ -171,19 +171,19 @@ export function ProductListView() {
         <GridActionsLinkItem
           showInMenu
           icon={<Iconify icon="solar:eye-bold" />}
-          label="View"
+          label="Посмотреть"
           href={paths.dashboard.product.details(params.row.id)}
         />,
         <GridActionsLinkItem
           showInMenu
           icon={<Iconify icon="solar:pen-bold" />}
-          label="Edit"
+          label="Изменить"
           href={paths.dashboard.product.edit(params.row.id)}
         />,
         <GridActionsCellItem
           showInMenu
           icon={<Iconify icon="solar:trash-bin-trash-bold" />}
-          label="Delete"
+          label="Удалить"
           onClick={() => handleDeleteRow(params.row.id)}
           sx={{ color: 'error.main' }}
         />,
@@ -200,10 +200,10 @@ export function ProductListView() {
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
+      title="Удалить"
       content={
         <>
-          Are you sure want to delete <strong> {selectedRowIds.length} </strong> items?
+          Вы уверены, что хотите удалить <strong> {selectedRowIds.length} </strong> предметы?
         </>
       }
       action={
@@ -215,7 +215,7 @@ export function ProductListView() {
             confirmDialog.onFalse();
           }}
         >
-          Delete
+          Удалить
         </Button>
       }
     />
@@ -225,11 +225,11 @@ export function ProductListView() {
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Список"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Product', href: paths.dashboard.product.root },
-            { name: 'List' },
+            { name: 'Дэшборд', href: paths.dashboard.root },
+            { name: 'Продукты', href: paths.dashboard.product.root },
+            { name: 'Список' },
           ]}
           action={
             <Button
@@ -238,7 +238,7 @@ export function ProductListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New product
+              Новый продукт
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
@@ -321,7 +321,7 @@ function CustomToolbar({
               startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
               onClick={onOpenConfirmDeleteRows}
             >
-              Delete ({selectedRowIds.length})
+              Удалить ({selectedRowIds.length})
             </Button>
           )}
 

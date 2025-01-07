@@ -45,21 +45,21 @@ export const PRODUCT_SIZE_OPTIONS = [
 ];
 
 export const PRODUCT_STOCK_OPTIONS = [
-  { value: 'in stock', label: 'In stock' },
-  { value: 'low stock', label: 'Low stock' },
-  { value: 'out of stock', label: 'Out of stock' },
+  { value: 'in stock', label: 'В наличии' },
+  { value: 'low stock', label: 'Мало' },
+  { value: 'out of stock', label: 'Нет в наличии' },
 ];
 
 export const PRODUCT_PUBLISH_OPTIONS = [
-  { value: 'published', label: 'Published' },
-  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'В наличии' },
+  { value: 'draft', label: 'Нету в наличии' },
 ];
 
 export const PRODUCT_SORT_OPTIONS = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'newest', label: 'Newest' },
-  { value: 'priceDesc', label: 'Price: High - Low' },
-  { value: 'priceAsc', label: 'Price: Low - High' },
+  { value: 'featured', label: 'Рекомендуемые' },
+  { value: 'newest', label: 'Новый' },
+  { value: 'priceDesc', label: 'Цена: Высокая - низкая' },
+  { value: 'priceAsc', label: 'Цена: Низкая - Высокая' },
 ];
 
 export const PRODUCT_CATEGORY_GROUP_OPTIONS = [

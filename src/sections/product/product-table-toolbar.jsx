@@ -57,17 +57,17 @@ export function ProductTableToolbar({ filters, options }) {
       <MenuList>
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
+          Печать
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:import-bold" />
-          Import
+          Импорт
         </MenuItem>
 
         <MenuItem onClick={() => menuActions.onClose()}>
           <Iconify icon="solar:export-bold" />
-          Export
+          Экспорт
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -76,14 +76,14 @@ export function ProductTableToolbar({ filters, options }) {
   return (
     <>
       <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-        <InputLabel htmlFor="filter-stock-select">Stock</InputLabel>
+        <InputLabel htmlFor="filter-stock-select">Склад</InputLabel>
 
         <Select
           multiple
           value={stock}
           onChange={handleChangeStock}
           onClose={handleFilterStock}
-          input={<OutlinedInput label="Stock" />}
+          input={<OutlinedInput label="Склад" />}
           renderValue={(selected) => selected.map((value) => value).join(', ')}
           inputProps={{ id: 'filter-stock-select' }}
           sx={{ textTransform: 'capitalize' }}
@@ -105,13 +105,13 @@ export function ProductTableToolbar({ filters, options }) {
               }),
             ]}
           >
-            Apply
+            Применять
           </MenuItem>
         </Select>
       </FormControl>
 
       <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-        <InputLabel htmlFor="filter-publish-select">Publish</InputLabel>
+        <InputLabel htmlFor="filter-publish-select">Публиковать</InputLabel>
         <Select
           multiple
           value={publish}
@@ -142,7 +142,7 @@ export function ProductTableToolbar({ filters, options }) {
               }),
             ]}
           >
-            Apply
+            Применять
           </MenuItem>
         </Select>
       </FormControl>

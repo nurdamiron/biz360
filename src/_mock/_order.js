@@ -3,10 +3,10 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const ORDER_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'refunded', label: 'Refunded' },
+  { value: 'pending', label: 'В работе' },
+  { value: 'completed', label: 'Завершено' },
+  { value: 'cancelled', label: 'Отменено' },
+  { value: 'refunded', label: 'Возвраты' },
 ];
 
 const ITEMS = Array.from({ length: 3 }, (_, index) => ({
@@ -49,11 +49,11 @@ export const _orders = Array.from({ length: 20 }, (_, index) => {
     deliveryTime: _mock.time(3),
     completionTime: _mock.time(4),
     timeline: [
-      { title: 'Delivery successful', time: _mock.time(1) },
-      { title: 'Transporting to [2]', time: _mock.time(2) },
-      { title: 'Transporting to [1]', time: _mock.time(3) },
-      { title: 'The shipping unit has picked up the goods', time: _mock.time(4) },
-      { title: 'Order has been created', time: _mock.time(5) },
+      { title: 'Доставка прошла успешно', time: _mock.time(1) },
+      { title: 'Транспортировка в [2]', time: _mock.time(2) },
+      { title: 'Транспортировка в [1]', time: _mock.time(3) },
+      { title: 'Отдел доставки забрал товар', time: _mock.time(4) },
+      { title: 'Заказ был создан', time: _mock.time(5) },
     ],
   };
 
@@ -72,8 +72,8 @@ export const _orders = Array.from({ length: 20 }, (_, index) => {
     totalAmount,
     totalQuantity,
     shippingAddress: {
-      fullAddress: '19034 Verna Unions Apt. 164 - Honolulu, RI / 87535',
-      phoneNumber: '365-374-4961',
+      fullAddress: 'г. Алматы, Ауезова 163А',
+      phoneNumber: '+7 747 300 1087',
     },
     payment: { cardType: 'mastercard', cardNumber: '**** **** **** 5678' },
     status:

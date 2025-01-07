@@ -9,14 +9,14 @@ export const TOUR_DETAILS_TABS = [
 ];
 
 export const TOUR_SORT_OPTIONS = [
-  { label: 'Latest', value: 'latest' },
-  { label: 'Popular', value: 'popular' },
-  { label: 'Oldest', value: 'oldest' },
+  { label: 'Самый последний', value: 'latest' },
+  { label: 'Популярный', value: 'popular' },
+  { label: 'Старейший', value: 'oldest' },
 ];
 
 export const TOUR_PUBLISH_OPTIONS = [
-  { label: 'Published', value: 'published' },
-  { label: 'Draft', value: 'draft' },
+  { label: 'Опубликованный', value: 'published' },
+  { label: 'Черновик', value: 'draft' },
 ];
 
 export const TOUR_SERVICE_OPTIONS = [

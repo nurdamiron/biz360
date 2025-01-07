@@ -80,7 +80,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
         }}
       >
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Filters
+        Фильтры
         </Typography>
 
         <Tooltip title="Reset">
@@ -144,7 +144,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
   const renderRoles = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        Roles
+        Роли
       </Typography>
       <Autocomplete
         multiple

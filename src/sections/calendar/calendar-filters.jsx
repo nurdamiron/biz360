@@ -65,7 +65,7 @@ export function CalendarFilters({
         }}
       >
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          Filters
+          Фильтры
         </Typography>
 
         <Tooltip title="Reset">
@@ -95,7 +95,7 @@ export function CalendarFilters({
       }}
     >
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Colors
+        Цветы
       </Typography>
       <ColorPicker
         options={colorOptions}
@@ -115,24 +115,24 @@ export function CalendarFilters({
       }}
     >
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        Range
+        Диапазон
       </Typography>
 
       <DatePicker
-        label="Start date"
+        label="Дата начала"
         value={currentFilters.startDate}
         onChange={handleFilterStartDate}
         sx={{ mb: 2.5 }}
       />
 
       <DatePicker
-        label="End date"
+        label="Дата окончания"
         value={currentFilters.endDate}
         onChange={handleFilterEndDate}
         slotProps={{
           textField: {
             error: dateError,
-            helperText: dateError ? 'End date must be later than start date' : null,
+            helperText: dateError ? 'Дата окончания должна быть позже даты начала' : null,
           },
         }}
       />
@@ -142,7 +142,7 @@ export function CalendarFilters({
   const renderEvents = () => (
     <>
       <Typography variant="subtitle2" sx={{ px: 2.5, mb: 1 }}>
-        Events ({events.length})
+        События ({events.length})
       </Typography>
 
       <Box component="ul">
