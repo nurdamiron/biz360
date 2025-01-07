@@ -4,7 +4,6 @@ import { _mock } from './_mock';
 import { _tags } from './assets';
 import { _addressBooks } from './_others';
 
-// ----------------------------------------------------------------------
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: 'paid', label: 'Paid' },

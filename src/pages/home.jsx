@@ -5,9 +5,9 @@ import { HomeView } from 'src/sections/home/view';
 // ----------------------------------------------------------------------
 
 const metadata = {
-  title: 'Minimals UI: The starting point for your next project',
+  title: 'BIZ360: Современная платформа бизнес-аналитики',
   description:
-    'The starting point for your next project with Minimal UI Kit, built on the newest version of Material-UI ©, ready to be customized to your style',
+    'Эффективный инструмент для анализа и оптимизации бизнес-процессов, построенный на передовых технологиях визуализации данных и искусственного интеллекта',
 };
 
 export default function Page() {

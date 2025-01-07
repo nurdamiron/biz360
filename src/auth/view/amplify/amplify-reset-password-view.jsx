@@ -21,8 +21,8 @@ import { FormReturnLink } from '../../components/form-return-link';
 export const ResetPasswordSchema = zod.object({
   email: zod
     .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    .min(1, { message: 'Требуется электронная почта!' })
+    .email({ message: 'Адрес электронной почты должен быть действительным!' }),
 });
 
 // ----------------------------------------------------------------------
@@ -66,7 +66,7 @@ export function AmplifyResetPasswordView() {
       <Field.Text
         autoFocus
         name="email"
-        label="Email address"
+        label="Электронная почта"
         placeholder="example@gmail.com"
         slotProps={{ inputLabel: { shrink: true } }}
       />
@@ -77,9 +77,9 @@ export function AmplifyResetPasswordView() {
         type="submit"
         variant="contained"
         loading={isSubmitting}
-        loadingIndicator="Send request..."
+        loadingIndicator="Отправляем запрос..."
       >
-        Send request
+        Отправить запрос
       </LoadingButton>
     </Box>
   );
@@ -88,8 +88,8 @@ export function AmplifyResetPasswordView() {
     <>
       <FormHead
         icon={<PasswordIcon />}
-        title="Forgot your password?"
-        description={`Please enter the email address associated with your account and we'll email you a link to reset your password.`}
+        title="Забыли свой пароль?"
+        description="Пожалуйста, введите адрес электронной почты, связанный с вашей учетной записью, и мы вышлем вам по электронной почте ссылку для сброса вашего пароля."
       />
 
       <Form methods={methods} onSubmit={onSubmit}>

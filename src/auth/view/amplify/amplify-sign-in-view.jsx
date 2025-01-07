@@ -28,12 +28,12 @@ import { signInWithPassword } from '../../context/amplify';
 export const SignInSchema = zod.object({
   email: zod
     .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    .min(1, { message: 'Требуется электронная почта!' })
+    .email({ message: 'Адрес электронной почты должен быть действительным!' }),
   password: zod
     .string()
-    .min(1, { message: 'Password is required!' })
-    .min(6, { message: 'Password must be at least 6 characters!' }),
+    .min(1, { message: 'Требуется пароль!' })
+    .min(6, { message: 'Пароль должен содержать не менее 6 символов!' }),
 });
 
 // ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ export function AmplifySignInView() {
 
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Field.Text name="email" label="Email address" slotProps={{ inputLabel: { shrink: true } }} />
+      <Field.Text name="email" label="'Эл. почта" slotProps={{ inputLabel: { shrink: true } }} />
 
       <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
         <Link
@@ -87,7 +87,7 @@ export function AmplifySignInView() {
           color="inherit"
           sx={{ alignSelf: 'flex-end' }}
         >
-          Forgot password?
+          Забыли пароль?
         </Link>
 
         <Field.Text
@@ -121,7 +121,7 @@ export function AmplifySignInView() {
         loading={isSubmitting}
         loadingIndicator="Sign in..."
       >
-        Sign in
+        Войти
       </LoadingButton>
     </Box>
   );
