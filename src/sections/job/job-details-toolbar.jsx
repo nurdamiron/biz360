@@ -69,14 +69,14 @@ export function JobDetailsToolbar({
         <Box sx={{ flexGrow: 1 }} />
 
         {publish === 'published' && (
-          <Tooltip title="Go Live">
+          <Tooltip title="Посмотреть">
             <IconButton component={RouterLink} href={liveHref}>
               <Iconify icon="eva:external-link-fill" />
             </IconButton>
           </Tooltip>
         )}
 
-        <Tooltip title="Edit">
+        <Tooltip title="Изменить">
           <IconButton component={RouterLink} href={editHref}>
             <Iconify icon="solar:pen-bold" />
           </IconButton>
@@ -86,7 +86,7 @@ export function JobDetailsToolbar({
           color="inherit"
           variant="contained"
           loading={!publish}
-          loadingIndicator="Loading…"
+          loadingIndicator="Загрузка..."
           endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
           onClick={menuActions.onOpen}
           sx={{ textTransform: 'capitalize' }}

@@ -35,14 +35,14 @@ export function JobItem({ job, editHref, detailsHref, onDelete, sx, ...other }) 
         <li>
           <MenuItem component={RouterLink} href={detailsHref} onClick={() => menuActions.onClose()}>
             <Iconify icon="solar:eye-bold" />
-            View
+            Посмотреть
           </MenuItem>
         </li>
 
         <li>
           <MenuItem component={RouterLink} href={editHref} onClick={() => menuActions.onClose()}>
             <Iconify icon="solar:pen-bold" />
-            Edit
+            Изменить
           </MenuItem>
         </li>
 
@@ -54,7 +54,7 @@ export function JobItem({ job, editHref, detailsHref, onDelete, sx, ...other }) 
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Удалить
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -101,7 +101,7 @@ export function JobItem({ job, editHref, detailsHref, onDelete, sx, ...other }) 
             }}
           >
             <Iconify width={16} icon="solar:users-group-rounded-bold" />
-            {job.candidates.length} candidates
+            {job.candidates.length} кандидатов
           </Box>
         </Box>
 

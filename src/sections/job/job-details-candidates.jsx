@@ -91,7 +91,7 @@ export function JobDetailsCandidates({ candidates, sx, ...other }) {
                   <Iconify width={18} icon="fluent:mail-24-filled" />
                 </IconButton>
 
-                <Tooltip title="Download CV">
+                <Tooltip title="Скачать резюме">
                   <IconButton
                     size="small"
                     color="secondary"

@@ -42,10 +42,10 @@ export const NewJobSchema = zod.object({
     // message for null value
     message: 'Требуется роль!',
   }),
-  skills: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  workingSchedule: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  locations: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  expiredDate: schemaHelper.date({ message: { required: 'Expired date is required!' } }),
+  skills: zod.string().array().min(1, { message: 'Выберите хотя бы один вариант!' }),
+  workingSchedule: zod.string().array().min(1, { message: 'Выберите хотя бы один вариант!!' }),
+  locations: zod.string().array().min(1, { message: 'Выберите хотя бы один вариант!' }),
+  expiredDate: schemaHelper.date({ message: { required: 'Требуется срок годности!' } }),
   salary: zod.object({
     price: schemaHelper.nullableInput(
       zod.number({ coerce: true }).min(1, { message: 'Цена обязательна!' }),
@@ -58,7 +58,7 @@ export const NewJobSchema = zod.object({
     type: zod.string(),
     negotiable: zod.boolean(),
   }),
-  benefits: zod.string().array().min(0, { message: 'Choose at least one option!' }),
+  benefits: zod.string().array().min(0, { message: 'Выберите хотя бы один вариант!' }),
   // Not required
   experience: zod.string(),
 });
@@ -110,18 +110,18 @@ export function JobNewEditForm({ currentJob }) {
 
   const renderDetails = () => (
     <Card>
-      <CardHeader title="Details" subheader="Title, short description, image..." sx={{ mb: 3 }} />
+      <CardHeader title="Details" subheader="Название, краткое описание, изображение..." sx={{ mb: 3 }} />
 
       <Divider />
 
       <Stack spacing={3} sx={{ p: 3 }}>
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Title</Typography>
+          <Typography variant="subtitle2">Заглавие</Typography>
           <Field.Text name="title" placeholder="Ex: Software Engineer..." />
         </Stack>
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Content</Typography>
+          <Typography variant="subtitle2">Содержание</Typography>
           <Field.Editor name="content" sx={{ maxHeight: 480 }} />
         </Stack>
       </Stack>
@@ -131,8 +131,8 @@ export function JobNewEditForm({ currentJob }) {
   const renderProperties = () => (
     <Card>
       <CardHeader
-        title="Properties"
-        subheader="Additional functions and attributes..."
+        title="Свойства"
+        subheader="Дополнительные функции и атрибуты..."
         sx={{ mb: 3 }}
       />
 
@@ -140,7 +140,7 @@ export function JobNewEditForm({ currentJob }) {
 
       <Stack spacing={3} sx={{ p: 3 }}>
         <Stack spacing={1}>
-          <Typography variant="subtitle2">Employment type</Typography>
+          <Typography variant="subtitle2">Тип занятости</Typography>
           <Field.MultiCheckbox
             row
             name="employmentTypes"
@@ -150,7 +150,7 @@ export function JobNewEditForm({ currentJob }) {
         </Stack>
 
         <Stack spacing={1}>
-          <Typography variant="subtitle2">Experience</Typography>
+          <Typography variant="subtitle2">Опыт</Typography>
           <Field.RadioGroup
             row
             name="experience"
@@ -175,10 +175,10 @@ export function JobNewEditForm({ currentJob }) {
         </Stack>
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Skills</Typography>
+          <Typography variant="subtitle2">Навыки</Typography>
           <Field.Autocomplete
             name="skills"
-            placeholder="+ Skills"
+            placeholder="+ Навыки"
             multiple
             disableCloseOnSelect
             options={JOB_SKILL_OPTIONS.map((option) => option)}
@@ -204,10 +204,10 @@ export function JobNewEditForm({ currentJob }) {
         </Stack>
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Working schedule</Typography>
+          <Typography variant="subtitle2">График работы</Typography>
           <Field.Autocomplete
             name="workingSchedule"
-            placeholder="+ Schedule"
+            placeholder="+ График работы"
             multiple
             disableCloseOnSelect
             options={JOB_WORKING_SCHEDULE_OPTIONS.map((option) => option)}
@@ -233,18 +233,18 @@ export function JobNewEditForm({ currentJob }) {
         </Stack>
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Locations</Typography>
-          <Field.CountrySelect multiple name="locations" placeholder="+ Locations" />
+          <Typography variant="subtitle2">Места</Typography>
+          <Field.CountrySelect multiple name="locations" placeholder="+ Места" />
         </Stack>
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Expired</Typography>
+          <Typography variant="subtitle2">Истекший</Typography>
 
           <Field.DatePicker name="expiredDate" />
         </Stack>
 
         <Stack spacing={2}>
-          <Typography variant="subtitle2">Salary</Typography>
+          <Typography variant="subtitle2">Зарплата</Typography>
 
           <Controller
             name="salary.type"
@@ -253,11 +253,11 @@ export function JobNewEditForm({ currentJob }) {
               <Box sx={{ gap: 2, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
                 {[
                   {
-                    label: 'Hourly',
+                    label: 'Почасовой',
                     icon: <Iconify icon="solar:clock-circle-bold" width={32} sx={{ mb: 2 }} />,
                   },
                   {
-                    label: 'Custom',
+                    label: 'Индивидуально',
                     icon: <Iconify icon="solar:wad-of-money-bold" width={32} sx={{ mb: 2 }} />,
                   },
                 ].map((item) => (
@@ -302,11 +302,11 @@ export function JobNewEditForm({ currentJob }) {
             }}
           />
 
-          <Field.Switch name="salary.negotiable" label="Salary is negotiable" />
+          <Field.Switch name="salary.negotiable" label="ЗП обсуждаемо" />
         </Stack>
 
         <Stack spacing={1}>
-          <Typography variant="subtitle2">Benefits</Typography>
+          <Typography variant="subtitle2">Преимущества</Typography>
           <Field.MultiCheckbox
             name="benefits"
             options={JOB_BENEFIT_OPTIONS}

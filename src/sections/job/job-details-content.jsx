@@ -31,7 +31,7 @@ export function JobDetailsContent({ job, sx, ...other }) {
       <Markdown children={job?.content} />
 
       <Stack spacing={2}>
-        <Typography variant="h6">Skills</Typography>
+        <Typography variant="h6">Навыки</Typography>
         <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           {job?.skills.map((skill) => (
             <Chip key={skill} label={skill} variant="soft" />
@@ -40,7 +40,7 @@ export function JobDetailsContent({ job, sx, ...other }) {
       </Stack>
 
       <Stack spacing={2}>
-        <Typography variant="h6">Benefits</Typography>
+        <Typography variant="h6">Преимущества</Typography>
         <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           {job?.benefits.map((benefit) => (
             <Chip key={benefit} label={benefit} variant="soft" />
@@ -61,30 +61,30 @@ export function JobDetailsContent({ job, sx, ...other }) {
     >
       {[
         {
-          label: 'Date posted',
+          label: 'Дата публикации',
           value: fDate(job?.createdAt),
           icon: <Iconify icon="solar:calendar-date-bold" />,
         },
         {
-          label: 'Expiration date',
+          label: 'Срок действия',
           value: fDate(job?.expiredDate),
           icon: <Iconify icon="solar:calendar-date-bold" />,
         },
         {
-          label: 'Employment type',
+          label: 'Тип занятости',
           value: job?.employmentTypes,
           icon: <Iconify icon="solar:clock-circle-bold" />,
         },
         {
-          label: 'Offered salary',
-          value: job?.salary.negotiable ? 'Negotiable' : fCurrency(job?.salary.price),
+          label: 'Предлагаемая зарплата',
+          value: job?.salary.negotiable ? 'Договорная' : fCurrency(job?.salary.price),
           icon: <Iconify icon="solar:wad-of-money-bold" />,
         },
         {
-          label: 'Experience',
+          label: 'Опыт работы',
           value: job?.experience,
           icon: <Iconify icon="carbon:skill-level-basic" />,
-        },
+        }
       ].map((item) => (
         <Box key={item.label} sx={{ gap: 1.5, display: 'flex' }}>
           {item.icon}

@@ -107,17 +107,17 @@ export const navData = [
           { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
         ],
       },
-      // {
-      //   title: 'Job',
-      //   path: paths.dashboard.job.root,
-      //   icon: ICONS.job,
-      //   children: [
-      //     { title: 'List', path: paths.dashboard.job.root },
-      //     { title: 'Details', path: paths.dashboard.job.demo.details },
-      //     { title: 'Create', path: paths.dashboard.job.new },
-      //     { title: 'Edit', path: paths.dashboard.job.demo.edit },
-      //   ],
-      // },
+      {
+        title: 'Job',
+        path: paths.dashboard.job.root,
+        icon: ICONS.job,
+        // children: [
+        //   { title: 'List', path: paths.dashboard.job.root },
+        //   { title: 'Details', path: paths.dashboard.job.demo.details },
+        //   { title: 'Create', path: paths.dashboard.job.new },
+        //   { title: 'Edit', path: paths.dashboard.job.demo.edit },
+        // ],
+      },
       // {
       //   title: 'Tour',
       //   path: paths.dashboard.tour.root,

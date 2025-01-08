@@ -47,7 +47,7 @@ export function JobFiltersResult({ filters, totalResults, sx }) {
 
   return (
     <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
-      <FiltersBlock label="Employment types:" isShow={!!currentFilters.employmentTypes.length}>
+      <FiltersBlock label="Типы занятости:" isShow={!!currentFilters.employmentTypes.length}>
         {currentFilters.employmentTypes.map((item) => (
           <Chip
             {...chipProps}
@@ -58,17 +58,17 @@ export function JobFiltersResult({ filters, totalResults, sx }) {
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Experience:" isShow={currentFilters.experience !== 'all'}>
+      <FiltersBlock label="Опыт:" isShow={currentFilters.experience !== 'all'}>
         <Chip {...chipProps} label={currentFilters.experience} onDelete={handleRemoveExperience} />
       </FiltersBlock>
 
-      <FiltersBlock label="Roles:" isShow={!!currentFilters.roles.length}>
+      <FiltersBlock label="Позиции:" isShow={!!currentFilters.roles.length}>
         {currentFilters.roles.map((item) => (
           <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveRoles(item)} />
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Locations:" isShow={!!currentFilters.locations.length}>
+      <FiltersBlock label="Местонахождение:" isShow={!!currentFilters.locations.length}>
         {currentFilters.locations.map((item) => (
           <Chip
             {...chipProps}
@@ -79,7 +79,7 @@ export function JobFiltersResult({ filters, totalResults, sx }) {
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Benefits:" isShow={!!currentFilters.benefits.length}>
+      <FiltersBlock label="Преимущества:" isShow={!!currentFilters.benefits.length}>
         {currentFilters.benefits.map((item) => (
           <Chip
             {...chipProps}

@@ -14,9 +14,9 @@ export function JobCreateView() {
       <CustomBreadcrumbs
         heading="Create a new job"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Job', href: paths.dashboard.job.root },
-          { name: 'New job' },
+          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Вакансии', href: paths.dashboard.job.root },
+          { name: 'Новая вакансия' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

@@ -3,72 +3,76 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const JOB_DETAILS_TABS = [
-  { label: 'Job content', value: 'content' },
-  { label: 'Candidates', value: 'candidates' },
+  { label: 'Содержание', value: 'content' },
+  { label: 'Кандидаты', value: 'candidates' },
 ];
 
 export const JOB_SKILL_OPTIONS = [
-  'UI',
-  'UX',
-  'Html',
-  'JavaScript',
-  'TypeScript',
-  'Communication',
-  'Problem Solving',
-  'Leadership',
-  'Time Management',
-  'Adaptability',
-  'Collaboration',
-  'Creativity',
-  'Critical Thinking',
-  'Technical Skills',
-  'Customer Service',
-  'Project Management',
-  'Problem Diagnosis',
+  'Управление проектами',
+  'Диагностика проблем',
+  'Бизнес-анализ',
+  'Техники продаж',
+  'Ведение переговоров',
+  'Исследование рынка',
+  'Подготовка отчетности',
+  'Работа с CRM',
+  'Бюджетирование',
+  'Оценка рисков',
+  'Контроль качества',
+  'Анализ эффективности',
+  'Коммуникабельность',
+  'Решение проблем',
+  'Лидерские качества', 
+  'Управление временем',
+  'Адаптивность',
+  'Командная работа',
+  'Креативность',
+  'Критическое мышление',
+  'Клиентоориентированность',
 ];
 
 export const JOB_WORKING_SCHEDULE_OPTIONS = [
-  'Monday to Friday',
-  'Weekend availability',
-  'Day shift',
+  '5/2',
+  'Выходные дни',
+  'Дневная смена',
 ];
 
 export const JOB_EMPLOYMENT_TYPE_OPTIONS = [
-  { label: 'Full-time', value: 'Full-time' },
-  { label: 'Part-time', value: 'Part-time' },
-  { label: 'On demand', value: 'On demand' },
-  { label: 'Negotiable', value: 'Negotiable' },
+  { label: 'Полный день', value: 'Полный день' },
+  { label: 'Полставки', value: 'Полставки' },
+  { label: 'По требованию', value: 'По требованию' },
+  { label: 'Договорный', value: 'Договорный' },
 ];
 
 export const JOB_EXPERIENCE_OPTIONS = [
-  { label: 'No experience', value: 'No experience' },
-  { label: '1 year exp', value: '1 year exp' },
-  { label: '2 year exp', value: '2 year exp' },
-  { label: '> 3 year exp', value: '> 3 year exp' },
+  { label: 'Без опыта', value: 'No experience' },
+  { label: '1 год', value: '1 year exp' },
+  { label: '2 года', value: '2 year exp' },
+  { label: 'Больше 3 года', value: '> 3 year exp' },
 ];
 
 export const JOB_BENEFIT_OPTIONS = [
-  { label: 'Free parking', value: 'Free parking' },
-  { label: 'Bonus commission', value: 'Bonus commission' },
-  { label: 'Travel', value: 'Travel' },
-  { label: 'Device support', value: 'Device support' },
-  { label: 'Health care', value: 'Health care' },
-  { label: 'Training', value: 'Training' },
-  { label: 'Health insurance', value: 'Health insurance' },
-  { label: 'Retirement plans', value: 'Retirement plans' },
-  { label: 'Paid time off', value: 'Paid time off' },
-  { label: 'Flexible work schedule', value: 'Flexible work schedule' },
+  { label: 'Бесплатная парковка', value: 'Free parking' },
+  { label: 'Бонусы', value: 'Bonus commission' },
+  { label: 'Путешествовать', value: 'Travel' },
+  { label: 'Поддержка устройствами', value: 'Device support' },
+  { label: 'Здравоохранение', value: 'Health care' },
+  { label: 'Обучение', value: 'Training' },
+  { label: 'Медицинское страхование', value: 'Health insurance' },
+  { label: 'Пенсионные планы', value: 'Retirement plans' },
+  { label: 'Оплачиваемый отпуск', value: 'Paid time off' },
+  { label: 'Гибкий график работы', value: 'Flexible work schedule' },
 ];
 
 export const JOB_PUBLISH_OPTIONS = [
-  { label: 'Published', value: 'published' },
-  { label: 'Draft', value: 'draft' },
+  { label: 'Опубликованный', value: 'published' },
+  { label: 'Черновик', value: 'draft' },
 ];
 
 export const JOB_SORT_OPTIONS = [
-  { label: 'Latest', value: 'latest' },
-  { label: 'Popular', value: 'popular' },
-  { label: 'Oldest', value: 'oldest' },
+  { label: 'Последние', value: 'latest' },
+  { label: 'Популярные', value: 'popular' },
+  { label: 'Старые', value: 'oldest' },
 ];
 
 const CANDIDATES = Array.from({ length: 12 }, (_, index) => ({
@@ -81,30 +85,29 @@ const CANDIDATES = Array.from({ length: 12 }, (_, index) => ({
 const CONTENT = `
 <h6>Job description</h6>
 
-<p>Occaecati est et illo quibusdam accusamus qui. Incidunt aut et molestiae ut facere aut. Est quidem iusto praesentium excepturi harum nihil tenetur facilis. Ut omnis voluptates nihil accusantium doloribus eaque debitis.</p>
+<p>Мы ищем энергичного и целеустремленного менеджера по продажам, который станет частью нашей динамично развивающейся команды. Вы будете играть ключевую роль в развитии бизнеса, построении долгосрочных отношений с клиентами и достижении амбициозных целей по продажам.</p>
 
-<h6>Key responsibilities</h6>
+<h6>Ключевые обязанности</h6>
 
 <ul>
-  <li>Working with agency for design drawing detail, quotation and local production.</li>
-  <li>Produce window displays, signs, interior displays, floor plans and special promotions displays.</li>
-  <li>Change displays to promote new product launches and reflect festive or seasonal themes.</li>
-  <li>Planning and executing the open/renovation/ closing store procedure.</li>
-  <li>Follow‐up store maintenance procedure and keep updating SKU In &amp; Out.</li>
-  <li>Monitor costs and work within budget.</li>
-  <li>Liaise with suppliers and source elements.</li>
+  <li>Активный поиск и привлечение новых клиентов, развитие существующей клиентской базы.</li>
+  <li>Проведение презентаций продукта, подготовка коммерческих предложений и ведение переговоров.</li>
+  <li>Выполнение планов продаж и достижение установленных KPI.</li>
+  <li>Ведение клиентской базы в CRM-системе и подготовка отчетности по продажам.</li>
+  <li>Мониторинг рынка и конкурентной среды, предоставление аналитики по своему направлению.</li>
+  <li>Контроль дебиторской задолженности и работа в рамках установленного бюджета.</li>
+  <li>Взаимодействие с отделами компании для обеспечения качественного сервиса клиентам.</li>
 </ul>
 
-<h6>Why You'll love working here</h6>
-
+<h6>Почему вам понравится работать у нас</h6>
 <ul>
-  <li>Working with agency for design drawing detail, quotation and local production.</li>
-  <li>Produce window displays, signs, interior displays, floor plans and special promotions displays.</li>
-  <li>Change displays to promote new product launches and reflect festive or seasonal themes.</li>
-  <li>Planning and executing the open/renovation/ closing store procedure.</li>
-  <li>Follow‐up store maintenance procedure and keep updating SKU In &amp; Out.</li>
-  <li>Monitor costs and work within budget.</li>
-  <li>Liaise with suppliers and source elements.</li>
+  <li>Конкурентоспособная заработная плата: высокий оклад + прогрессивная система бонусов.</li>
+  <li>Профессиональное развитие: регулярные тренинги и обучение новым техникам продаж.</li>
+  <li>Карьерный рост: возможность развиваться как вертикально, так и горизонтально.</li>
+  <li>Современный офис в центре города с комфортной рабочей атмосферой.</li>
+  <li>Дружная команда профессионалов, готовых делиться опытом.</li>
+  <li>Корпоративные мероприятия и командообразующие активности.</li>
+  <li>Полный социальный пакет и медицинская страховка.</li>
 </ul>
 `;
 
@@ -122,9 +125,9 @@ export const _jobs = Array.from({ length: 12 }, (_, index) => {
   const experience =
     JOB_EXPERIENCE_OPTIONS.map((option) => option.label)[index] || JOB_EXPERIENCE_OPTIONS[1].label;
 
-  const employmentTypes = (index % 2 && ['Part-time']) ||
-    (index % 3 && ['On demand']) ||
-    (index % 4 && ['Negotiable']) || ['Full-time'];
+  const employmentTypes = (index % 2 && ['Полставки']) ||
+    (index % 3 && ['По требованию']) ||
+    (index % 4 && ['Договорный']) || ['Полный день'];
 
   const company = {
     name: _mock.companyNames(index),

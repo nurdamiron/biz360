@@ -103,11 +103,11 @@ export function JobListView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="List"
+        heading="Список"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Job', href: paths.dashboard.job.root },
-          { name: 'List' },
+          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Вакансии', href: paths.dashboard.job.root },
+          { name: 'Список' },
         ]}
         action={
           <Button
@@ -116,7 +116,7 @@ export function JobListView() {
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New job
+            Новая вакансия
           </Button>
         }
         sx={{ mb: { xs: 3, md: 5 } }}

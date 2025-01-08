@@ -103,7 +103,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
   const renderEmploymentTypes = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Employment types
+      Типы занятости
       </Typography>
       {options.employmentTypes.map((option) => (
         <FormControlLabel
@@ -123,7 +123,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
   const renderExperience = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Experience
+        Опыт
       </Typography>
       {options.experiences.map((option) => (
         <FormControlLabel
@@ -177,7 +177,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
   const renderLocations = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        Locations
+        Местонахождение
       </Typography>
 
       <CountrySelect
@@ -194,7 +194,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
   const renderBenefits = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        Benefits
+        Преимущества
       </Typography>
       {options.benefits.map((option) => (
         <FormControlLabel
@@ -223,7 +223,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
         }
         onClick={onOpen}
       >
-        Filters
+        Фильтры
       </Button>
 
       <Drawer
