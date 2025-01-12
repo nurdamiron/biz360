@@ -65,13 +65,30 @@ const tokenUtils = {
   },
 
   isValidToken(token) {
-    if (!token) return false;
+    if (!token) {
+      console.log('Token is missing.');
+      return false;
+    }
+  
     const decoded = this.jwtDecode(token);
-    if (!decoded) return false;
-    
-    // Add 30 seconds buffer
-    return (decoded.exp - 30) > Date.now() / 1000;
+    if (!decoded) {
+      console.log('Failed to decode token:', token);
+      return false;
+    }
+  
+    console.log('Decoded Token:', decoded);
+  
+    if (!decoded.exp) {
+      console.log('Token does not contain "exp" field.');
+      return false;
+    }
+  
+    const isValid = (decoded.exp - 30) > Date.now() / 1000;
+    console.log('Is Token Valid:', isValid, 'Current Time:', Date.now() / 1000, 'Expiry Time:', decoded.exp);
+  
+    return isValid;
   },
+  
 
   async refreshToken() {
     try {
@@ -95,6 +112,8 @@ const tokenUtils = {
 
       const data = await response.json();
       this.setAccessToken(data.access);
+      console.log('Access Token from Response:', data.access);
+
       return data.access;
     } catch (error) {
       this.clearTokens();
@@ -133,11 +152,22 @@ const authService = {
         throw new Error(data.error || 'Ошибка входа');
       }
 
-      // Save tokens
+      // Проверка токена
+      const decodedAccess = tokenUtils.jwtDecode(data.access);
+      console.log('Decoded Access Token:', decodedAccess);
+
+      if (!decodedAccess || !decodedAccess.exp) {
+        throw new Error('Invalid access token received from server');
+      }
+
+      const isValid = tokenUtils.isValidToken(data.access);
+      console.log('Is Access Token Valid:', isValid);
+
+      // Сохранение токенов
       console.log('💾 Saving tokens...');
-      tokenUtils.setAccessToken(data.accessToken);
-      tokenUtils.setRefreshToken(data.refreshToken);
-      
+      tokenUtils.setAccessToken(data.access);
+      tokenUtils.setRefreshToken(data.refresh);
+
       return data;
     } catch (error) {
       console.error('❌ Login error:', error);
@@ -221,16 +251,21 @@ export function JwtSignInView() {
     try {
       console.log('📝 Starting login process...');
       
+      // Выполняем попытку авторизации
       await authService.signInWithPassword({
         email: data.email,
-        password: data.password
+        password: data.password,
       });
-
+  
       console.log('🔄 Checking user session...');
       await checkUserSession?.();
 
-      console.log('🔄 Refreshing router...');
-      router.refresh();
+      // Получаем параметр returnTo из query, если он существует
+      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || paths.dashboard.root;
+
+  
+      console.log('Redirecting to:', paths.dashboard.root);
+      router.push(returnTo); // Используйте router.replace(), если хотите перезаписать историю
     } catch (error) {
       console.error('❌ Login failed:', error);
       setErrorMessage(error.message || 'Произошла ошибка при входе');

@@ -7,7 +7,7 @@ import packageJson from '../package.json';
 export const CONFIG = {
   appName: 'BIZ360',
   appVersion: packageJson.version,
-  serverUrl: import.meta.env.VITE_SERVER_URL ?? '',
+  serverUrl: import.meta.env.VITE_SERVER_URL ?? 'https://biz360-backend.onrender.com',
   assetsDir: import.meta.env.VITE_ASSETS_DIR ?? '',
   /**
    * Auth
