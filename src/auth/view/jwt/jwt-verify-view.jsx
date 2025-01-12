@@ -42,10 +42,10 @@ export function VerifyView() {
 
   const verifyEmail = useCallback(async () => {
     try {
+        // Получаем токен из пути URL
         const pathParts = window.location.pathname.split('/');
         const token = pathParts[pathParts.length - 1];
-
-        console.log('Verification token:', token); // Добавляем логирование
+        console.log('Token for verification:', token);
 
         if (!token) {
             setVerificationState({
@@ -57,13 +57,17 @@ export function VerifyView() {
         }
 
         const response = await axiosInstance.get(`/auth/verify-email/${token}`);
-        console.log('Verification response:', response.data); // Добавляем логирование
+        console.log('Verification response:', response.data);
 
-        setVerificationState({
-            status: 'success',
-            message: response.data.message || 'Email успешно подтвержден! Теперь вы можете войти в систему.',
-            countdown: 5
-        });
+        if (response.data.success) {
+            setVerificationState({
+                status: 'success',
+                message: response.data.message,
+                countdown: 5
+            });
+        } else {
+            throw new Error(response.data.error || 'Ошибка верификации');
+        }
 
     } catch (error) {
         console.error('Verification error:', error);
