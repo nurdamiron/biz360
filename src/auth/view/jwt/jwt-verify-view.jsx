@@ -42,38 +42,37 @@ export function VerifyView() {
 
   const verifyEmail = useCallback(async () => {
     try {
-        // Получаем токен из пути URL
         const pathParts = window.location.pathname.split('/');
         const token = pathParts[pathParts.length - 1];
         console.log('Token for verification:', token);
 
-        if (!token) {
-            setVerificationState({
-                status: 'error',
-                message: 'Ссылка недействительна. Отсутствует токен верификации.',
-                countdown: 5
-            });
-            return;
-        }
+        // Изменяем имя параметра с status на responseStatus
+        const response = await axiosInstance({
+            method: 'GET',
+            url: `/auth/verify-email/${token}`,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            validateStatus: (responseStatus) => responseStatus < 500
+        });
 
-        const response = await axiosInstance.get(`/auth/verify-email/${token}`);
         console.log('Verification response:', response.data);
 
-        if (response.data.success) {
+        if (response.status === 200) {
             setVerificationState({
                 status: 'success',
-                message: response.data.message,
+                message: response.data.message || 'Email успешно подтвержден!',
                 countdown: 5
             });
         } else {
             throw new Error(response.data.error || 'Ошибка верификации');
         }
-
     } catch (error) {
         console.error('Verification error:', error);
         setVerificationState({
             status: 'error',
-            message: error?.response?.data?.error || 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
+            message: 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
             countdown: 5
         });
     }
