@@ -12,7 +12,7 @@ import { paths } from 'src/routes/paths';
 
 const API_BASE_URL = 'https://biz360-backend.onrender.com/api';
 
-export default function VerifyView() {
+export function VerifyView() {
   const router = useRouter();
   const [verificationState, setVerificationState] = useState({
     status: 'loading',
