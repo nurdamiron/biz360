@@ -42,36 +42,38 @@ export function VerifyView() {
 
   const verifyEmail = useCallback(async () => {
     try {
-      // Получаем токен из пути URL
-      const pathParts = window.location.pathname.split('/');
-      const token = pathParts[pathParts.length - 1];
+        const pathParts = window.location.pathname.split('/');
+        const token = pathParts[pathParts.length - 1];
 
-      if (!token) {
+        console.log('Verification token:', token); // Добавляем логирование
+
+        if (!token) {
+            setVerificationState({
+                status: 'error',
+                message: 'Ссылка недействительна. Отсутствует токен верификации.',
+                countdown: 5
+            });
+            return;
+        }
+
+        const response = await axiosInstance.get(`/auth/verify-email/${token}`);
+        console.log('Verification response:', response.data); // Добавляем логирование
+
         setVerificationState({
-          status: 'error',
-          message: 'Ссылка недействительна. Отсутствует токен верификации.',
-          countdown: 5
+            status: 'success',
+            message: response.data.message || 'Email успешно подтвержден! Теперь вы можете войти в систему.',
+            countdown: 5
         });
-        return;
-      }
-
-      const response = await axiosInstance.get(`/auth/verify-email/${token}`);
-
-      setVerificationState({
-        status: 'success',
-        message: response.data.message || 'Email успешно подтвержден! Теперь вы можете войти в систему.',
-        countdown: 5
-      });
 
     } catch (error) {
-      console.error('Verification error:', error);
-      setVerificationState({
-        status: 'error',
-        message: error?.response?.data?.error || 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
-        countdown: 5
-      });
+        console.error('Verification error:', error);
+        setVerificationState({
+            status: 'error',
+            message: error?.response?.data?.error || 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
+            countdown: 5
+        });
     }
-  }, []);
+}, []);
 
   // Запускаем верификацию при монтировании компонента
   useEffect(() => {
