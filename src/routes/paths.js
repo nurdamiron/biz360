@@ -50,22 +50,22 @@ export const paths = {
       resetPassword: `${ROOTS.AUTH}/jwt/reset-password`,
     },
   },
-  authDemo: {
-    split: {
-      signIn: `${ROOTS.AUTH_DEMO}/split/sign-in`,
-      signUp: `${ROOTS.AUTH_DEMO}/split/sign-up`,
-      resetPassword: `${ROOTS.AUTH_DEMO}/split/reset-password`,
-      updatePassword: `${ROOTS.AUTH_DEMO}/split/update-password`,
-      verify: `${ROOTS.AUTH_DEMO}/split/verify`,
-    },
-    centered: {
-      signIn: `${ROOTS.AUTH_DEMO}/centered/sign-in`,
-      signUp: `${ROOTS.AUTH_DEMO}/centered/sign-up`,
-      resetPassword: `${ROOTS.AUTH_DEMO}/centered/reset-password`,
-      updatePassword: `${ROOTS.AUTH_DEMO}/centered/update-password`,
-      verify: `${ROOTS.AUTH_DEMO}/centered/verify`,
-    },
-  },
+  // authDemo: {
+  //   split: {
+  //     signIn: `${ROOTS.AUTH_DEMO}/split/sign-in`,
+  //     signUp: `${ROOTS.AUTH_DEMO}/split/sign-up`,
+  //     resetPassword: `${ROOTS.AUTH_DEMO}/split/reset-password`,
+  //     updatePassword: `${ROOTS.AUTH_DEMO}/split/update-password`,
+  //     verify: `${ROOTS.AUTH_DEMO}/split/verify`,
+  //   },
+  //   centered: {
+  //     signIn: `${ROOTS.AUTH_DEMO}/centered/sign-in`,
+  //     signUp: `${ROOTS.AUTH_DEMO}/centered/sign-up`,
+  //     resetPassword: `${ROOTS.AUTH_DEMO}/centered/reset-password`,
+  //     updatePassword: `${ROOTS.AUTH_DEMO}/centered/update-password`,
+  //     verify: `${ROOTS.AUTH_DEMO}/centered/verify`,
+  //   },
+  // },
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,

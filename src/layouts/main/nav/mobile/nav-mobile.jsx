@@ -83,7 +83,7 @@ export function NavMobile({ data, open, onClose, slots, sx }) {
             variant="contained"
             rel="noopener"
             target="_blank"
-            href={paths.auth.supabase.signUp}
+            href={paths.auth.jwt.signUp}
           >
             Регистрация
           </Button>

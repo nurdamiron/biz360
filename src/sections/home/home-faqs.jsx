@@ -28,7 +28,7 @@ const FAQs = [
       <Typography>
         Начать работу с Biz360 просто:
         <Link
-          href={paths.auth.supabase.signUp}
+          href={paths.auth.jwt.signUp}
           target="_blank"
           rel="noopener"
           sx={{ mx: 0.5 }}

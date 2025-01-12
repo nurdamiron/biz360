@@ -78,7 +78,7 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
               variant="contained"
               rel="noopener"
               target="_blank"
-              href={paths.auth.supabase.signIn}
+              href={paths.auth.jwt.signIn}
               sx={(theme) => ({
                 display: 'none',
                 [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
