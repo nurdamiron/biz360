@@ -105,23 +105,23 @@ const tokenUtils = {
 
 // Schema validation
 export const SignInSchema = zod.object({
-  username: zod.string().min(1, { message: 'Имя пользователя обязательно!' }),
+  email: zod.string().min(1, { message: 'Имя пользователя обязательно!' }),
   password: zod.string().min(1, { message: 'Пароль обязателен!' })
 });
 
 // Auth service
 const authService = {
-  async signInWithPassword({ username, password }) {
+  async signInWithPassword({ email, password }) {
     try {
       console.log('🚀 Attempting login...');
       
-      const response = await fetch('https://biz360-backend.onrender.com/api/auth/login/', {
+      const response = await fetch('https://biz360-backend.onrender.com/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
         mode: 'cors'
       });
 
@@ -130,13 +130,13 @@ const authService = {
       console.log('📦 Response data:', data);
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Ошибка входа');
+        throw new Error(data.error || 'Ошибка входа');
       }
 
       // Save tokens
       console.log('💾 Saving tokens...');
-      tokenUtils.setAccessToken(data.access);
-      tokenUtils.setRefreshToken(data.refresh);
+      tokenUtils.setAccessToken(data.accessToken);
+      tokenUtils.setRefreshToken(data.refreshToken);
       
       return data;
     } catch (error) {
@@ -203,7 +203,7 @@ export function JwtSignInView() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const defaultValues = {
-    username: '',
+    email: '',
     password: ''
   };
 
@@ -222,7 +222,7 @@ export function JwtSignInView() {
       console.log('📝 Starting login process...');
       
       await authService.signInWithPassword({
-        username: data.username,
+        email: data.email,
         password: data.password
       });
 
@@ -240,7 +240,7 @@ export function JwtSignInView() {
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text 
-        name="username" 
+        name="email" 
         label="Имя пользователя"
         slotProps={{ inputLabel: { shrink: true } }}
       />
