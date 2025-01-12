@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/global-config';
 
-import { VerifyView } from 'src/auth/view/jwt';
+import { VerifyView } from 'src/auth/view/jwt/';
 
 // ----------------------------------------------------------------------
 
