@@ -55,7 +55,7 @@ export default function VerifyView() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/verify/${token}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-email/${token}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

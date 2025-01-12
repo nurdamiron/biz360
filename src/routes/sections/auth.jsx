@@ -47,7 +47,7 @@ const authJwt = {
       ),
     },
     {
-      path: 'verify',
+      path: 'verify-email',
       element: (
         <GuestGuard>
           <AuthSplitLayout>
