@@ -6,7 +6,7 @@ import { SplashScreen } from 'src/components/loading-screen';
 
 import { authRoutes } from './auth';
 import { mainRoutes } from './main';
-import { authDemoRoutes } from './auth-demo';
+// import { authDemoRoutes } from './auth-demo';
 import { dashboardRoutes } from './dashboard';
 import { componentsRoutes } from './components';
 
@@ -37,7 +37,7 @@ export const routesSection = [
 
   // Auth
   ...authRoutes,
-  ...authDemoRoutes,
+  // ...authDemoRoutes,
 
   // Dashboard
   ...dashboardRoutes,

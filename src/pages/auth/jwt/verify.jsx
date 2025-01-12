@@ -2,11 +2,11 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/global-config';
 
-import { FirebaseVerifyView } from 'src/auth/view/firebase';
+import { EmailVerificationView } from 'src/auth/view/jwt';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Verify | Firebase - ${CONFIG.appName}` };
+const metadata = { title: `Верификация | Jwt - ${CONFIG.appName}` };
 
 export default function Page() {
   return (
@@ -15,7 +15,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <FirebaseVerifyView />
+      <EmailVerificationView />
     </>
   );
 }

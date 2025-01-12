@@ -1,5 +1,5 @@
 {
-  "name": "@minimal-kit/vite-js",
+  "name": "@minimal-kit/vite",
   "author": "Biz360",
   "version": "6.3.0",
   "description": "Vite & JavaScript",
@@ -47,7 +47,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@iconify/react": "^5.1.0",
     "@mui/lab": "^6.0.0-beta.21",
-    "@mui/material": "^6.3.0",
+    "@mui/material": "^6.3.1",
     "@mui/x-data-grid": "^7.23.5",
     "@mui/x-date-pickers": "^7.23.3",
     "@mui/x-tree-view": "^7.23.2",
@@ -82,6 +82,7 @@
     "i18next-browser-languagedetector": "^8.0.2",
     "i18next-resources-to-backend": "^1.2.1",
     "lowlight": "^3.3.0",
+    "lucide-react": "^0.471.0",
     "mapbox-gl": "^3.4.0",
     "minimal-shared": "^1.0.5",
     "mui-one-time-password-input": "^3.0.2",
@@ -125,5 +126,16 @@
     "prettier": "^3.4.2",
     "vite": "^6.0.6",
     "vite-plugin-checker": "^0.8.0"
-  }
+  },
+  "main": "vite.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nurdamiron/biz360.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nurdamiron/biz360/issues"
+  },
+  "homepage": "https://github.com/nurdamiron/biz360#readme"
 }
