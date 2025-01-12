@@ -36,7 +36,12 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
-  auth: { me: '/api/auth/me', signIn: '/api/auth/sign-in', signUp: '/api/auth/sign-up' },
+  auth: {
+    me: '/api/auth/me',
+    signIn: '/api/auth/sign-in',
+    signUp: '/api/auth/sign-up',
+    verifyEmail: (token) => `/api/auth/verify-email/${token}` // Добавьте этот endpoint
+  },
   mail: { list: '/api/mail/list', details: '/api/mail/details', labels: '/api/mail/labels' },
   post: {
     list: '/api/post/list',

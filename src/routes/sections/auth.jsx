@@ -47,12 +47,10 @@ const authJwt = {
       ),
     },
     {
-      path: 'verify-email',
+      path: 'verify-email/:token',
       element: (
         <GuestGuard>
-          <AuthSplitLayout>
             <Jwt.VerifyPage />
-          </AuthSplitLayout>
         </GuestGuard>
       ),
     },
