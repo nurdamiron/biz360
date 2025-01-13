@@ -17,6 +17,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+import { useFirebaseStorage } from 'src/hooks/useFirebaseStorage';
 
 import {
   _tags,
@@ -33,72 +34,101 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
 export const NewProductSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
-  description: schemaHelper
-    .editor({ message: 'Description is required!' })
+  description: zod.string()
     .min(100, { message: 'Description must be at least 100 characters' })
     .max(500, { message: 'Description must be less than 500 characters' }),
-  images: schemaHelper.files({ message: 'Images is required!' }),
+  sub_description: zod.string().optional(),
+  images: zod.array(
+    zod.union([
+      zod.string(),
+      zod.instanceof(File),
+      zod.object({}) // Для обработки File-подобных объектов
+    ])
+  ).min(1, { message: 'Добавьте хотя бы одно изображение!' }),
   code: zod.string().min(1, { message: 'Product code is required!' }),
-  sku: zod.string().min(1, { message: 'Product sku is required!' }),
-  quantity: schemaHelper.nullableInput(
-    zod.number({ coerce: true }).min(1, { message: 'Quantity is required!' }),
-    {
-      // message for null value
-      message: 'Quantity is required!',
-    }
-  ),
-  colors: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  sizes: zod.string().array().min(1, { message: 'Choose at least one option!' }),
-  tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-  gender: zod.array(zod.string()).min(1, { message: 'Choose at least one option!' }),
-  price: schemaHelper.nullableInput(
-    zod.number({ coerce: true }).min(1, { message: 'Price is required!' }),
-    {
-      // message for null value
-      message: 'Price is required!',
-    }
-  ),
-  // Not required
+  sku: zod.string().min(1, { message: 'Product SKU is required!' }),
+  quantity: zod.number().min(0, { message: 'Quantity must be 0 or greater' }),
+  colors: zod.array(zod.string()).min(1, { message: 'Choose at least one color!' }),
+  sizes: zod.array(zod.string()).min(1, { message: 'Choose at least one size!' }),
+  tags: zod.array(zod.string()).min(2, { message: 'Must have at least 2 tags!' }),
+  gender: zod.array(zod.string()).min(1, { message: 'Choose at least one gender!' }),
+  price: zod.number().min(0.01, { message: 'Price must be greater than 0!' }),
+  price_sale: zod.number().nullable(),
+  taxes: zod.number().nullable(),
   category: zod.string(),
-  subDescription: zod.string(),
-  taxes: zod.number({ coerce: true }).nullable(),
-  priceSale: zod.number({ coerce: true }).nullable(),
-  saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
-  newLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
+  new_label: zod.object({
+    enabled: zod.boolean(),
+    content: zod.string()
+  }),
+  sale_label: zod.object({
+    enabled: zod.boolean(),
+    content: zod.string()
+  }),
+  is_published: zod.boolean().default(true)
 });
 
 // ----------------------------------------------------------------------
 
 export function ProductNewEditForm({ currentProduct }) {
   const router = useRouter();
-
   const [includeTaxes, setIncludeTaxes] = useState(false);
+
+  const { uploadMultipleImages } = useFirebaseStorage();
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const handleUpload = async (files) => {
+    try {
+      setIsUploading(true);
+      
+      // Проверяем на дубликаты имен файлов
+      const fileNames = Array.from(files).map(file => file.name);
+      const hasDuplicates = fileNames.length !== new Set(fileNames).size;
+      
+      if (hasDuplicates) {
+        toast.warning('Обнаружены файлы с одинаковыми именами. Они будут переименованы автоматически.');
+      }
+      
+      // Загружаем в Firebase
+      const urls = await uploadMultipleImages(files);
+      setUploadedImageUrls(prev => [...prev, ...urls]);
+      setValue('images', urls);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('Не удалось загрузить изображения');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const defaultValues = {
     name: '',
     description: '',
-    subDescription: '',
+    sub_description: '',
     images: [],
-    /********/
     code: '',
     sku: '',
-    price: null,
+    price: 0,
+    price_sale: null,
     taxes: null,
-    priceSale: null,
-    quantity: null,
+    quantity: 0,
     tags: [],
     gender: [],
     category: PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
     colors: [],
     sizes: [],
-    newLabel: { enabled: false, content: '' },
-    saleLabel: { enabled: false, content: '' },
+    new_label: { enabled: false, content: '' },    // Убедимся что эти объекты
+    sale_label: { enabled: false, content: '' },    // всегда инициализированы
+    is_published: true
   };
+  
 
   const methods = useForm({
     resolver: zodResolver(NewProductSchema),
     defaultValues,
     values: currentProduct,
+    mode: 'onTouched', // Изменяем на onTouched
+    reValidateMode: 'onChange',
   });
 
   const {
@@ -112,32 +142,44 @@ export function ProductNewEditForm({ currentProduct }) {
   const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
-    const updatedData = {
-      ...data,
-      taxes: includeTaxes ? defaultValues.taxes : data.taxes,
-    };
-
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+      const formData = {
+        ...data,
+        taxes: includeTaxes ? data.taxes : null,
+        images: uploadedImageUrls,
+        is_published: values.is_published
+      };
+
+      const response = await fetch('https://biz360-backend.onrender.com/api/product/', {
+        method: currentProduct ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error('Failed to save product');
+
       toast.success(currentProduct ? 'Update success!' : 'Create success!');
       router.push(paths.dashboard.product.root);
-      console.info('DATA', updatedData);
     } catch (error) {
-      console.error(error);
+      console.error('Error:', error);
+      toast.error('Не удалось сохранить товар');
     }
   });
 
   const handleRemoveFile = useCallback(
     (inputFile) => {
-      const filtered = values.images && values.images?.filter((file) => file !== inputFile);
+      const filtered = values.images?.filter((file) => file !== inputFile);
       setValue('images', filtered);
+      setUploadedImageUrls(prev => prev.filter(url => url !== inputFile));
     },
     [setValue, values.images]
   );
 
   const handleRemoveAllFiles = useCallback(() => {
-    setValue('images', [], { shouldValidate: true });
+    setValue('images', []);
+    setUploadedImageUrls([]);
   }, [setValue]);
 
   const handleChangeIncludeTaxes = useCallback((event) => {
@@ -146,32 +188,52 @@ export function ProductNewEditForm({ currentProduct }) {
 
   const renderDetails = () => (
     <Card>
-      <CardHeader title="Details" subheader="Title, short description, image..." sx={{ mb: 3 }} />
-
+      <CardHeader 
+        title="Детали" 
+        subheader="Название, описание, изображения..." 
+        sx={{ mb: 3 }} 
+      />
       <Divider />
-
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Field.Text name="name" label="Product name" />
+        <Field.Text 
+          name="name" 
+          label="Название товара" 
+          required 
+        />
 
-        <Field.Text name="subDescription" label="Sub description" multiline rows={4} />
+        <Field.Text 
+          name="sub_description" 
+          label="Краткое описание" 
+          multiline 
+          rows={4} 
+        />
 
         <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Content</Typography>
-          <Field.Editor name="description" sx={{ maxHeight: 480 }} />
-        </Stack>
-
-        <Stack spacing={1.5}>
-          <Typography variant="subtitle2">Images</Typography>
-          <Field.Upload
-            multiple
-            thumbnail
-            name="images"
-            maxSize={3145728}
-            onRemove={handleRemoveFile}
-            onRemoveAll={handleRemoveAllFiles}
-            onUpload={() => console.info('ON UPLOAD')}
+          <Typography variant="subtitle2">Описание</Typography>
+          <Field.Editor 
+            name="description" 
+            sx={{ maxHeight: 480 }} 
           />
         </Stack>
+
+        <Stack spacing={1.5}>
+  <Typography variant="subtitle2">Изображения</Typography>
+  <Field.Upload
+    multiple
+    thumbnail
+    name="images"
+    maxSize={3145728}
+    onRemove={handleRemoveFile}
+    onRemoveAll={handleRemoveAllFiles}
+    onUpload={handleUpload}
+    loading={isUploading}
+    error={methods.formState.isSubmitted && !!methods.formState.errors.images}
+    helperText={
+      methods.formState.isSubmitted && 
+      methods.formState.errors.images?.message
+    }
+  />
+</Stack>
       </Stack>
     </Card>
   );
@@ -179,8 +241,8 @@ export function ProductNewEditForm({ currentProduct }) {
   const renderProperties = () => (
     <Card>
       <CardHeader
-        title="Properties"
-        subheader="Additional functions and attributes..."
+        title="Характеристики"
+        subheader="Дополнительные свойства и атрибуты..."
         sx={{ mb: 3 }}
       />
 
@@ -195,13 +257,13 @@ export function ProductNewEditForm({ currentProduct }) {
             gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
           }}
         >
-          <Field.Text name="code" label="Product code" />
+          <Field.Text name="code" label="Код товара" />
 
-          <Field.Text name="sku" label="Product SKU" />
+          <Field.Text name="sku" label="Артикул (SKU)" />
 
           <Field.Text
             name="quantity"
-            label="Quantity"
+            label="Количество"
             placeholder="0"
             type="number"
             slotProps={{ inputLabel: { shrink: true } }}
@@ -209,7 +271,7 @@ export function ProductNewEditForm({ currentProduct }) {
 
           <Field.Select
             name="category"
-            label="Category"
+            label="Категория"
             slotProps={{
               select: { native: true },
               inputLabel: { shrink: true },
@@ -229,16 +291,16 @@ export function ProductNewEditForm({ currentProduct }) {
           <Field.MultiSelect
             checkbox
             name="colors"
-            label="Colors"
+            label="Цвета"
             options={PRODUCT_COLOR_NAME_OPTIONS}
           />
 
-          <Field.MultiSelect checkbox name="sizes" label="Sizes" options={PRODUCT_SIZE_OPTIONS} />
+          <Field.MultiSelect checkbox name="sizes" label="Размеры" options={PRODUCT_SIZE_OPTIONS} />
         </Box>
 
         <Field.Autocomplete
           name="tags"
-          label="Tags"
+          label="Теги"
           placeholder="+ Tags"
           multiple
           freeSolo
@@ -265,45 +327,53 @@ export function ProductNewEditForm({ currentProduct }) {
         />
 
         <Stack spacing={1}>
-          <Typography variant="subtitle2">Gender</Typography>
+          <Typography variant="subtitle2">Пол</Typography>
           <Field.MultiCheckbox row name="gender" options={PRODUCT_GENDER_OPTIONS} sx={{ gap: 2 }} />
         </Stack>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
-          <Field.Switch name="saleLabel.enabled" label={null} sx={{ m: 0 }} />
-          <Field.Text
-            name="saleLabel.content"
-            label="Sale label"
-            fullWidth
-            disabled={!values.saleLabel.enabled}
-          />
-        </Box>
+  <Field.Switch 
+    name="sale_label.enabled" 
+    label={null} 
+    sx={{ m: 0 }} 
+  />
+  <Field.Text
+    name="sale_label.content"
+    label="Метка скидки"
+    fullWidth
+    disabled={!values.sale_label?.enabled}  // Добавляем опциональную цепочку
+  />
+</Box>
 
-        <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
-          <Field.Switch name="newLabel.enabled" label={null} sx={{ m: 0 }} />
-          <Field.Text
-            name="newLabel.content"
-            label="New label"
-            fullWidth
-            disabled={!values.newLabel.enabled}
-          />
-        </Box>
+<Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
+  <Field.Switch 
+    name="new_label.enabled" 
+    label={null} 
+    sx={{ m: 0 }} 
+  />
+  <Field.Text
+    name="new_label.content"
+    label="Метка новинки"
+    fullWidth
+    disabled={!values.new_label?.enabled}  // Добавляем опциональную цепочку
+  />
+</Box>
       </Stack>
     </Card>
   );
 
   const renderPricing = () => (
     <Card>
-      <CardHeader title="Pricing" subheader="Price related inputs" sx={{ mb: 3 }} />
+      <CardHeader title="Цены" subheader="Настройка цен и налогов" sx={{ mb: 3 }} />
 
       <Divider />
 
       <Stack spacing={3} sx={{ p: 3 }}>
         <Field.Text
           name="price"
-          label="Regular price"
+          label="Обычная цена"
           placeholder="0.00"
           type="number"
           slotProps={{
@@ -312,7 +382,7 @@ export function ProductNewEditForm({ currentProduct }) {
               startAdornment: (
                 <InputAdornment position="start" sx={{ mr: 0.75 }}>
                   <Box component="span" sx={{ color: 'text.disabled' }}>
-                    $
+                  ₸
                   </Box>
                 </InputAdornment>
               ),
@@ -322,7 +392,7 @@ export function ProductNewEditForm({ currentProduct }) {
 
         <Field.Text
           name="priceSale"
-          label="Sale price"
+          label="Цена со скидкой"
           placeholder="0.00"
           type="number"
           slotProps={{
@@ -331,7 +401,7 @@ export function ProductNewEditForm({ currentProduct }) {
               startAdornment: (
                 <InputAdornment position="start" sx={{ mr: 0.75 }}>
                   <Box component="span" sx={{ color: 'text.disabled' }}>
-                    $
+                  ₸
                   </Box>
                 </InputAdornment>
               ),
@@ -343,13 +413,13 @@ export function ProductNewEditForm({ currentProduct }) {
           control={
             <Switch id="toggle-taxes" checked={includeTaxes} onChange={handleChangeIncludeTaxes} />
           }
-          label="Price includes taxes"
+          label="Цена включает налоги"
         />
 
         {!includeTaxes && (
           <Field.Text
             name="taxes"
-            label="Tax (%)"
+            label="Налоги (%)"
             placeholder="0.00"
             type="number"
             slotProps={{
@@ -386,7 +456,7 @@ export function ProductNewEditForm({ currentProduct }) {
       />
 
       <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-        {!currentProduct ? 'Create product' : 'Сохранить изменения'}
+        {!currentProduct ? 'Создать' : 'Сохранить изменения'}
       </LoadingButton>
     </Box>
   );
