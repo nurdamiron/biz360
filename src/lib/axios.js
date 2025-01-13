@@ -38,8 +38,8 @@ export const endpoints = {
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
-    signIn: '/api/auth/sign-in',
-    signUp: '/api/auth/sign-up',
+    signIn: 'https://biz360-backend.onrender.com/api/auth/sign-in',
+    signUp: 'https://biz360-backend.onrender.com/api/auth/sign-up',
     verifyEmail: (token) => `/api/auth/verify-email/${token}` // Добавьте этот endpoint
   },
   mail: { list: '/api/mail/list', details: '/api/mail/details', labels: '/api/mail/labels' },
@@ -50,8 +50,8 @@ export const endpoints = {
     search: '/api/post/search',
   },
   product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
+    list: 'https://biz360-backend.onrender.com/api/product/list',
+    details: 'https://biz360-backend.onrender.com/api/product/details',
+    search: 'https://biz360-backend.onrender.com/api/product/search',
   },
 };
