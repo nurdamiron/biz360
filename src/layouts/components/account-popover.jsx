@@ -14,7 +14,7 @@ import { RouterLink } from 'src/routes/components';
 import { Label } from 'src/components/label';
 import { CustomPopover } from 'src/components/custom-popover';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
@@ -26,7 +26,7 @@ export function AccountPopover({ data = [], sx, ...other }) {
 
   const { open, anchorEl, onClose, onOpen } = usePopover();
 
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const renderMenuActions = () => (
     <CustomPopover
@@ -37,11 +37,11 @@ export function AccountPopover({ data = [], sx, ...other }) {
     >
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Typography variant="subtitle2" noWrap>
-          {user?.displayName}
+          {employee?.displayName}
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-          {user?.email}
+          {employee?.email}
         </Typography>
       </Box>
 
@@ -106,8 +106,8 @@ export function AccountPopover({ data = [], sx, ...other }) {
     <>
       <AccountButton
         onClick={onOpen}
-        photoURL={user?.photoURL}
-        displayName={user?.displayName}
+        photoURL={employee?.photoURL}
+        displayName={employee?.displayName}
         sx={sx}
         {...other}
       />

@@ -81,7 +81,7 @@ export const NAV_BASIC_ITEMS = [
   {
     title: 'Contact',
     path: '#',
-    icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-user.svg`} />,
+    icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-employee.svg`} />,
     disabled: true,
   },
   {
@@ -109,7 +109,7 @@ export const NAV_SECTION_ITEMS = [
         title: 'Services',
         path: '#',
         icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`} />,
-        roles: ['admin', 'user'],
+        roles: ['admin', 'employee'],
       },
       {
         title: 'Blog',
@@ -134,7 +134,7 @@ export const NAV_SECTION_ITEMS = [
       {
         title: 'About',
         path: '#',
-        icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-user.svg`} />,
+        icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-employee.svg`} />,
         info: '+4',
       },
       {

@@ -88,7 +88,7 @@ export function Textfields({ variant }) {
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <Iconify icon="solar:user-rounded-bold" width={24} />
+                  <Iconify icon="solar:employee-rounded-bold" width={24} />
                 </InputAdornment>
               ),
             },
@@ -105,7 +105,7 @@ export function Textfields({ variant }) {
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <Iconify icon="solar:user-rounded-bold" width={24} />
+                  <Iconify icon="solar:employee-rounded-bold" width={24} />
                 </InputAdornment>
               ),
             },
@@ -143,7 +143,7 @@ export function Textfields({ variant }) {
             input: {
               startAdornment: (
                 <InputAdornment position="start">
-                  <Iconify icon="solar:user-rounded-bold" width={24} />
+                  <Iconify icon="solar:employee-rounded-bold" width={24} />
                 </InputAdornment>
               ),
               endAdornment: (

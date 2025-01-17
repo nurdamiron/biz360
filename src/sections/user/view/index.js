@@ -1,9 +1,9 @@
-export * from './user-edit-view';
+export * from './employee/employee-edit-view';
 
-export * from './user-list-view';
+export * from './employee-list-view';
 
-export * from './user-cards-view';
+export * from './employee-cards-view';
 
-export * from './user-create-view';
+export * from './employee-create-view';
 
-export * from './user-profile-view';
+export * from './employee-profile-view';

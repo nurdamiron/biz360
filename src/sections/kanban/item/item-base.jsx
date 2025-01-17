@@ -91,8 +91,8 @@ const ItemBase = forwardRef((props, ref) => {
       </Box>
 
       <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
-        {task?.assignee?.map((user) => (
-          <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+        {task?.assignee?.map((employee) => (
+          <Avatar key={employee.id} alt={employee.name} src={employee.avatarUrl} />
         ))}
       </AvatarGroup>
     </Box>

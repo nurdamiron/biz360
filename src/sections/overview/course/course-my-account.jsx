@@ -7,12 +7,12 @@ import Typography from '@mui/material/Typography';
 import { Iconify } from 'src/components/iconify';
 import { AnimateBorder } from 'src/components/animate';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function CourseMyAccount({ sx, ...other }) {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const renderAvatar = () => (
     <AnimateBorder
@@ -21,8 +21,8 @@ export function CourseMyAccount({ sx, ...other }) {
         primaryBorder: { size: 120, sx: { color: 'primary.main' } },
       }}
     >
-      <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 1, height: 1 }}>
-        {user?.displayName?.charAt(0).toUpperCase()}
+      <Avatar src={employee?.photoURL} alt={employee?.displayName} sx={{ width: 1, height: 1 }}>
+        {employee?.displayName?.charAt(0).toUpperCase()}
       </Avatar>
     </AnimateBorder>
   );
@@ -33,7 +33,7 @@ export function CourseMyAccount({ sx, ...other }) {
         {renderAvatar()}
 
         <Typography variant="subtitle1" noWrap sx={{ mb: 0.5 }}>
-          {user?.displayName}
+          {employee?.displayName}
         </Typography>
 
         <Box

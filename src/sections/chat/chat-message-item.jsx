@@ -8,19 +8,19 @@ import { fToNow } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { getMessage } from './utils/get-message';
 
 // ----------------------------------------------------------------------
 
 export function ChatMessageItem({ message, participants, onOpenLightbox }) {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const { me, senderDetails, hasImage } = getMessage({
     message,
     participants,
-    currentUserId: `${user?.id}`,
+    currentEmployeeId: `${employee?.id}`,
   });
 
   const { firstName, avatarUrl } = senderDetails;

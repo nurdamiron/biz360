@@ -250,7 +250,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }) {
             }
           }}
         >
-          {['admin', 'user'].map((i) => (
+          {['admin', 'employee'].map((i) => (
             <ToggleButton key={i} value={i} sx={{ width: 1 }}>
               {i}
             </ToggleButton>

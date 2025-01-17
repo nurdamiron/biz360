@@ -117,7 +117,7 @@ function BookerItem({ booker, selected, onSelected }) {
           primary={booker.name}
           secondary={
             <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-              <Iconify icon="solar:users-group-rounded-bold" width={16} />
+              <Iconify icon="solar:employees-group-rounded-bold" width={16} />
               {booker.guests} guests
             </Box>
           }

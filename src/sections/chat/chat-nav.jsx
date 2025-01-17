@@ -19,7 +19,7 @@ import { createConversation } from 'src/actions/chat';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { ToggleButton } from './styles';
 import { ChatNavItem } from './chat-nav-item';
@@ -37,7 +37,7 @@ const NAV_COLLAPSE_WIDTH = 96;
 export function ChatNav({ loading, contacts, collapseNav, conversations, selectedConversationId }) {
   const router = useRouter();
 
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
@@ -55,17 +55,17 @@ export function ChatNav({ loading, contacts, collapseNav, conversations, selecte
 
   const myContact = useMemo(
     () => ({
-      id: `${user?.id}`,
-      role: `${user?.role}`,
-      email: `${user?.email}`,
-      address: `${user?.address}`,
-      name: `${user?.displayName}`,
+      id: `${employee?.id}`,
+      role: `${employee?.role}`,
+      email: `${employee?.email}`,
+      address: `${employee?.address}`,
+      name: `${employee?.displayName}`,
       lastActivity: today(),
-      avatarUrl: `${user?.photoURL}`,
-      phoneNumber: `${user?.phoneNumber}`,
+      avatarUrl: `${employee?.photoURL}`,
+      phoneNumber: `${employee?.phoneNumber}`,
       status: 'online',
     }),
-    [user]
+    [employee]
   );
 
   useEffect(() => {
@@ -223,7 +223,7 @@ export function ChatNav({ loading, contacts, collapseNav, conversations, selecte
 
         {!collapseDesktop && (
           <IconButton onClick={handleClickCompose}>
-            <Iconify width={24} icon="solar:user-plus-bold" />
+            <Iconify width={24} icon="solar:employee-plus-bold" />
           </IconButton>
         )}
       </Box>
@@ -245,7 +245,7 @@ export function ChatNav({ loading, contacts, collapseNav, conversations, selecte
   return (
     <>
       <ToggleButton onClick={onOpenMobile} sx={{ display: { md: 'none' } }}>
-        <Iconify width={16} icon="solar:users-group-rounded-bold" />
+        <Iconify width={16} icon="solar:employees-group-rounded-bold" />
       </ToggleButton>
 
       <Box

@@ -190,7 +190,7 @@ export function OrderListView() {
                     }
                   >
                     {['completed', 'pending', 'cancelled', 'refunded'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
+                      ? tableData.filter((employee) => employee.status === tab.value).length
                       : tableData.length}
                   </Label>
                 }

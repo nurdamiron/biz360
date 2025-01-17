@@ -174,7 +174,7 @@ export function TourDetailsContent({ tour }) {
         {
           label: 'Contact name',
           value: tour?.tourGuides.map((tourGuide) => tourGuide.phoneNumber).join(', '),
-          icon: <Iconify icon="solar:user-rounded-bold" />,
+          icon: <Iconify icon="solar:employee-rounded-bold" />,
         },
         {
           label: 'Durations',

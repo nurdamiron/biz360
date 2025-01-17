@@ -4,24 +4,24 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { UserNewEditForm } from '../user-new-edit-form';
+import { EmployeeNewEditForm } from '../employee-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function UserCreateView() {
+export function EmployeeCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Create a new user"
+        heading="Создать профиль сотрудника"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.root },
-          { name: 'New user' },
+          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Сотрудники', href: paths.dashboard.employee.root },
+          { name: 'Новый сотрудник' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <UserNewEditForm />
+      <EmployeeNewEditForm />
     </DashboardContent>
   );
 }

@@ -143,7 +143,7 @@ export function TourItem({ tour, editHref, detailsHref, onDelete, sx, ...other }
           label: fDateRangeShortLabel(tour.available.startDate, tour.available.endDate),
         },
         {
-          icon: <Iconify icon="solar:users-group-rounded-bold" sx={{ color: 'primary.main' }} />,
+          icon: <Iconify icon="solar:employees-group-rounded-bold" sx={{ color: 'primary.main' }} />,
           label: `${tour.bookers.length} Booked`,
         },
       ].map((item) => (

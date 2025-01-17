@@ -24,7 +24,7 @@ export function GuestGuard({ children }) {
     }
 
     if (authenticated) {
-      // Redirect authenticated users to the returnTo path
+      // Redirect authenticated employees to the returnTo path
       // Using `window.location.href` instead of `router.replace` to avoid unnecessary re-rendering
       // that might be caused by the AuthGuard component
       window.location.href = returnTo;

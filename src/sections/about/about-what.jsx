@@ -87,7 +87,7 @@ export function AboutWhat({ sx, ...other }) {
                 }),
               ]}
             >
-              Our theme is the most advanced and user-friendly theme you will find on the market, we
+              Our theme is the most advanced and employee-friendly theme you will find on the market, we
               have documentation and video to help set your site really easily, pre-installed demos
               you can import in one click and everything from the theme options to page content can
               be edited from the front-end. This is the theme you are looking for.

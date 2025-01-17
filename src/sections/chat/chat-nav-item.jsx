@@ -17,14 +17,14 @@ import { fToNow } from 'src/utils/format-time';
 
 import { clickConversation } from 'src/actions/chat';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { getNavItem } from './utils/get-nav-item';
 
 // ----------------------------------------------------------------------
 
 export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }) {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const router = useRouter();
 
@@ -32,7 +32,7 @@ export function ChatNavItem({ selected, collapse, conversation, onCloseMobile })
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const { group, displayName, displayText, participants, lastActivity, hasOnlineInGroup } =
-    getNavItem({ conversation, currentUserId: `${user?.id}` });
+    getNavItem({ conversation, currentEmployeeId: `${employee?.id}` });
 
   const singleParticipant = participants[0];
 

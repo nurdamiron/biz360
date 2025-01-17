@@ -9,7 +9,7 @@ export const _account = [
   // { label: 'Home', href: '/', icon: <Iconify icon="solar:home-angle-bold-duotone" /> },
   {
     label: 'Профиль',
-    href: './user',
+    href: './employee',
     icon: (
       <SvgIcon>
         <path
@@ -54,5 +54,5 @@ export const _account = [
   //   ),
   // },
   // { label: 'Security', href: '#', icon: <Iconify icon="solar:shield-keyhole-bold-duotone" /> },
-  { label: 'Настройки', href: './user/account', icon: <Iconify icon="solar:settings-bold-duotone" /> },
+  { label: 'Настройки', href: './employee/account', icon: <Iconify icon="solar:settings-bold-duotone" /> },
 ];

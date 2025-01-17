@@ -16,25 +16,27 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
-// ----------------------------------------------------------------------
-
-export function UserTableToolbar({ filters, options, onResetPage }) {
+export function EmployeeTableToolbar({ filters, options, onResetPage }) {
   const menuActions = usePopover();
 
   const { state: currentFilters, setState: updateFilters } = filters;
 
-  const handleFilterName = useCallback(
+  // Фильтр по ФИО
+  const handleFilterFio = useCallback(
     (event) => {
       onResetPage();
-      updateFilters({ name: event.target.value });
+      updateFilters({ fio: event.target.value });
     },
     [onResetPage, updateFilters]
   );
 
+  // Фильтр по роли
   const handleFilterRole = useCallback(
     (event) => {
       const newValue =
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
+        typeof event.target.value === 'string'
+          ? event.target.value.split(',')
+          : event.target.value;
 
       onResetPage();
       updateFilters({ role: newValue });
@@ -93,11 +95,7 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
           >
             {options.roles.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox
-                  disableRipple
-                  size="small"
-                  checked={currentFilters.role.includes(option)}
-                />
+                <Checkbox disableRipple size="small" checked={currentFilters.role.includes(option)} />
                 {option}
               </MenuItem>
             ))}
@@ -115,17 +113,15 @@ export function UserTableToolbar({ filters, options, onResetPage }) {
         >
           <TextField
             fullWidth
-            value={currentFilters.name}
-            onChange={handleFilterName}
-            placeholder="Поиск..."
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                  </InputAdornment>
-                ),
-              },
+            value={currentFilters.fio}
+            onChange={handleFilterFio}
+            placeholder="Поиск по ФИО..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
             }}
           />
 

@@ -2,14 +2,14 @@ import { _mock } from './_mock';
 
 // ----------------------------------------------------------------------
 
-export const USER_STATUS_OPTIONS = [
+export const EMPLOYEE_STATUS_OPTIONS = [
   { value: 'active', label: 'Руководство' },
   { value: 'pending', label: 'Отдел продаж' },
   { value: 'banned', label: 'Финансовый отдел' },
   { value: 'rejected', label: 'Маркетинг' },
 ];
 
-export const _userAbout = {
+export const _employeeAbout = {
   id: _mock.id(1),
   role: _mock.role(1),
   email: _mock.email(1),
@@ -29,28 +29,28 @@ export const _userAbout = {
   },
 };
 
-export const _userFollowers = Array.from({ length: 18 }, (_, index) => ({
+export const _employeeFollowers = Array.from({ length: 18 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   country: _mock.countryNames(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _userFriends = Array.from({ length: 18 }, (_, index) => ({
+export const _employeeFriends = Array.from({ length: 18 }, (_, index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _userGallery = Array.from({ length: 12 }, (_, index) => ({
+export const _employeeGallery = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
   postedAt: _mock.time(index),
   title: _mock.postTitle(index),
   imageUrl: _mock.image.cover(index),
 }));
 
-export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
+export const _employeeFeeds = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
   createdAt: _mock.time(index),
   media: _mock.image.travel(index + 1),
@@ -84,7 +84,7 @@ export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
   ],
 }));
 
-export const _userCards = Array.from({ length: 21 }, (_, index) => ({
+export const _employeeCards = Array.from({ length: 21 }, (_, index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
@@ -95,14 +95,14 @@ export const _userCards = Array.from({ length: 21 }, (_, index) => ({
   totalFollowing: _mock.number.nativeL(index + 1),
 }));
 
-export const _userPayment = Array.from({ length: 3 }, (_, index) => ({
+export const _employeePayment = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
   cardNumber: ['**** **** **** 1234', '**** **** **** 5678', '**** **** **** 7878'][index],
   cardType: ['mastercard', 'visa', 'visa'][index],
   primary: index === 1,
 }));
 
-export const _userAddressBook = Array.from({ length: 4 }, (_, index) => ({
+export const _employeeAddressBook = Array.from({ length: 4 }, (_, index) => ({
   id: _mock.id(index),
   primary: index === 0,
   name: _mock.fullName(index),
@@ -111,20 +111,20 @@ export const _userAddressBook = Array.from({ length: 4 }, (_, index) => ({
   addressType: (index === 0 && 'Home') || 'Office',
 }));
 
-export const _userInvoices = Array.from({ length: 10 }, (_, index) => ({
+export const _employeeInvoices = Array.from({ length: 10 }, (_, index) => ({
   id: _mock.id(index),
   invoiceNumber: `INV-199${index}`,
   createdAt: _mock.time(index),
   price: _mock.number.price(index),
 }));
 
-export const _userPlans = [
+export const _employeePlans = [
   { subscription: 'basic', price: 0, primary: false },
   { subscription: 'starter', price: 4.99, primary: true },
   { subscription: 'premium', price: 9.99, primary: false },
 ];
 
-export const _userList = Array.from({ length: 20 }, (_, index) => ({
+export const _employeeList = Array.from({ length: 20 }, (_, index) => ({
   id: _mock.id(index),
   zipCode: '85807',
   state: 'Virginia',

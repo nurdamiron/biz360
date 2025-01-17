@@ -35,21 +35,21 @@ const InvoiceListPage = lazy(() => import('src/pages/dashboard/invoice/list'));
 const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/details'));
 const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
-// User
-const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
-const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
-const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
-const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
-const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
+// Employee
+const EmployeeProfilePage = lazy(() => import('src/pages/dashboard/employee/profile'));
+const EmployeeCardsPage = lazy(() => import('src/pages/dashboard/employee/cards'));
+const EmployeeListPage = lazy(() => import('src/pages/dashboard/employee/list'));
+const EmployeeCreatePage = lazy(() => import('src/pages/dashboard/employee/new'));
+const EmployeeEditPage = lazy(() => import('src/pages/dashboard/employee/edit'));
 // Account
-const AccountGeneralPage = lazy(() => import('src/pages/dashboard/user/account/general'));
-const AccountBillingPage = lazy(() => import('src/pages/dashboard/user/account/billing'));
-const AccountSocialsPage = lazy(() => import('src/pages/dashboard/user/account/socials'));
+const AccountGeneralPage = lazy(() => import('src/pages/dashboard/employee/account/general'));
+const AccountBillingPage = lazy(() => import('src/pages/dashboard/employee/account/billing'));
+const AccountSocialsPage = lazy(() => import('src/pages/dashboard/employee/account/socials'));
 const AccountNotificationsPage = lazy(
-  () => import('src/pages/dashboard/user/account/notifications')
+  () => import('src/pages/dashboard/employee/account/notifications')
 );
 const AccountChangePasswordPage = lazy(
-  () => import('src/pages/dashboard/user/account/change-password')
+  () => import('src/pages/dashboard/employee/account/change-password')
 );
 // Blog
 const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
@@ -115,14 +115,14 @@ export const dashboardRoutes = [
       { path: 'file', element: <OverviewFilePage /> },
       { path: 'course', element: <OverviewCoursePage /> },
       {
-        path: 'user',
+        path: 'employee',
         children: [
-          { index: true, element: <UserProfilePage /> },
-          { path: 'profile', element: <UserProfilePage /> },
-          { path: 'cards', element: <UserCardsPage /> },
-          { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
+          { index: true, element: <EmployeeProfilePage /> },
+          { path: 'profile', element: <EmployeeProfilePage /> },
+          { path: 'cards', element: <EmployeeCardsPage /> },
+          { path: 'list', element: <EmployeeListPage /> },
+          { path: 'new', element: <EmployeeCreatePage /> },
+          { path: ':id/edit', element: <EmployeeEditPage /> },
           {
             path: 'account',
             element: accountLayout(),

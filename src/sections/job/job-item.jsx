@@ -100,7 +100,7 @@ export function JobItem({ job, editHref, detailsHref, onDelete, sx, ...other }) 
               typography: 'caption',
             }}
           >
-            <Iconify width={16} icon="solar:users-group-rounded-bold" />
+            <Iconify width={16} icon="solar:employees-group-rounded-bold" />
             {job.candidates.length} кандидатов
           </Box>
         </Box>
@@ -130,7 +130,7 @@ export function JobItem({ job, editHref, detailsHref, onDelete, sx, ...other }) 
             },
             {
               label: job.role,
-              icon: <Iconify width={16} icon="solar:user-rounded-bold" sx={{ flexShrink: 0 }} />,
+              icon: <Iconify width={16} icon="solar:employee-rounded-bold" sx={{ flexShrink: 0 }} />,
             },
           ].map((item) => (
             <Box

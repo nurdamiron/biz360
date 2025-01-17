@@ -45,7 +45,7 @@ export function SimpleDialog() {
             <li key={email}>
               <ListItemButton onClick={() => handleClose(email)}>
                 <Avatar sx={{ mr: 2, color: 'info.lighter', bgcolor: 'info.darker' }}>
-                  <Iconify icon="solar:user-rounded-bold" />
+                  <Iconify icon="solar:employee-rounded-bold" />
                 </Avatar>
                 <ListItemText primary={email} />
               </ListItemButton>

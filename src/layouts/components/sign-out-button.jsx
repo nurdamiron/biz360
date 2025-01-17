@@ -22,14 +22,14 @@ const signOut = jwtSignOut;
 export function SignOutButton({ onClose, sx, ...other }) {
   const router = useRouter();
 
-  const { checkUserSession } = useAuthContext();
+  const { checkEmployeeSession } = useAuthContext();
 
   const { logout: signOutAuth0 } = useAuth0();
 
   const handleLogout = useCallback(async () => {
     try {
       await signOut();
-      await checkUserSession?.();
+      await checkEmployeeSession?.();
 
       onClose?.();
       router.refresh();
@@ -37,7 +37,7 @@ export function SignOutButton({ onClose, sx, ...other }) {
       console.error(error);
       toast.error('Unable to logout!');
     }
-  }, [checkUserSession, onClose, router]);
+  }, [checkEmployeeSession, onClose, router]);
 
   const handleLogoutAuth0 = useCallback(async () => {
     try {

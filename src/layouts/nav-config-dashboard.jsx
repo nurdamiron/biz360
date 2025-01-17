@@ -2,8 +2,6 @@ import { paths } from 'src/routes/paths';
 
 import { CONFIG } from 'src/global-config';
 
-import { Label } from 'src/components/label';
-import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -15,7 +13,7 @@ const ICONS = {
   blog: icon('ic-blog'),
   chat: icon('ic-chat'),
   mail: icon('ic-mail'),
-  user: icon('ic-user'),
+  employee: icon('ic-employee'),
   file: icon('ic-file'),
   lock: icon('ic-lock'),
   tour: icon('ic-tour'),
@@ -65,15 +63,15 @@ export const navData = [
     items: [
       {
         title: 'Сотрудники',
-        path: paths.dashboard.user.list,
-        icon: ICONS.user,
+        path: paths.dashboard.employee.list,
+        icon: ICONS.employee,
         // children: [
-        //   // { title: 'Профиль', path: paths.dashboard.user.root },
-        //   // { title: 'Карточки', path: paths.dashboard.user.cards },
-        //   { title: 'Список', path: paths.dashboard.user.list },
-        //   // { title: 'Cоздать', path: paths.dashboard.user.new },
-        //   // { title: 'Изменить', path: paths.dashboard.user.demo.edit },
-        //   // { title: 'Настройка аккаунта', path: paths.dashboard.user.account },
+        //   // { title: 'Профиль', path: paths.dashboard.employee.root },
+        //   // { title: 'Карточки', path: paths.dashboard.employee.cards },
+        //   { title: 'Список', path: paths.dashboard.employee.list },
+        //   // { title: 'Cоздать', path: paths.dashboard.employee.new },
+        //   // { title: 'Изменить', path: paths.dashboard.employee.demo.edit },
+        //   // { title: 'Настройка аккаунта', path: paths.dashboard.employee.account },
         // ],
       },
       {
@@ -153,14 +151,14 @@ export const navData = [
     items: [
       // {
       //   // default roles : All roles can see this entry.
-      //   // roles: ['user'] Only users can see this item.
+      //   // roles: ['employee'] Only employees can see this item.
       //   // roles: ['admin'] Only admin can see this item.
       //   // roles: ['admin', 'manager'] Only admin/manager can see this item.
       //   // Reference from 'src/guards/RoleBasedGuard'.
       //   title: 'Permission',
       //   path: paths.dashboard.permission,
       //   icon: ICONS.lock,
-      //   roles: ['user', 'manager'],
+      //   roles: ['employee', 'manager'],
       //   caption: 'Only admin can see this item',
       // },
       {

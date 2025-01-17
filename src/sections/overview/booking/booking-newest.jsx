@@ -102,7 +102,7 @@ function Item({ item, sx, ...other }) {
           </Box>
 
           <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-            <Iconify width={16} icon="solar:users-group-rounded-bold" sx={{ flexShrink: 0 }} />
+            <Iconify width={16} icon="solar:employees-group-rounded-bold" sx={{ flexShrink: 0 }} />
             {item.guests} guests
           </Box>
         </Box>

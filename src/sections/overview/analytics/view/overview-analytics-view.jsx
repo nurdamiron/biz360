@@ -50,14 +50,14 @@ export function OverviewAnalyticsView() {
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <AnalyticsWidgetSummary
-            title="New users"
+            title="New employees"
             percent={-0.1}
             total={1352831}
             color="secondary"
             icon={
               <img
-                alt="New users"
-                src={`${CONFIG.assetsDir}/assets/icons/glass/ic-glass-users.svg`}
+                alt="New employees"
+                src={`${CONFIG.assetsDir}/assets/icons/glass/ic-glass-employees.svg`}
               />
             }
             chart={{

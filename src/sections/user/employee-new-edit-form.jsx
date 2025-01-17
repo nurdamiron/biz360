@@ -5,7 +5,7 @@ import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
@@ -13,66 +13,71 @@ import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
+import { paths } from 'src/routes/paths';
 
 import { fData } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Field, Form, schemaHelper } from 'src/components/hook-form';
 
-// ----------------------------------------------------------------------
 
-export const NewUserSchema = zod.object({
-  avatarUrl: schemaHelper.file({ message: 'Avatar is required!' }),
-  name: zod.string().min(1, { message: 'Name is required!' }),
+const NewEmployeeSchema = zod.object({
+  avatarUrl: schemaHelper.file().or(zod.null()),
+  fio: zod.string().min(1, { message: 'ФИО обязательно!' }),
   email: zod
     .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
+    .min(1, { message: 'Email обязателен!' })
+    .email({ message: 'Неверный формат email!' }),
   phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-    // message for null value
-    message: 'Country is required!',
-  }),
-  address: zod.string().min(1, { message: 'Требуется указать адрес!' }),
-  company: zod.string().min(1, { message: 'Вам необходимо указать отдел!' }),
-  state: zod.string().min(1, { message: 'Требуется указать область/регион!' }),
-  city: zod.string().min(1, { message: 'Требуется указать город!' }),
-  role: zod.string().min(1, { message: 'Требуется указать роль!' }),
-  zipCode: zod.string().min(1, { message: 'Требуется указать индекс!' }),
-  // Not required
-  status: zod.string(),
-  isVerified: zod.boolean(),
+  department: zod.string().min(1, { message: 'Укажите отдел!' }),
+  role: zod.string().min(1, { message: 'Укажите роль!' }),
+  address: zod.string().optional(),
+  country: zod.string().optional(),
+  state: zod.string().optional(),
+  city: zod.string().optional(),
+  zipCode: zod.string().optional(),
+  status: zod.string().optional(),
+  isVerified: zod.boolean().optional(),
+  // Пример: поля для метрик
+  overall_performance: zod.number().or(zod.nan()).optional(),
+  kpi: zod.number().or(zod.nan()).optional(),
+  work_volume: zod.number().or(zod.nan()).optional(),
+  activity: zod.number().or(zod.nan()).optional(),
+  quality: zod.number().or(zod.nan()).optional(),
 });
 
-// ----------------------------------------------------------------------
-
-export function UserNewEditForm({ currentUser }) {
+export function EmployeeNewEditForm({ currentEmployee }) {
   const router = useRouter();
 
   const defaultValues = {
-    status: '',
     avatarUrl: null,
-    isVerified: true,
-    name: '',
+    fio: '',
     email: '',
     phoneNumber: '',
+    department: '',
+    role: '',
+    address: '',
     country: '',
     state: '',
     city: '',
-    address: '',
     zipCode: '',
-    company: '',
-    role: '',
+    status: 'active',
+    isVerified: true,
+    // Примерные значения для метрик
+    overall_performance: 0,
+    kpi: 0,
+    work_volume: 0,
+    activity: 0,
+    quality: 0,
   };
 
   const methods = useForm({
     mode: 'onSubmit',
-    resolver: zodResolver(NewUserSchema),
+    resolver: zodResolver(NewEmployeeSchema),
     defaultValues,
-    values: currentUser,
+    values: currentEmployee,
   });
 
   const {
@@ -87,10 +92,15 @@ export function UserNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      // Пример имитации запроса
       await new Promise((resolve) => setTimeout(resolve, 500));
+
       reset();
-      toast.success(currentUser ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.user.list);
+      toast.success(currentEmployee ? 'Изменения сохранены!' : 'Сотрудник создан!');
+
+      // Перенаправляем после сохранения
+      router.push(paths.dashboard.employee.list);
+
       console.info('DATA', data);
     } catch (error) {
       console.error(error);
@@ -100,9 +110,10 @@ export function UserNewEditForm({ currentUser }) {
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ pt: 10, pb: 5, px: 3 }}>
-            {currentUser && (
+        {/* Левая колонка с аватаром и статусами */}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ pt: 10, pb: 5, px: 3, position: 'relative' }}>
+            {currentEmployee && (
               <Label
                 color={
                   (values.status === 'active' && 'success') ||
@@ -130,14 +141,14 @@ export function UserNewEditForm({ currentUser }) {
                       color: 'text.disabled',
                     }}
                   >
-                    Allowed *.jpeg, *.jpg, *.png, *.gif
-                    <br /> max size of {fData(3145728)}
+                    Разрешены *.jpeg, *.jpg, *.png, *.gif
+                    <br /> Максимальный размер {fData(3145728)}
                   </Typography>
                 }
               />
             </Box>
 
-            {currentUser && (
+            {currentEmployee && (
               <FormControlLabel
                 labelPlacement="start"
                 control={
@@ -161,7 +172,7 @@ export function UserNewEditForm({ currentUser }) {
                       Заблокирован
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Применить отключение учетной записи
+                      Применить отключение учётной записи сотрудника
                     </Typography>
                   </>
                 }
@@ -180,27 +191,29 @@ export function UserNewEditForm({ currentUser }) {
               label={
                 <>
                   <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Адрес электронной почты подтвержден
+                    Подтверждён ли email
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  При отключении этой функции пользователю будет автоматически отправлено электронное письмо с подтверждением
+                    При отключении функция отправит письмо для повторного подтверждения
                   </Typography>
                 </>
               }
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
 
-            {currentUser && (
+            {/* Пример кнопки удаления */}
+            {currentEmployee && (
               <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
                 <Button variant="soft" color="error">
-                Удалить пользователя
+                  Удалить сотрудника
                 </Button>
               </Stack>
             )}
           </Card>
         </Grid>
 
-        <Grid size={{ xs: 12, md: 8 }}>
+        {/* Правая колонка с полями ввода */}
+        <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box
               sx={{
@@ -210,32 +223,34 @@ export function UserNewEditForm({ currentUser }) {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <Field.Text name="name" label="Full name" />
-              <Field.Text name="email" label="Email address" />
+              <Field.Text name="fio" label="ФИО" />
+              <Field.Text name="email" label="Email" />
+
               <Field.Phone
                 name="phoneNumber"
-                label="Номер телефона"
-                country={!currentUser ? 'DE' : undefined}
+                label="Телефон"
+                country={!currentEmployee ? 'RU' : undefined}
               />
 
-              <Field.CountrySelect
-                fullWidth
-                name="country"
-                label="Country"
-                placeholder="Choose a country"
-              />
-
+              <Field.Text name="department" label="Отдел" />
+              <Field.Text name="role" label="Роль" />
+              <Field.Text name="country" label="Страна" />
               <Field.Text name="state" label="Область/Регион" />
               <Field.Text name="city" label="Город" />
               <Field.Text name="address" label="Адрес" />
               <Field.Text name="zipCode" label="Индекс" />
-              <Field.Text name="company" label="Отдел" />
-              <Field.Text name="role" label="Роль" />
+
+              {/* Примерные поля для метрик */}
+              <Field.Number name="overall_performance" label="Общая эффективность" />
+              <Field.Number name="kpi" label="KPI" />
+              <Field.Number name="work_volume" label="Объём работ" />
+              <Field.Number name="activity" label="Активность" />
+              <Field.Number name="quality" label="Качество" />
             </Box>
 
             <Stack sx={{ mt: 3, alignItems: 'flex-end' }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Создать пользователя' : 'Сохранить изменения'}
+                {!currentEmployee ? 'Создать сотрудника' : 'Сохранить изменения'}
               </LoadingButton>
             </Stack>
           </Card>

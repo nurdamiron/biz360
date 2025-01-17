@@ -16,11 +16,11 @@ import { fData } from 'src/utils/format-number';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export const UpdateUserSchema = zod.object({
+export const UpdateEmployeeSchema = zod.object({
   displayName: zod.string().min(1, { message: 'Name is required!' }),
   email: zod
     .string()
@@ -44,20 +44,20 @@ export const UpdateUserSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function AccountGeneral() {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
-  const currentUser = {
-    displayName: user?.displayName,
-    email: user?.email,
-    photoURL: user?.photoURL,
-    phoneNumber: user?.phoneNumber,
-    country: user?.country,
-    address: user?.address,
-    state: user?.state,
-    city: user?.city,
-    zipCode: user?.zipCode,
-    about: user?.about,
-    isPublic: user?.isPublic,
+  const currentEmployee = {
+    displayName: employee?.displayName,
+    email: employee?.email,
+    photoURL: employee?.photoURL,
+    phoneNumber: employee?.phoneNumber,
+    country: employee?.country,
+    address: employee?.address,
+    state: employee?.state,
+    city: employee?.city,
+    zipCode: employee?.zipCode,
+    about: employee?.about,
+    isPublic: employee?.isPublic,
   };
 
   const defaultValues = {
@@ -76,9 +76,9 @@ export function AccountGeneral() {
 
   const methods = useForm({
     mode: 'all',
-    resolver: zodResolver(UpdateUserSchema),
+    resolver: zodResolver(UpdateEmployeeSchema),
     defaultValues,
-    values: currentUser,
+    values: currentEmployee,
   });
 
   const {
@@ -136,7 +136,7 @@ export function AccountGeneral() {
             />
 
             <Button variant="soft" color="error" sx={{ mt: 3 }}>
-              Delete user
+              Delete employee
             </Button>
           </Card>
         </Grid>

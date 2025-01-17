@@ -11,7 +11,7 @@ import { useGetContacts, useGetConversation, useGetConversations } from 'src/act
 
 import { EmptyContent } from 'src/components/empty-content';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { ChatNav } from '../chat-nav';
 import { ChatLayout } from '../layout';
@@ -27,7 +27,7 @@ import { useCollapseNav } from '../hooks/use-collapse-nav';
 export function ChatView() {
   const router = useRouter();
 
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const { contacts } = useGetContacts();
 
@@ -56,7 +56,7 @@ export function ChatView() {
   }, []);
 
   const filteredParticipants = conversation
-    ? conversation.participants.filter((participant) => participant.id !== `${user?.id}`)
+    ? conversation.participants.filter((participant) => participant.id !== `${employee?.id}`)
     : [];
 
   const hasConversation = selectedConversationId && conversation;

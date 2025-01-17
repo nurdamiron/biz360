@@ -22,12 +22,12 @@ import { fShortenNumber } from 'src/utils/format-number';
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function ProfilePostItem({ post }) {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const commentRef = useRef(null);
 
@@ -55,13 +55,13 @@ export function ProfilePostItem({ post }) {
     <CardHeader
       disableTypography
       avatar={
-        <Avatar src={user?.photoURL} alt={user?.displayName}>
-          {user?.displayName?.charAt(0).toUpperCase()}
+        <Avatar src={employee?.photoURL} alt={employee?.displayName}>
+          {employee?.displayName?.charAt(0).toUpperCase()}
         </Avatar>
       }
       title={
         <Link color="inherit" variant="subtitle1">
-          {user?.displayName}
+          {employee?.displayName}
         </Link>
       }
       subheader={
@@ -118,8 +118,8 @@ export function ProfilePostItem({ post }) {
         }),
       ]}
     >
-      <Avatar src={user?.photoURL} alt={user?.displayName}>
-        {user?.displayName?.charAt(0).toUpperCase()}
+      <Avatar src={employee?.photoURL} alt={employee?.displayName}>
+        {employee?.displayName?.charAt(0).toUpperCase()}
       </Avatar>
 
       <InputBase

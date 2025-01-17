@@ -1,7 +1,7 @@
 {
   "app": "App",
   "job": "Job",
-  "user": "User",
+  "employee": "Employee",
   "travel": "Travel",
   "invoice": "Invoice",
   "blog": {

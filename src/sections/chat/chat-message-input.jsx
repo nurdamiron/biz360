@@ -13,7 +13,7 @@ import { sendMessage, createConversation } from 'src/actions/chat';
 
 import { Iconify } from 'src/components/iconify';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { initialConversation } from './utils/initial-conversation';
 
@@ -27,7 +27,7 @@ export function ChatMessageInput({
 }) {
   const router = useRouter();
 
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const fileRef = useRef(null);
 
@@ -35,17 +35,17 @@ export function ChatMessageInput({
 
   const myContact = useMemo(
     () => ({
-      id: `${user?.id}`,
-      role: `${user?.role}`,
-      email: `${user?.email}`,
-      address: `${user?.address}`,
-      name: `${user?.displayName}`,
+      id: `${employee?.id}`,
+      role: `${employee?.role}`,
+      email: `${employee?.email}`,
+      address: `${employee?.address}`,
+      name: `${employee?.displayName}`,
       lastActivity: today(),
-      avatarUrl: `${user?.photoURL}`,
-      phoneNumber: `${user?.phoneNumber}`,
+      avatarUrl: `${employee?.photoURL}`,
+      phoneNumber: `${employee?.phoneNumber}`,
       status: 'online',
     }),
-    [user]
+    [employee]
   );
 
   const { messageData, conversationData } = initialConversation({

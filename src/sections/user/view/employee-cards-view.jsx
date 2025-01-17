@@ -9,34 +9,34 @@ import { DashboardContent } from 'src/layouts/dashboard';
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { UserCardList } from '../user-card-list';
+import { EmployeeCardList } from '../employee-card-list';
 
 // ----------------------------------------------------------------------
 
-export function UserCardsView() {
+export function EmployeeCardsView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Карточки сотрудников"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.root },
+          { name: 'Employee', href: paths.dashboard.employee.root },
           { name: 'Cards' },
         ]}
         action={
           <Button
             component={RouterLink}
-            href={paths.dashboard.user.new}
+            href={paths.dashboard.employee.new}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New user
+            New employee
           </Button>
         }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <UserCardList users={_userCards} />
+      <EmployeeCardList employees={_userCards} />
     </DashboardContent>
   );
 }

@@ -10,9 +10,9 @@ import { setSession, isValidToken } from './utils';
 // ----------------------------------------------------------------------
 
 export function AuthProvider({ children }) {
-  const { state, setState } = useSetState({ user: null, loading: true });
+  const { state, setState } = useSetState({ employee: null, loading: true });
 
-  const checkUserSession = useCallback(async () => {
+  const checkEmployeeSession = useCallback(async () => {
     try {
       const accessToken = sessionStorage.getItem(JWT_STORAGE_KEY);
 
@@ -21,38 +21,38 @@ export function AuthProvider({ children }) {
 
         const res = await axios.get(endpoints.auth.me);
 
-        const { user } = res.data;
+        const { employee } = res.data;
 
-        setState({ user: { ...user, accessToken }, loading: false });
+        setState({ employee: { ...employee, accessToken }, loading: false });
       } else {
-        setState({ user: null, loading: false });
+        setState({ employee: null, loading: false });
       }
     } catch (error) {
       console.error(error);
-      setState({ user: null, loading: false });
+      setState({ employee: null, loading: false });
     }
   }, [setState]);
 
   useEffect(() => {
-    checkUserSession();
+    checkEmployeeSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ----------------------------------------------------------------------
 
-  const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
+  const checkAuthenticated = state.employee ? 'authenticated' : 'unauthenticated';
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
   const memoizedValue = useMemo(
     () => ({
-      user: state.user ? { ...state.user, role: state.user?.role ?? 'admin' } : null,
-      checkUserSession,
+      employee: state.employee ? { ...state.employee, role: state.employee?.role ?? 'admin' } : null,
+      checkEmployeeSession,
       loading: status === 'loading',
       authenticated: status === 'authenticated',
       unauthenticated: status === 'unauthenticated',
     }),
-    [checkUserSession, state.user, status]
+    [checkEmployeeSession, state.employee, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

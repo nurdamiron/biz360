@@ -12,12 +12,12 @@ import { CONFIG } from 'src/global-config';
 
 import { Label } from 'src/components/label';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function NavUpgrade({ sx, ...other }) {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   return (
     <Box
@@ -26,8 +26,8 @@ export function NavUpgrade({ sx, ...other }) {
     >
       <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
         <Box sx={{ position: 'relative' }}>
-          <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 48, height: 48 }}>
-            {user?.displayName?.charAt(0).toUpperCase()}
+          <Avatar src={employee?.photoURL} alt={employee?.displayName} sx={{ width: 48, height: 48 }}>
+            {employee?.displayName?.charAt(0).toUpperCase()}
           </Avatar>
 
           <Label
@@ -52,7 +52,7 @@ export function NavUpgrade({ sx, ...other }) {
             noWrap
             sx={{ mb: 1, color: 'var(--layout-nav-text-primary-color)' }}
           >
-            {user?.displayName}
+            {employee?.displayName}
           </Typography>
 
           <Typography
@@ -60,13 +60,13 @@ export function NavUpgrade({ sx, ...other }) {
             noWrap
             sx={{ color: 'var(--layout-nav-text-disabled-color)' }}
           >
-            {user?.email}
+            {employee?.email}
           </Typography>
         </Box>
 
-        <Button variant="contained" href={paths.auth} target="_blank" rel="noopener">
+        {/* <Button variant="contained" href={paths.auth} target="_blank" rel="noopener">
           Upgrade to Pro
-        </Button>
+        </Button> */}
       </Box>
     </Box>
   );

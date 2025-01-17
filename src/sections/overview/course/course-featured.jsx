@@ -66,7 +66,7 @@ function CarouselItem({ item, sx, ...other }) {
     >
       <Label startIcon={<Iconify width={12} icon="solar:clock-circle-outline" />}>1h 40m</Label>
 
-      <Label startIcon={<Iconify width={12} icon="solar:users-group-rounded-bold" />}>
+      <Label startIcon={<Iconify width={12} icon="solar:employees-group-rounded-bold" />}>
         {fShortenNumber(item.totalStudents)}
       </Label>
     </Box>

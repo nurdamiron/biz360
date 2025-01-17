@@ -10,12 +10,12 @@ import { RouterLink } from 'src/routes/components';
 import { usePathname, useSearchParams } from 'src/routes/hooks';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _userAbout, _userFeeds, _userFriends, _userGallery, _userFollowers } from 'src/_mock';
+import { _employeeAbout, _employeeFeeds, _employeeFriends, _employeeGallery, _employeeFollowers } from 'src/_mock';
 
 import { Iconify } from 'src/components/iconify';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { ProfileHome } from '../profile-home';
 import { ProfileCover } from '../profile-cover';
@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   {
     value: '',
     label: 'Profile',
-    icon: <Iconify width={24} icon="solar:user-id-bold" />,
+    icon: <Iconify width={24} icon="solar:employee-id-bold" />,
   },
   {
     value: 'followers',
@@ -39,7 +39,7 @@ const NAV_ITEMS = [
   {
     value: 'friends',
     label: 'Friends',
-    icon: <Iconify width={24} icon="solar:users-group-rounded-bold" />,
+    icon: <Iconify width={24} icon="solar:employees-group-rounded-bold" />,
   },
   {
     value: 'gallery',
@@ -52,12 +52,12 @@ const NAV_ITEMS = [
 
 const TAB_PARAM = 'tab';
 
-export function UserProfileView() {
+export function EmployeeProfileView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const selectedTab = searchParams.get(TAB_PARAM) ?? '';
 
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const [searchFriends, setSearchFriends] = useState('');
 
@@ -75,19 +75,19 @@ export function UserProfileView() {
       <CustomBreadcrumbs
         heading="Profile"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.root },
-          { name: user?.displayName },
+          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Сотрудник', href: paths.dashboard.employee.root },
+          { name: employee?.displayName },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
       <Card sx={{ mb: 3, height: 290 }}>
         <ProfileCover
-          role={_userAbout.role}
-          name={user?.displayName}
-          avatarUrl={user?.photoURL}
-          coverUrl={_userAbout.coverUrl}
+          role={_employeeAbout.role}
+          name={employee?.displayName}
+          avatarUrl={employee?.photoURL}
+          coverUrl={_employeeAbout.coverUrl}
         />
 
         <Box
@@ -117,19 +117,19 @@ export function UserProfileView() {
         </Box>
       </Card>
 
-      {selectedTab === '' && <ProfileHome info={_userAbout} posts={_userFeeds} />}
+      {selectedTab === '' && <ProfileHome info={_employeeAbout} posts={_employeeFeeds} />}
 
-      {selectedTab === 'followers' && <ProfileFollowers followers={_userFollowers} />}
+      {selectedTab === 'followers' && <ProfileFollowers followers={_employeeFollowers} />}
 
       {selectedTab === 'friends' && (
         <ProfileFriends
-          friends={_userFriends}
+          friends={_employeeFriends}
           searchFriends={searchFriends}
           onSearchFriends={handleSearchFriends}
         />
       )}
 
-      {selectedTab === 'gallery' && <ProfileGallery gallery={_userGallery} />}
+      {selectedTab === 'gallery' && <ProfileGallery gallery={_employeeGallery} />}
     </DashboardContent>
   );
 }

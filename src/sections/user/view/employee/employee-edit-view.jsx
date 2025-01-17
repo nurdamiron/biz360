@@ -4,25 +4,25 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { UserNewEditForm } from '../user-new-edit-form';
+import { EmployeeNewEditForm } from '../../employee-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export function UserEditView({ user: currentUser }) {
+export function EmployeeEditView({ employee: currentEmployee }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Edit"
-        backHref={paths.dashboard.user.list}
+        backHref={paths.dashboard.employee.list}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.root },
-          { name: currentUser?.name },
+          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Сотрудник', href: paths.dashboard.employee.root },
+          { name: currentEmployee?.name },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <UserNewEditForm currentUser={currentUser} />
+      <EmployeeNewEditForm currentEmployee={currentEmployee} />
     </DashboardContent>
   );
 }

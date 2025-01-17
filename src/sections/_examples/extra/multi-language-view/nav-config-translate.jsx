@@ -44,9 +44,9 @@ export function navData(t) {
           caption: t('blog.caption'),
         },
         {
-          title: t('user'),
+          title: t('employee'),
           path: 'https://www.google.com/',
-          icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-user.svg`} />,
+          icon: <SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-employee.svg`} />,
         },
         {
           title: t('invoice'),

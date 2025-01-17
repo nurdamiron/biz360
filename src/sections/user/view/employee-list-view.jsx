@@ -16,14 +16,13 @@ import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
-
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+
 import {
   useTable,
   emptyRows,
@@ -36,35 +35,89 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
-import { UserTableRow } from '../user-table-row';
-import { UserTableToolbar } from '../user-table-toolbar';
-import { UserTableFiltersResult } from '../user-table-filters-result';
+import { EmployeeTableRow } from '../employee-table-row';
+import { EmployeeTableToolbar } from '../employee-table-toolbar';
+import { EmployeeTableFiltersResult } from '../employee-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Все' }, ...USER_STATUS_OPTIONS];
-
-const TABLE_HEAD = [
-  { id: 'name', label: 'ФИО' },
-  { id: 'phoneNumber', label: 'Номер телефона', width: 180 },
-  { id: 'company', label: 'Отдел', width: 220 },
-  { id: 'role', label: 'Роль', width: 180 },
-  { id: 'status', label: 'Доступ', width: 100 },
-  { id: '', width: 88 },
+// Пример статичных данных (пока нет API)
+const _employeeList = [
+  {
+    id: 1,
+    fio: 'Иванов Иван Иванович',
+    phoneNumber: '+7 999 123-45-67',
+    department: 'Отдел продаж',
+    role: 'manager',
+    status: 'active',
+    avatarUrl: null,
+    // Метрики
+    overall_performance: 85.5,
+    kpi: 90.0,
+    work_volume: 75.0,
+    activity: 80.0,
+    quality: 88.0,
+  },
+  {
+    id: 2,
+    fio: 'Петров Пётр Петрович',
+    phoneNumber: '+7 912 345-67-89',
+    department: 'Отдел маркетинга',
+    role: 'marketer',
+    status: 'banned',
+    avatarUrl: null,
+    overall_performance: 70.0,
+    kpi: 65.0,
+    work_volume: 80.0,
+    activity: 50.0,
+    quality: 90.0,
+  },
 ];
 
+// Вы можете сформировать список статусов самостоятельно,
+// либо использовать те же, что и были у «юзеров».
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'Все' },
+  { value: 'active', label: 'Активен' },
+  { value: 'pending', label: 'Ожидает' },
+  { value: 'banned', label: 'Заблокирован' },
+];
+
+// Таблица: какие колонки показываем
+// Добавлены поля для метрик (KPI, Объём работ и т.д.)
+// Пример нового TABLE_HEAD
+const TABLE_HEAD = [
+  { id: 'fio', label: 'ФИО', width: 240 },
+  // Телефон будет отображаться под ФИО, так что убираем отдельный столбец
+  { id: 'department', label: 'Отдел', width: 180 },
+  { id: 'overall_performance', label: 'Общая эффективность', width: 140 },
+  { id: 'kpi', label: 'KPI', width: 80 },
+  { id: 'work_volume', label: 'Объём работ', width: 120 },
+  { id: 'activity', label: 'Активность', width: 100 },
+  { id: 'quality', label: 'Качество', width: 100 },
+  { id: 'status', label: 'Доступ', width: 100 },
+  { id: '', width: 88 }, // Столбец для меню действий
+];
+
+
 // ----------------------------------------------------------------------
 
-export function UserListView() {
+export function EmployeeListView() {
   const table = useTable();
 
   const confirmDialog = useBoolean();
 
-  const [tableData, setTableData] = useState(_userList);
+  const [tableData, setTableData] = useState(_employeeList);
 
-  const filters = useSetState({ name: '', role: [], status: 'all' });
+  const filters = useSetState({
+    fio: '',
+    role: [],
+    status: 'all',
+  });
+
   const { state: currentFilters, setState: updateFilters } = filters;
 
+  // Применяем фильтры и сортировку
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -72,35 +125,29 @@ export function UserListView() {
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-
-  const canReset =
-    !!currentFilters.name || currentFilters.role.length > 0 || currentFilters.status !== 'all';
-
+  const canReset = !!currentFilters.fio || currentFilters.role.length > 0 || currentFilters.status !== 'all';
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
+  // Удаление одной строки
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-
       toast.success('Успешно удалено!');
-
       setTableData(deleteRow);
-
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
 
+  // Удаление сразу нескольких строк
   const handleDeleteRows = useCallback(() => {
     const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
     toast.success('Успешно удалено!');
-
     setTableData(deleteRows);
-
     table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
+  // Переключение табов статусов
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       table.onResetPage();
@@ -109,14 +156,15 @@ export function UserListView() {
     [updateFilters, table]
   );
 
+  // Модалка подтверждения удаления
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
+      title="Удалить"
       content={
         <>
-          Вы уверены, что хотите удалить <strong> {table.selected.length} </strong> элементов?
+          Вы уверены, что хотите удалить <strong>{table.selected.length}</strong> сотрудников?
         </>
       }
       action={
@@ -138,20 +186,20 @@ export function UserListView() {
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="Список"
+          heading="Сотрудники"
           links={[
             { name: 'Дэшборд', href: paths.dashboard.root },
-            // { name: 'Пользователь', href: paths.dashboard.user.root },
-            { name: 'Список' },
+            { name: 'Сотрудники' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href={paths.dashboard.employee.new} 
+              // Здесь вы можете поменять paths.dashboard.employee.new на свой route (employee/new и т.п.)
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              Новый пользователь
+              Новый сотрудник
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}
@@ -161,12 +209,10 @@ export function UserListView() {
           <Tabs
             value={currentFilters.status}
             onChange={handleFilterStatus}
-            sx={[
-              (theme) => ({
-                px: 2.5,
-                boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-              }),
-            ]}
+            sx={[(theme) => ({
+              px: 2.5,
+              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+            })]}
           >
             {STATUS_OPTIONS.map((tab) => (
               <Tab
@@ -176,10 +222,7 @@ export function UserListView() {
                 label={tab.label}
                 icon={
                   <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === currentFilters.status) && 'filled') ||
-                      'soft'
-                    }
+                    variant={(tab.value === 'all' || tab.value === currentFilters.status) ? 'filled' : 'soft'}
                     color={
                       (tab.value === 'active' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
@@ -187,8 +230,8 @@ export function UserListView() {
                       'default'
                     }
                   >
-                    {['active', 'pending', 'banned', 'rejected'].includes(tab.value)
-                      ? tableData.filter((user) => user.status === tab.value).length
+                    {['active', 'pending', 'banned'].includes(tab.value)
+                      ? tableData.filter((emp) => emp.status === tab.value).length
                       : tableData.length}
                   </Label>
                 }
@@ -196,14 +239,14 @@ export function UserListView() {
             ))}
           </Tabs>
 
-          <UserTableToolbar
+          <EmployeeTableToolbar
             filters={filters}
             onResetPage={table.onResetPage}
-            options={{ roles: _roles }}
+            options={{ roles: ['manager', 'marketer', 'admin', 'developer'] }}
           />
 
           {canReset && (
-            <UserTableFiltersResult
+            <EmployeeTableFiltersResult
               filters={filters}
               totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
@@ -223,7 +266,7 @@ export function UserListView() {
                 )
               }
               action={
-                <Tooltip title="Delete">
+                <Tooltip title="Удалить">
                   <IconButton color="primary" onClick={confirmDialog.onTrue}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
@@ -250,23 +293,21 @@ export function UserListView() {
 
                 <TableBody>
                   {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
+                    .slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
                     .map((row) => (
-                      <UserTableRow
+                      <EmployeeTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.user.edit(row.id)}
+                        // editHref (для кнопки "Edit") можете менять под свои роуты
+                        editHref={paths.dashboard.employee.edit(row.id)}
                       />
                     ))}
 
                   <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
+                    height={table.dense ? 56 : 76}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                   />
 
@@ -296,28 +337,30 @@ export function UserListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { name, status, role } = filters;
+  const { fio, status, role } = filters;
 
+  // Сортировка
   const stabilizedThis = inputData.map((el, index) => [el, index]);
-
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (name) {
-    inputData = inputData.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
+  // Фильтр по ФИО
+  if (fio) {
+    inputData = inputData.filter((emp) => emp.fio.toLowerCase().includes(fio.toLowerCase()));
   }
 
+  // Фильтр по статусу
   if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
+    inputData = inputData.filter((emp) => emp.status === status);
   }
 
+  // Фильтр по роли
   if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
+    inputData = inputData.filter((emp) => role.includes(emp.role));
   }
 
   return inputData;

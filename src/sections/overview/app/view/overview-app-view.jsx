@@ -9,7 +9,7 @@ import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } f
 
 import { svgColorClasses } from 'src/components/svg-color';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 import { AppWidget } from '../app-widget';
 import { AppWelcome } from '../app-welcome';
@@ -25,7 +25,7 @@ import { AppTopInstalledCountries } from '../app-top-installed-countries';
 // ----------------------------------------------------------------------
 
 export function OverviewAppView() {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const theme = useTheme();
 
@@ -34,7 +34,7 @@ export function OverviewAppView() {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 8 }}>
           <AppWelcome
-            title={`Добро пожаловать в BIZ360👋 \n ${user?.displayName}`}
+            title={`Добро пожаловать в BIZ360👋 \n ${employee?.displayName}`}
             description=""
             img={<SeoIllustration hideBackground />}
             action={
@@ -51,7 +51,7 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total active users"
+            title="Total active employees"
             percent={2.6}
             total={18765}
             chart={{
@@ -182,7 +182,7 @@ export function OverviewAppView() {
             <AppWidget
               title="Conversion"
               total={38566}
-              icon="solar:user-rounded-bold"
+              icon="solar:employee-rounded-bold"
               chart={{ series: 48 }}
             />
 

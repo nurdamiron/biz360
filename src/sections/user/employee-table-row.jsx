@@ -1,5 +1,4 @@
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
-
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -12,6 +11,8 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import LinearProgress from '@mui/material/LinearProgress'; // для прогресс-бара
 
 import { RouterLink } from 'src/routes/components';
 
@@ -20,18 +21,16 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 
-import { UserQuickEditForm } from './user-quick-edit-form';
+import { EmployeeQuickEditForm } from './employee-quick-edit-form';
 
-// ----------------------------------------------------------------------
-
-export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }) {
+export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }) {
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
 
   const renderQuickEditForm = () => (
-    <UserQuickEditForm
-      currentUser={row}
+    <EmployeeQuickEditForm
+      currentEmployee={row}
       open={quickEditForm.value}
       onClose={quickEditForm.onFalse}
     />
@@ -46,9 +45,9 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
     >
       <MenuList>
         <li>
-          <MenuItem component={RouterLink} href={editHref} onClick={() => menuActions.onClose()}>
+          <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
             <Iconify icon="solar:pen-bold" />
-            Edit
+            Редактировать
           </MenuItem>
         </li>
 
@@ -60,7 +59,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Удалить
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -70,11 +69,11 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
+      title="Удалить"
+      content="Вы уверены, что хотите удалить этого сотрудника?"
       action={
         <Button variant="contained" color="error" onClick={onDeleteRow}>
-          Delete
+          Удалить
         </Button>
       }
     />
@@ -83,6 +82,7 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
   return (
     <>
       <TableRow hover selected={selected} aria-checked={selected} tabIndex={-1}>
+        {/* Чекбокс для множественного выбора */}
         <TableCell padding="checkbox">
           <Checkbox
             checked={selected}
@@ -94,32 +94,62 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
           />
         </TableCell>
 
+        {/* ФИО + телефон */}
         <TableCell>
           <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-            <Avatar alt={row.name} src={row.avatarUrl} />
+            <Avatar alt={row.fio} src={row.avatarUrl} />
 
-            <Stack sx={{ typography: 'body2', flex: '1 1 auto', alignItems: 'flex-start' }}>
+            <Stack sx={{ typography: 'body2', flex: '1 1 auto' }}>
               <Link
                 component={RouterLink}
                 href={editHref}
                 color="inherit"
+                variant="subtitle2"
                 sx={{ cursor: 'pointer' }}
               >
-                {row.name}
+                {row.fio}
               </Link>
-              <Box component="span" sx={{ color: 'text.disabled' }}>
-                {row.email}
-              </Box>
+
+              {/* Телефон под ФИО, более спокойным цветом и меньшим шрифтом */}
+              {row.phoneNumber && (
+                <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                  {row.phoneNumber}
+                </Typography>
+              )}
             </Stack>
           </Box>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.phoneNumber}</TableCell>
+        {/* Отдел */}
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.department || '—'}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.company}</TableCell>
+        {/* Общая эффективность (ползунок или прогресс) */}
+        <TableCell>
+          <Box sx={{ minWidth: 80 }}>
+            <LinearProgress
+              variant="determinate"
+              value={row.overall_performance} // ожидается число 0–100
+              sx={{ mb: 0.5 }}
+            />
+            <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+              {`${row.overall_performance}%`}
+            </Typography>
+          </Box>
+        </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.role}</TableCell>
+        {/* KPI */}
+        <TableCell>{row.kpi ?? '—'}</TableCell>
 
+        {/* Объём работ */}
+        <TableCell>{row.work_volume ?? '—'}</TableCell>
+
+        {/* Активность */}
+        <TableCell>{row.activity ?? '—'}</TableCell>
+
+        {/* Качество */}
+        <TableCell>{row.quality ?? '—'}</TableCell>
+
+        {/* Статус (доступ) */}
         <TableCell>
           <Label
             variant="soft"
@@ -134,8 +164,9 @@ export function UserTableRow({ row, selected, editHref, onSelectRow, onDeleteRow
           </Label>
         </TableCell>
 
-        <TableCell>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {/* Меню действий (иконки) */}
+        <TableCell align="right">
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
             <Tooltip title="Quick Edit" placement="top" arrow>
               <IconButton
                 color={quickEditForm.value ? 'inherit' : 'default'}

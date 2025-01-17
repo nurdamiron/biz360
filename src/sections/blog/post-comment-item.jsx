@@ -13,7 +13,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function PostCommentItem({ name, avatarUrl, message, tagUser, postedAt, hasReply }) {
+export function PostCommentItem({ name, avatarUrl, message, tagEmployee, postedAt, hasReply }) {
   const reply = useBoolean();
 
   return (
@@ -40,9 +40,9 @@ export function PostCommentItem({ name, avatarUrl, message, tagUser, postedAt, h
         </Typography>
 
         <Typography variant="body2" sx={{ mt: 1 }}>
-          {tagUser && (
+          {tagEmployee && (
             <Box component="strong" sx={{ mr: 0.5 }}>
-              @{tagUser}
+              @{tagEmployee}
             </Box>
           )}
           {message}

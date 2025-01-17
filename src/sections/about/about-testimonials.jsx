@@ -47,7 +47,7 @@ export function AboutTestimonials({ sx, ...other }) {
         <Typography sx={{ color: 'common.white' }}>
           Our goal is to create a product and service that you’re satisfied with and use it every
           day. This is why we’re constantly working on our services to make it better every day and
-          really listen to what our users has to say.
+          really listen to what our employees has to say.
         </Typography>
       </m.div>
 

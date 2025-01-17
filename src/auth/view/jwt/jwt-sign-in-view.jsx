@@ -229,7 +229,7 @@ axios.interceptors.response.use(
 export function JwtSignInView() {
   const router = useRouter();
   const showPassword = useBoolean();
-  const { checkUserSession } = useAuthContext();
+  const { checkEmployeeSession } = useAuthContext();
   const [errorMessage, setErrorMessage] = useState('');
 
   const defaultValues = {
@@ -257,8 +257,8 @@ export function JwtSignInView() {
         password: data.password,
       });
   
-      console.log('🔄 Checking user session...');
-      await checkUserSession?.();
+      console.log('🔄 Checking employee session...');
+      await checkEmployeeSession?.();
 
       // Получаем параметр returnTo из query, если он существует
       const returnTo = new URLSearchParams(window.location.search).get('returnTo') || paths.dashboard.root;

@@ -21,7 +21,7 @@ export function PostCommentList({ comments = [] }) {
             />
             {hasReply &&
               comment.replyComment.map((reply) => {
-                const userReply = comment.users.find((user) => user.id === reply.userId);
+                const userReply = comment.employees.find((employee) => employee.id === reply.userId);
 
                 return (
                   <PostCommentItem
@@ -30,7 +30,7 @@ export function PostCommentList({ comments = [] }) {
                     message={reply.message}
                     postedAt={reply.postedAt}
                     avatarUrl={userReply?.avatarUrl || ''}
-                    tagUser={reply.tagUser}
+                    tagEmployee={reply.tagEmployee}
                     hasReply
                   />
                 );

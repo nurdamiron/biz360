@@ -85,16 +85,16 @@ export const paths = {
       file: `${ROOTS.DASHBOARD}/file`,
       course: `${ROOTS.DASHBOARD}/course`,
     },
-    user: {
-      root: `${ROOTS.DASHBOARD}/user`,
-      new: `${ROOTS.DASHBOARD}/user/new`,
-      list: `${ROOTS.DASHBOARD}/user/list`,
-      cards: `${ROOTS.DASHBOARD}/user/cards`,
-      profile: `${ROOTS.DASHBOARD}/user/profile`,
-      account: `${ROOTS.DASHBOARD}/user/account`,
-      edit: (id) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
+    employee: {
+      root: `${ROOTS.DASHBOARD}/employee`,
+      new: `${ROOTS.DASHBOARD}/employee/new`,
+      list: `${ROOTS.DASHBOARD}/employee/list`,
+      cards: `${ROOTS.DASHBOARD}/employee/cards`,
+      profile: `${ROOTS.DASHBOARD}/employee/profile`,
+      account: `${ROOTS.DASHBOARD}/employee/account`,
+      edit: (id) => `${ROOTS.DASHBOARD}/employee/${id}/edit`,
       demo: {
-        edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit`,
+        edit: `${ROOTS.DASHBOARD}/employee/${MOCK_ID}/edit`,
       },
     },
     product: {

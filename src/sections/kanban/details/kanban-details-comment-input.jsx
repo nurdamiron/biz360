@@ -7,12 +7,12 @@ import IconButton from '@mui/material/IconButton';
 
 import { Iconify } from 'src/components/iconify';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function KanbanDetailsCommentInput() {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   return (
     <Box
@@ -23,8 +23,8 @@ export function KanbanDetailsCommentInput() {
         display: 'flex',
       }}
     >
-      <Avatar src={user?.photoURL} alt={user?.displayName}>
-        {user?.displayName?.charAt(0).toUpperCase()}
+      <Avatar src={employee?.photoURL} alt={employee?.displayName}>
+        {employee?.displayName?.charAt(0).toUpperCase()}
       </Avatar>
 
       <Paper variant="outlined" sx={{ p: 1, flexGrow: 1, bgcolor: 'transparent' }}>

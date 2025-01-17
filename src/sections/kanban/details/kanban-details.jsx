@@ -37,7 +37,7 @@ import { KanbanContactsDialog } from '../components/kanban-contacts-dialog';
 const SUBTASKS = [
   'Complete project proposal',
   'Conduct market research',
-  'Design user interface mockups',
+  'Design employee interface mockups',
   'Develop backend api',
   'Implement authentication system',
 ];
@@ -150,8 +150,8 @@ export function KanbanDetails({ task, open, onUpdateTask, onDeleteTask, onClose 
         <BlockLabel sx={{ height: 40, lineHeight: '40px' }}>Assignee</BlockLabel>
 
         <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
-          {task.assignee.map((user) => (
-            <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+          {task.assignee.map((employee) => (
+            <Avatar key={employee.id} alt={employee.name} src={employee.avatarUrl} />
           ))}
 
           <Tooltip title="Add assignee">

@@ -13,7 +13,7 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 import { RoleBasedGuard } from 'src/auth/guard';
 
 // ----------------------------------------------------------------------
@@ -21,7 +21,7 @@ import { RoleBasedGuard } from 'src/auth/guard';
 export function PermissionDeniedView() {
   const [role, setRole] = useState('admin');
 
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const handleChangeRole = useCallback((event, newRole) => {
     if (newRole !== null) {
@@ -46,12 +46,12 @@ export function PermissionDeniedView() {
         <ToggleButton value="admin" aria-label="Admin role">
           Admin role
         </ToggleButton>
-        <ToggleButton value="user" aria-label="User role">
-          User role
+        <ToggleButton value="employee" aria-label="Employee role">
+          Employee role
         </ToggleButton>
       </ToggleButtonGroup>
 
-      <RoleBasedGuard hasContent currentRole={user?.role} acceptRoles={[role]} sx={{ py: 10 }}>
+      <RoleBasedGuard hasContent currentRole={employee?.role} acceptRoles={[role]} sx={{ py: 10 }}>
         <Box
           sx={{
             gap: 3,

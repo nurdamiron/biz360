@@ -4,14 +4,12 @@ import Chip from '@mui/material/Chip';
 
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
-// ----------------------------------------------------------------------
-
-export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx }) {
+export function EmployeeTableFiltersResult({ filters, onResetPage, totalResults, sx }) {
   const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
 
-  const handleRemoveKeyword = useCallback(() => {
+  const handleRemoveFio = useCallback(() => {
     onResetPage();
-    updateFilters({ name: '' });
+    updateFilters({ fio: '' });
   }, [onResetPage, updateFilters]);
 
   const handleRemoveStatus = useCallback(() => {
@@ -22,7 +20,6 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
   const handleRemoveRole = useCallback(
     (inputValue) => {
       const newValue = currentFilters.role.filter((item) => item !== inputValue);
-
       onResetPage();
       updateFilters({ role: newValue });
     },
@@ -36,13 +33,8 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
 
   return (
     <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Status:" isShow={currentFilters.status !== 'all'}>
-        <Chip
-          {...chipProps}
-          label={currentFilters.status}
-          onDelete={handleRemoveStatus}
-          sx={{ textTransform: 'capitalize' }}
-        />
+      <FiltersBlock label="Статус:" isShow={currentFilters.status !== 'all'}>
+        <Chip {...chipProps} label={currentFilters.status} onDelete={handleRemoveStatus} />
       </FiltersBlock>
 
       <FiltersBlock label="Роль:" isShow={!!currentFilters.role.length}>
@@ -51,8 +43,8 @@ export function UserTableFiltersResult({ filters, onResetPage, totalResults, sx 
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>
-        <Chip {...chipProps} label={currentFilters.name} onDelete={handleRemoveKeyword} />
+      <FiltersBlock label="ФИО:" isShow={!!currentFilters.fio}>
+        <Chip {...chipProps} label={currentFilters.fio} onDelete={handleRemoveFio} />
       </FiltersBlock>
     </FiltersResult>
   );

@@ -17,28 +17,28 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 const NAV_ITEMS = [
   {
     label: 'General',
-    icon: <Iconify width={24} icon="solar:user-id-bold" />,
-    href: paths.dashboard.user.account,
+    icon: <Iconify width={24} icon="solar:employee-id-bold" />,
+    href: paths.dashboard.employee.account,
   },
   {
     label: 'Billing',
     icon: <Iconify width={24} icon="solar:bill-list-bold" />,
-    href: `${paths.dashboard.user.account}/billing`,
+    href: `${paths.dashboard.employee.account}/billing`,
   },
   {
     label: 'Notifications',
     icon: <Iconify width={24} icon="solar:bell-bing-bold" />,
-    href: `${paths.dashboard.user.account}/notifications`,
+    href: `${paths.dashboard.employee.account}/notifications`,
   },
   {
     label: 'Social links',
     icon: <Iconify width={24} icon="solar:share-bold" />,
-    href: `${paths.dashboard.user.account}/socials`,
+    href: `${paths.dashboard.employee.account}/socials`,
   },
   {
     label: 'Security',
     icon: <Iconify width={24} icon="ic:round-vpn-key" />,
-    href: `${paths.dashboard.user.account}/change-password`,
+    href: `${paths.dashboard.employee.account}/change-password`,
   },
 ];
 
@@ -53,7 +53,7 @@ export function AccountLayout({ children, ...other }) {
         heading="Account"
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.root },
+          { name: 'Employee', href: paths.dashboard.employee.root },
           { name: 'Account' },
         ]}
         sx={{ mb: 3 }}

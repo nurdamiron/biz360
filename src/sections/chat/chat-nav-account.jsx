@@ -18,12 +18,12 @@ import InputBase, { inputBaseClasses } from '@mui/material/InputBase';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
-import { useMockedUser } from 'src/auth/hooks';
+import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function ChatNavAccount() {
-  const { user } = useMockedUser();
+  const { employee } = useMockedEmployee();
 
   const menuActions = usePopover();
 
@@ -53,7 +53,7 @@ export function ChatNavAccount() {
           alignItems: 'center',
         }}
       >
-        <ListItemText primary={user?.displayName} secondary={user?.email} />
+        <ListItemText primary={employee?.displayName} secondary={employee?.email} />
 
         <Tooltip title="Log out">
           <IconButton color="error">
@@ -109,7 +109,7 @@ export function ChatNavAccount() {
         </MenuItem>
 
         <MenuItem>
-          <Iconify width={24} icon="solar:user-id-bold" />
+          <Iconify width={24} icon="solar:employee-id-bold" />
           Profile
         </MenuItem>
 
@@ -130,12 +130,12 @@ export function ChatNavAccount() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Avatar
-          src={user?.photoURL}
-          alt={user?.displayName}
+          src={employee?.photoURL}
+          alt={employee?.displayName}
           onClick={menuActions.onOpen}
           sx={{ cursor: 'pointer', width: 48, height: 48 }}
         >
-          {user?.displayName?.charAt(0).toUpperCase()}
+          {employee?.displayName?.charAt(0).toUpperCase()}
         </Avatar>
       </Badge>
 

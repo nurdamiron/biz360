@@ -40,7 +40,7 @@ export function JwtSignUpView() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
+  const [userEmail, setEmployeeEmail] = useState('');
   const [countdown, setCountdown] = useState(5);
 
   const defaultValues = {
@@ -63,7 +63,7 @@ export function JwtSignUpView() {
   const onSubmit = handleSubmit(async (data) => {
     try {
       setErrorMessage('');
-      setUserEmail(data.email);
+      setEmployeeEmail(data.email);
       
       const response = await fetch(`${API_BASE_URL}/auth/register/`, {
         method: 'POST',

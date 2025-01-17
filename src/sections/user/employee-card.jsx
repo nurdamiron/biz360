@@ -17,7 +17,7 @@ import { Image } from 'src/components/image';
 
 // ----------------------------------------------------------------------
 
-export function UserCard({ user, sx, ...other }) {
+export function EmployeeCard({ employee, sx, ...other }) {
   return (
     <Card sx={[{ textAlign: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <Box sx={{ position: 'relative' }}>
@@ -33,8 +33,8 @@ export function UserCard({ user, sx, ...other }) {
         />
 
         <Avatar
-          alt={user.name}
-          src={user.avatarUrl}
+          alt={employee.name}
+          src={employee.avatarUrl}
           sx={{
             left: 0,
             right: 0,
@@ -48,8 +48,8 @@ export function UserCard({ user, sx, ...other }) {
         />
 
         <Image
-          src={user.coverUrl}
-          alt={user.coverUrl}
+          src={employee.coverUrl}
+          alt={employee.coverUrl}
           ratio="16/9"
           slotProps={{
             overlay: {
@@ -63,8 +63,8 @@ export function UserCard({ user, sx, ...other }) {
 
       <ListItemText
         sx={{ mt: 7, mb: 1 }}
-        primary={user.name}
-        secondary={user.role}
+        primary={employee.name}
+        secondary={employee.role}
         slotProps={{
           primary: { sx: { typography: 'subtitle1' } },
           secondary: { sx: { mt: 0.5 } },
@@ -100,9 +100,9 @@ export function UserCard({ user, sx, ...other }) {
         }}
       >
         {[
-          { label: 'Follower', value: user.totalFollowers },
-          { label: 'Following', value: user.totalFollowing },
-          { label: 'Total post', value: user.totalPosts },
+          { label: 'Follower', value: employee.totalFollowers },
+          { label: 'Following', value: employee.totalFollowing },
+          { label: 'Total post', value: employee.totalPosts },
         ].map((stat) => (
           <Box key={stat.label} sx={{ gap: 0.5, display: 'flex', flexDirection: 'column' }}>
             <Box component="span" sx={{ typography: 'caption', color: 'text.secondary' }}>
