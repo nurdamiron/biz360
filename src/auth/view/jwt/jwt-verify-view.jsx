@@ -9,7 +9,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
-import { axiosInstance, endpoints } from 'src/lib/axios';
+import axiosInstance, { endpoints } from 'src/lib/axios';
 
 export function VerifyView() {
   const router = useRouter();
