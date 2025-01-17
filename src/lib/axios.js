@@ -8,7 +8,14 @@ const axiosInstance = axios.create({ baseURL: CONFIG.serverUrl });
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong!')
+  (error) => {
+    console.error('API Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url
+    });
+    return Promise.reject((error.response && error.response.data) || 'Something went wrong!')
+  }
 );
 
 // ----------------------------------------------------------------------
@@ -32,6 +39,7 @@ export const fetcher = async (args) => {
 
 // ----------------------------------------------------------------------
 
+
 export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
@@ -40,9 +48,13 @@ export const endpoints = {
     me: '/api/auth/me',
     signIn: 'https://biz360-backend.onrender.com/api/auth/sign-in',
     signUp: 'https://biz360-backend.onrender.com/api/auth/sign-up',
-    verifyEmail: (token) => `/api/auth/verify-email/${token}` // Добавьте этот endpoint
+    verifyEmail: (token) => `https://biz360-backend.onrender.com/api/auth/verify-email/${token}`
   },
-  mail: { list: '/api/mail/list', details: '/api/mail/details', labels: '/api/mail/labels' },
+  mail: {
+    list: '/api/mail/list',
+    details: '/api/mail/details',
+    labels: '/api/mail/labels'
+  },
   post: {
     list: '/api/post/list',
     details: '/api/post/details',

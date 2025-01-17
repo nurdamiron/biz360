@@ -158,9 +158,9 @@ export function ProductNewEditForm({ currentProduct }) {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error('Failed to save product');
+      if (!response.ok) throw new Error('Не удалось сохранить продукт');
 
-      toast.success(currentProduct ? 'Update success!' : 'Create success!');
+      toast.success(currentProduct ? 'Обновление прошло успешно!' : 'Успешно сохранено!');
       router.push(paths.dashboard.product.root);
     } catch (error) {
       console.error('Error:', error);

@@ -112,7 +112,7 @@ export function ProductItem({ product, detailsHref }) {
       </Link>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Tooltip title="Color">
+        <Tooltip title="Цвет">
           <ColorPreview colors={colors} />
         </Tooltip>
 

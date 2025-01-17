@@ -70,7 +70,7 @@ export function ProductShopDetailsView({ product, error, loading }) {
       <Container sx={containerStyles}>
         <EmptyContent
           filled
-          title="Product not found!"
+          title="Товар не найден!"
           action={
             <Button
               component={RouterLink}
@@ -78,7 +78,7 @@ export function ProductShopDetailsView({ product, error, loading }) {
               startIcon={<Iconify width={16} icon="eva:arrow-ios-back-fill" />}
               sx={{ mt: 3 }}
             >
-              Back to list
+              Вернуться к списку
             </Button>
           }
           sx={{ py: 10 }}

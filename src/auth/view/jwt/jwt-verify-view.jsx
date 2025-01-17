@@ -9,7 +9,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
-import axiosInstance from 'src/lib/axios';
+import { axiosInstance, endpoints } from 'src/lib/axios';
 
 export function VerifyView() {
   const router = useRouter();
@@ -46,33 +46,34 @@ export function VerifyView() {
         const token = pathParts[pathParts.length - 1];
         console.log('Token for verification:', token);
 
-        // Изменяем имя параметра с status на responseStatus
         const response = await axiosInstance({
             method: 'GET',
-            url: `/auth/verify-email/${token}`,
+            url: endpoints.auth.verifyEmail(token),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            validateStatus: (responseStatus) => responseStatus < 500
+            validateStatus: (responseStatus) => true // Переименовали параметр
         });
 
-        console.log('Verification response:', response.data);
+        console.log('Verification response:', response);
 
-        if (response.status === 200) {
+        if (response.status === 200 && response.data.success) {
             setVerificationState({
                 status: 'success',
                 message: response.data.message || 'Email успешно подтвержден!',
                 countdown: 5
             });
         } else {
-            throw new Error(response.data.error || 'Ошибка верификации');
+            // Обработка ошибок с сервера
+            const errorMessage = response.data?.error || 'Не удалось подтвердить email';
+            throw new Error(errorMessage);
         }
     } catch (error) {
         console.error('Verification error:', error);
         setVerificationState({
             status: 'error',
-            message: 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
+            message: error.message || 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
             countdown: 5
         });
     }

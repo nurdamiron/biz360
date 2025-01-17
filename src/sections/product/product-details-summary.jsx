@@ -126,17 +126,17 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
     >
       <Link>
         <Iconify icon="mingcute:add-line" width={16} />
-        Compare
+        Сравнивать
       </Link>
 
       <Link>
         <Iconify icon="solar:heart-bold" width={16} />
-        Favorite
+        Любимый
       </Link>
 
       <Link>
         <Iconify icon="solar:share-bold" width={16} />
-        Share
+        Делиться
       </Link>
     </Box>
   );
@@ -144,7 +144,7 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
   const renderColorOptions = () => (
     <Box sx={{ display: 'flex' }}>
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-        Color
+      Цвет
       </Typography>
 
       <Controller
@@ -165,7 +165,7 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
   const renderSizeOptions = () => (
     <Box sx={{ display: 'flex' }}>
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-        Size
+        Размер
       </Typography>
 
       <Field.Select
@@ -173,7 +173,7 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
         size="small"
         helperText={
           <Link underline="always" color="text.primary">
-            Size chart
+            Таблица размеров
           </Link>
         }
         sx={{
@@ -193,7 +193,7 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
   const renderQuantity = () => (
     <Box sx={{ display: 'flex' }}>
       <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-        Quantity
+      Количество
       </Typography>
 
       <Stack spacing={1}>
@@ -210,7 +210,7 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
           component="div"
           sx={{ textAlign: 'right', color: 'text.secondary' }}
         >
-          Available: {available}
+          Доступно: {available}
         </Typography>
       </Stack>
     </Box>
@@ -228,11 +228,11 @@ export function ProductDetailsSummary({ items, product, onAddToCart, disableActi
         onClick={handleAddCart}
         sx={{ whiteSpace: 'nowrap' }}
       >
-        Add to cart
+        Добавить в корзину
       </Button>
 
       <Button fullWidth size="large" type="submit" variant="contained" disabled={disableActions}>
-        Buy now
+      Купить сейчас
       </Button>
     </Box>
   );

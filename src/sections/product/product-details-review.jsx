@@ -89,7 +89,7 @@ export function ProductDetailsReview({ totalRatings, totalReviews, ratings = [],
         onClick={review.onTrue}
         startIcon={<Iconify icon="solar:pen-bold" />}
       >
-        Write your review
+        Напишите свой отзыв
       </Button>
     </Stack>
   );

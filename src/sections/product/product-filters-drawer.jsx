@@ -92,7 +92,7 @@ export function ProductFiltersDrawer({ open, onOpen, onClose, canReset, filters,
           Фильтры
         </Typography>
 
-        <Tooltip title="Reset">
+        <Tooltip title="Обновить">
           <IconButton onClick={() => resetFilters()}>
             <Badge color="error" variant="dot" invisible={!canReset}>
               <Iconify icon="solar:restart-bold" />

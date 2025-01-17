@@ -16,7 +16,7 @@ import { Form, Field } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 export const ReviewSchema = zod.object({
-  rating: zod.number().min(1, 'Rating must be greater than or equal to 1!'),
+  rating: zod.number().min(1, 'Рейтинг должен быть больше или равен 1!'),
   name: zod.string().min(1, { message: 'Name is required!' }),
   review: zod.string().min(1, { message: 'Review is required!' }),
   email: zod

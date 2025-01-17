@@ -109,7 +109,7 @@ export function ProductShopView({ products, loading }) {
       <CartIcon totalItems={checkoutState.totalItems} />
 
       <Typography variant="h4" sx={{ my: { xs: 3, md: 5 } }}>
-        Shop
+        Товары
       </Typography>
 
       <Stack spacing={2.5} sx={{ mb: { xs: 3, md: 5 } }}>

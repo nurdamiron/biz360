@@ -45,7 +45,7 @@ export function ProductDetailsToolbar({
             }}
           >
             {option.value === 'published' && <Iconify icon="eva:cloud-upload-fill" />}
-            {option.value === 'draft' && <Iconify icon="solar:file-text-bold" />}
+            {option.value === 'Черновик' && <Iconify icon="solar:file-text-bold" />}
             {option.label}
           </MenuItem>
         ))}
@@ -67,7 +67,7 @@ export function ProductDetailsToolbar({
           href={backHref}
           startIcon={<Iconify icon="eva:arrow-ios-back-fill" width={16} />}
         >
-          Back
+          Назад
         </Button>
 
         <Box sx={{ flexGrow: 1 }} />
@@ -80,7 +80,7 @@ export function ProductDetailsToolbar({
           </Tooltip>
         )}
 
-        <Tooltip title="Edit">
+        <Tooltip title="Изменить">
           <IconButton component={RouterLink} href={editHref}>
             <Iconify icon="solar:pen-bold" />
           </IconButton>
@@ -90,7 +90,7 @@ export function ProductDetailsToolbar({
           color="inherit"
           variant="contained"
           loading={!publish}
-          loadingIndicator="Loading…"
+          loadingIndicator="Загрузка"
           endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
           onClick={menuActions.onOpen}
           sx={{ textTransform: 'capitalize' }}

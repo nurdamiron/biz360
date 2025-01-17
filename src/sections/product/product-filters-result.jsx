@@ -43,17 +43,17 @@ export function ProductFiltersResult({ filters, totalResults, sx }) {
 
   return (
     <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
-      <FiltersBlock label="Gender:" isShow={!!currentFilters.gender.length}>
+      <FiltersBlock label="Пол:" isShow={!!currentFilters.gender.length}>
         {currentFilters.gender.map((item) => (
           <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveGender(item)} />
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Category:" isShow={currentFilters.category !== 'all'}>
+      <FiltersBlock label="Категория:" isShow={currentFilters.category !== 'all'}>
         <Chip {...chipProps} label={currentFilters.category} onDelete={handleRemoveCategory} />
       </FiltersBlock>
 
-      <FiltersBlock label="Colors:" isShow={!!currentFilters.colors.length}>
+      <FiltersBlock label="Цвета:" isShow={!!currentFilters.colors.length}>
         {currentFilters.colors.map((item) => (
           <Chip
             {...chipProps}
@@ -78,7 +78,7 @@ export function ProductFiltersResult({ filters, totalResults, sx }) {
       </FiltersBlock>
 
       <FiltersBlock
-        label="Price:"
+        label="Цена:"
         isShow={currentFilters.priceRange[0] !== 0 || currentFilters.priceRange[1] !== 200}
       >
         <Chip
