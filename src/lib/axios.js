@@ -1,3 +1,4 @@
+// verify success
 import axios from 'axios';
 
 import { CONFIG } from 'src/global-config';
