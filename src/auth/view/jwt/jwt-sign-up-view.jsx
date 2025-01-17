@@ -40,7 +40,7 @@ export function JwtSignUpView() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-  const [userEmail, setEmployeeEmail] = useState('');
+  const [employeeEmail, setEmployeeEmail] = useState('');
   const [countdown, setCountdown] = useState(5);
 
   const defaultValues = {
@@ -124,7 +124,7 @@ export function JwtSignUpView() {
         >
           <AlertTitle>Регистрация успешна!</AlertTitle>
           <Box sx={{ mt: 2 }}>
-            На ваш email <strong>{userEmail}</strong> было отправлено письмо со ссылкой для подтверждения.
+            На ваш email <strong>{employeeEmail}</strong> было отправлено письмо со ссылкой для подтверждения.
             <Box sx={{ mt: 1 }}>
               Перенаправление на страницу входа через {countdown} сек...
             </Box>

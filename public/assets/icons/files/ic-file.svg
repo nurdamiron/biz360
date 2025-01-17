@@ -4,7 +4,7 @@
 <path d="M35.1548 13.1284C35.4678 13.4439 35.2443 13.9805 34.7998 13.9805H29C26.4227 13.9805 24.0976 11.7135 24.0976 9.20054V3.19458C24.0976 2.74814 24.6382 2.52551 24.9526 2.84248L35.1548 13.1284Z" fill="white" fill-opacity="0.24" shape-rendering="crispEdges"/>
 </g>
 <defs>
-<filter id="filter0_d_1995_147665" x="22.0977" y="2.6936" width="15.2031" height="15.2869" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_d_1995_147665" x="22.0977" y="2.6936" width="15.2031" height="15.2869" filterUnits="employeeSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dy="2"/>

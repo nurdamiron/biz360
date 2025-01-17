@@ -14,7 +14,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-const emails = ['username@gmail.com', 'user02@gmail.com'];
+const emails = ['employeename@gmail.com', 'employee02@gmail.com'];
 
 export function SimpleDialog() {
   const openDialog = useBoolean();

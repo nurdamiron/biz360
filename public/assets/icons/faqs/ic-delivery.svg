@@ -1,6 +1,6 @@
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_296_3265)">
-<mask id="mask0_296_3265" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="7" width="64" height="53">
+<mask id="mask0_296_3265" style="mask-type:alpha" maskUnits="employeeSpaceOnUse" x="0" y="7" width="64" height="53">
 <path d="M58.9345 16.6644C50.7574 10.3778 42.8261 15.5013 33.9795 13.6898C25.069 11.8652 21.5189 5.78979 11.37 8.59417C2.37975 11.0783 -3.07525 21.038 1.867 29.3764C3.27537 31.7525 5.67462 33.5452 6.65512 36.2038C8.23675 40.4927 5.82925 43.7854 6.29887 48.0003C8.25037 65.5129 34.9956 58.7295 44.8368 53.2809C60.2705 44.7359 70.7115 25.7188 58.9345 16.6644Z" fill="url(#paint0_linear_296_3265)" fill-opacity="0.16"/>
 </mask>
 <g mask="url(#mask0_296_3265)">
@@ -19,7 +19,7 @@
 <path fill-rule="evenodd" clip-rule="evenodd" d="M27.7405 26.3456C27.6081 26.3458 27.4806 26.2954 27.3841 26.2048L25.3945 24.3419C25.2892 24.2433 25.2295 24.1055 25.2295 23.9612V20.0953C25.2295 19.8073 25.463 19.5737 25.7511 19.5737C26.0392 19.5737 26.2727 19.8073 26.2727 20.0953V23.7354L28.0971 25.4436C28.2534 25.59 28.3044 25.817 28.2257 26.0161C28.1471 26.2152 27.9547 26.346 27.7406 26.346L27.7405 26.3456Z" fill="#006C9C"/>
 </g>
 <defs>
-<linearGradient id="paint0_linear_296_3265" x1="43.8414" y1="68.4015" x2="70.1982" y2="12.921" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_296_3265" x1="43.8414" y1="68.4015" x2="70.1982" y2="12.921" gradientUnits="employeeSpaceOnUse">
 <stop/>
 <stop offset="1" stop-opacity="0.01"/>
 </linearGradient>

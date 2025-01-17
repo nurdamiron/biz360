@@ -27,7 +27,7 @@
 </g>
 </g>
 <defs>
-<filter id="filter0_di_2575_2853367" x="20" y="39.2672" width="96" height="44.8" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_di_2575_2853367" x="20" y="39.2672" width="96" height="44.8" filterUnits="employeeSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dx="8" dy="8"/>
@@ -42,7 +42,7 @@
 <feColorMatrix type="matrix" values="0 0 0 0 0.388235 0 0 0 0 0.45098 0 0 0 0 0.505882 0 0 0 0.48 0"/>
 <feBlend mode="normal" in2="shape" result="effect2_innerShadow_2575_2853367"/>
 </filter>
-<filter id="filter1_di_2575_2853367" x="23.8315" y="51.5578" width="88.3369" height="62.9097" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter1_di_2575_2853367" x="23.8315" y="51.5578" width="88.3369" height="62.9097" filterUnits="employeeSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dx="8" dy="8"/>
@@ -57,7 +57,7 @@
 <feColorMatrix type="matrix" values="0 0 0 0 0.388235 0 0 0 0 0.45098 0 0 0 0 0.505882 0 0 0 0.48 0"/>
 <feBlend mode="normal" in2="shape" result="effect2_innerShadow_2575_2853367"/>
 </filter>
-<filter id="filter2_di_2575_2853367" x="23.0664" y="21.5326" width="89.8672" height="49.9205" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter2_di_2575_2853367" x="23.0664" y="21.5326" width="89.8672" height="49.9205" filterUnits="employeeSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dx="8" dy="8"/>

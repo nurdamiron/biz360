@@ -221,7 +221,7 @@ export function CircleSvg({ sx, variants }) {
           cy="0"
           r="1"
           gradientTransform="matrix(280 0 0 280 280 280)"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop />
           <stop offset="1" stopOpacity={0} />
@@ -240,7 +240,7 @@ export function CircleSvg({ sx, variants }) {
           height="560"
           x="0"
           y="0"
-          maskUnits="userSpaceOnUse"
+          maskUnits="employeeSpaceOnUse"
         >
           <path fill={`url(#${gradientId})`} d="M0 0H560V560H0z" />
         </mask>

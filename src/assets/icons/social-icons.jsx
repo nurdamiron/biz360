@@ -183,7 +183,7 @@ export const InstagramIcon = forwardRef((props, ref) => {
           y1="20.7377"
           x2="20.7378"
           y2="3.26212"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--color, #FFD600)" />
           <stop offset="0.5" stopColor="var(--color, #FF0100)" />
@@ -195,7 +195,7 @@ export const InstagramIcon = forwardRef((props, ref) => {
           y1="19.4246"
           x2="19.4247"
           y2="4.57532"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--color, #FF6400)" />
           <stop offset="0.5" stopColor="var(--color, #FF0100)" />
@@ -207,7 +207,7 @@ export const InstagramIcon = forwardRef((props, ref) => {
           y1="7.28603"
           x2="18.4957"
           y2="5.50413"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--color, #F30072)" />
           <stop offset="1" stopColor="var(--color, #E50097)" />

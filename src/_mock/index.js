@@ -2,7 +2,7 @@ export * from './_job';
 
 export * from './_mock';
 
-export * from './_user';
+export * from './_employee';
 
 export * from './_tour';
 

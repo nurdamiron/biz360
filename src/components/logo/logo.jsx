@@ -59,7 +59,7 @@ export const Logo = forwardRef((props, ref) => {
   //         y1="167.79"
   //         x2="65.523"
   //         y2="259.624"
-  //         gradientUnits="userSpaceOnUse"
+  //         gradientUnits="employeeSpaceOnUse"
   //       >
   //         <stop stopColor={PRIMARY_DARKER} />
   //         <stop offset="1" stopColor={PRIMARY_MAIN} />
@@ -70,7 +70,7 @@ export const Logo = forwardRef((props, ref) => {
   //         y1="128"
   //         x2="86"
   //         y2="384"
-  //         gradientUnits="userSpaceOnUse"
+  //         gradientUnits="employeeSpaceOnUse"
   //       >
   //         <stop stopColor={PRIMARY_LIGHT} />
   //         <stop offset="1" stopColor={PRIMARY_MAIN} />
@@ -81,7 +81,7 @@ export const Logo = forwardRef((props, ref) => {
   //         y1="288"
   //         x2="402"
   //         y2="384"
-  //         gradientUnits="userSpaceOnUse"
+  //         gradientUnits="employeeSpaceOnUse"
   //       >
   //         <stop stopColor={PRIMARY_LIGHT} />
   //         <stop offset="1" stopColor={PRIMARY_MAIN} />
@@ -121,7 +121,7 @@ export const Logo = forwardRef((props, ref) => {
   //         y1="41.9469"
   //         x2="16.381"
   //         y2="64.906"
-  //         gradientUnits="userSpaceOnUse"
+  //         gradientUnits="employeeSpaceOnUse"
   //       >
   //         <stop stopColor={PRIMARY_DARKER} />
   //         <stop offset="1" stopColor={PRIMARY_MAIN} />
@@ -132,7 +132,7 @@ export const Logo = forwardRef((props, ref) => {
   //         y1="32"
   //         x2="21.5"
   //         y2="96"
-  //         gradientUnits="userSpaceOnUse"
+  //         gradientUnits="employeeSpaceOnUse"
   //       >
   //         <stop stopColor={PRIMARY_LIGHT} />
   //         <stop offset="1" stopColor={PRIMARY_MAIN} />
@@ -143,7 +143,7 @@ export const Logo = forwardRef((props, ref) => {
   //         y1="72"
   //         x2="100.5"
   //         y2="96"
-  //         gradientUnits="userSpaceOnUse"
+  //         gradientUnits="employeeSpaceOnUse"
   //       >
   //         <stop stopColor={PRIMARY_LIGHT} />
   //         <stop offset="1" stopColor={PRIMARY_MAIN} />

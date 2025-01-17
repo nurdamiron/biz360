@@ -65,7 +65,7 @@ const PasswordIcon = forwardRef((props, ref) => {
           x="24.718"
           y="6.01"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeepaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
@@ -87,7 +87,7 @@ const PasswordIcon = forwardRef((props, ref) => {
           x="15"
           y="37.61"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />

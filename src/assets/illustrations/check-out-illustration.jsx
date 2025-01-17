@@ -58,7 +58,7 @@ const CheckoutIllustration = forwardRef((props, ref) => {
           x2="25.9"
           y1="122.338"
           y2="192.465"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

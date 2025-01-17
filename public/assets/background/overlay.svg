@@ -3,7 +3,7 @@
 <path fill-rule="evenodd" clip-rule="evenodd" d="M1440 0H0V1024H1440V0Z" fill="url(#paint0_radial_1900_142575)"/>
 </g>
 <defs>
-<radialGradient id="paint0_radial_1900_142575" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1303.81 140.567) rotate(107.578) scale(1510.53 831.945)">
+<radialGradient id="paint0_radial_1900_142575" cx="0" cy="0" r="1" gradientUnits="employeeSpaceOnUse" gradientTransform="translate(1303.81 140.567) rotate(107.578) scale(1510.53 831.945)">
 <stop stop-color="#161C24" stop-opacity="0.24"/>
 <stop offset="0.498647" stop-color="#161C24" stop-opacity="0.8"/>
 <stop offset="1" stop-color="#161C24"/>

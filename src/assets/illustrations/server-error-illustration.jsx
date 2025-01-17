@@ -129,7 +129,7 @@ const ServerErrorIllustration = forwardRef((props, ref) => {
           x2="255.652"
           y1="143.24"
           y2="187.057"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-main)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -141,7 +141,7 @@ const ServerErrorIllustration = forwardRef((props, ref) => {
           x2="138"
           y1="164"
           y2="287.9"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

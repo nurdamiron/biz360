@@ -82,7 +82,7 @@ const ForbiddenIllustration = forwardRef((props, ref) => {
           x2="78.245"
           y1="187.309"
           y2="307.306"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

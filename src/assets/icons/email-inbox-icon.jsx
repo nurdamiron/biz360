@@ -66,7 +66,7 @@ const EmailInboxIcon = forwardRef((props, ref) => {
           x="12"
           y="4.01"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
@@ -97,7 +97,7 @@ const EmailInboxIcon = forwardRef((props, ref) => {
           x="14"
           y="6.01"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
@@ -119,7 +119,7 @@ const EmailInboxIcon = forwardRef((props, ref) => {
           x="4"
           y="23.014"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />

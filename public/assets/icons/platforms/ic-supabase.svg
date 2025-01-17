@@ -70,7 +70,7 @@
        y1="54.973999"
        x2="94.163498"
        y2="71.829498"
-       gradientUnits="userSpaceOnUse"
+       gradientUnits="employeeSpaceOnUse"
        gradientTransform="matrix(0.57177306,0,0,0.57177334,0.98590077,-0.12074988)">
       <stop
          stop-color="#249361"
@@ -86,7 +86,7 @@
        y1="30.577999"
        x2="54.484402"
        y2="65.080597"
-       gradientUnits="userSpaceOnUse"
+       gradientUnits="employeeSpaceOnUse"
        gradientTransform="matrix(0.57177306,0,0,0.57177334,0.98590077,-0.12074988)">
       <stop
          id="stop13" />

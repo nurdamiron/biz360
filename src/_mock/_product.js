@@ -64,6 +64,6 @@ export const PRODUCT_SORT_OPTIONS = [
 
 export const PRODUCT_CATEGORY_GROUP_OPTIONS = [
   { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather', 'Accessories'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats', 'Apparel'] },
+  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Troemployees', 'Waistcoats', 'Apparel'] },
   { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
 ];

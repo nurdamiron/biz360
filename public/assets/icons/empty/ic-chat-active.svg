@@ -15,23 +15,23 @@
 <path d="M59.9999 62.5193C61.6475 62.5193 62.9832 61.1836 62.9832 59.536C62.9832 57.8884 61.6475 56.5528 59.9999 56.5528C58.3523 56.5528 57.0167 57.8884 57.0167 59.536C57.0167 61.1836 58.3523 62.5193 59.9999 62.5193Z" fill="url(#paint3_linear_4017_39750)"/>
 <path d="M73.0654 62.5193C74.713 62.5193 76.0487 61.1836 76.0487 59.536C76.0487 57.8884 74.713 56.5528 73.0654 56.5528C71.4178 56.5528 70.0822 57.8884 70.0822 59.536C70.0822 61.1836 71.4178 62.5193 73.0654 62.5193Z" fill="url(#paint4_linear_4017_39750)"/>
 <defs>
-<linearGradient id="paint0_linear_4017_39750" x1="28" y1="31" x2="84.8987" y2="94.6048" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_4017_39750" x1="28" y1="31" x2="84.8987" y2="94.6048" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFD666"/>
 <stop offset="1" stop-color="#FFAB00"/>
 </linearGradient>
-<linearGradient id="paint1_linear_4017_39750" x1="28" y1="33.0045" x2="82.8038" y2="81.2613" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint1_linear_4017_39750" x1="28" y1="33.0045" x2="82.8038" y2="81.2613" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFAB00"/>
 <stop offset="1" stop-color="#B76E00"/>
 </linearGradient>
-<linearGradient id="paint2_linear_4017_39750" x1="43.9512" y1="56.5528" x2="46.0953" y2="68.0872" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint2_linear_4017_39750" x1="43.9512" y1="56.5528" x2="46.0953" y2="68.0872" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFF5CC"/>
 <stop offset="1" stop-color="#FFD666"/>
 </linearGradient>
-<linearGradient id="paint3_linear_4017_39750" x1="43.9512" y1="56.5528" x2="46.0953" y2="68.0872" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint3_linear_4017_39750" x1="43.9512" y1="56.5528" x2="46.0953" y2="68.0872" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFF5CC"/>
 <stop offset="1" stop-color="#FFD666"/>
 </linearGradient>
-<linearGradient id="paint4_linear_4017_39750" x1="43.9512" y1="56.5528" x2="46.0953" y2="68.0872" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint4_linear_4017_39750" x1="43.9512" y1="56.5528" x2="46.0953" y2="68.0872" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFF5CC"/>
 <stop offset="1" stop-color="#FFD666"/>
 </linearGradient>

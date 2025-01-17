@@ -23,6 +23,7 @@ import { toast } from 'src/components/snackbar';
 import { Field, Form, schemaHelper } from 'src/components/hook-form';
 
 
+
 const NewEmployeeSchema = zod.object({
   avatarUrl: schemaHelper.file().or(zod.null()),
   fio: zod.string().min(1, { message: 'ФИО обязательно!' }),

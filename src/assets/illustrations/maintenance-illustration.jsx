@@ -128,7 +128,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="166.881"
           y1="125.454"
           y2="199.671"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -140,7 +140,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="166.881"
           y1="125.454"
           y2="199.671"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -152,7 +152,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="249.709"
           y1="290.69"
           y2="290.69"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="#FFC444" />
           <stop offset="1" stopColor="#F36F56" />
@@ -164,7 +164,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="225.966"
           y1="290.498"
           y2="292.586"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="#FFC444" />
           <stop offset="0.59" stopColor="#F8924F" />
@@ -177,7 +177,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="210.566"
           y1="288.399"
           y2="289.237"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="#FFC444" />
           <stop offset="0.59" stopColor="#F8924F" />
@@ -190,7 +190,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="199.672"
           y1="204.073"
           y2="311.415"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="#FFC444" />
           <stop offset="1" stopColor="#F36F56" />
@@ -202,7 +202,7 @@ const MaintenanceIllustration = forwardRef((props, ref) => {
           x2="210.394"
           y1="258.172"
           y2="258.172"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="#FFC444" />
           <stop offset="1" stopColor="#F36F56" />

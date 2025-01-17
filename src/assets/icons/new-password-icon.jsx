@@ -85,7 +85,7 @@ const NewPasswordIcon = forwardRef((props, ref) => {
           y="6"
           width="64.2168"
           height="82.4045"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />

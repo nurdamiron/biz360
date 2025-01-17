@@ -68,7 +68,7 @@ const PageNotFoundIllustration = forwardRef((props, ref) => {
           x2="78.3"
           y1="187.77"
           y2="305.935"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

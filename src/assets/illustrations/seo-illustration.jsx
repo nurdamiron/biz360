@@ -126,7 +126,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x="232.807"
           y="109.722"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
@@ -139,7 +139,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="47.397"
           y1="107.95"
           y2="281.395"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -151,7 +151,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="248.43"
           y1="128.061"
           y2="169.533"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -163,7 +163,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="248.43"
           y1="128.061"
           y2="169.533"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -175,7 +175,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="248.43"
           y1="128.061"
           y2="169.533"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -187,7 +187,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="248.43"
           y1="128.061"
           y2="169.533"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -199,7 +199,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="109.604"
           y1="76"
           y2="104.047"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -211,7 +211,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="109.604"
           y1="76"
           y2="104.047"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -223,7 +223,7 @@ const SeoIllustration = forwardRef((props, ref) => {
           x2="109.604"
           y1="76"
           y2="104.047"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

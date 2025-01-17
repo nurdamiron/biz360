@@ -80,7 +80,7 @@ const OrderCompleteIllustration = forwardRef((props, ref) => {
           x2="80.541"
           y1="272"
           y2="247.455"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-main)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -92,7 +92,7 @@ const OrderCompleteIllustration = forwardRef((props, ref) => {
           x2="80"
           y1="155.117"
           y2="176.397"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -104,7 +104,7 @@ const OrderCompleteIllustration = forwardRef((props, ref) => {
           x2="146.792"
           y1="80"
           y2="97.537"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -116,7 +116,7 @@ const OrderCompleteIllustration = forwardRef((props, ref) => {
           x2="228"
           y1="217"
           y2="257"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

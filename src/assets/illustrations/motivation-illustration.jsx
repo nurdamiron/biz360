@@ -65,7 +65,7 @@ const MotivationIllustration = forwardRef((props, ref) => {
           x2="276.5"
           y1="98"
           y2="312.5"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-lighter)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

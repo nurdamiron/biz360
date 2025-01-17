@@ -112,7 +112,7 @@ const ComingSoonIllustration = forwardRef((props, ref) => {
           x2="105.126"
           y1="186.371"
           y2="167.19"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-main)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

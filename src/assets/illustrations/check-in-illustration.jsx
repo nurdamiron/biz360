@@ -72,7 +72,7 @@ const CheckInIllustration = forwardRef((props, ref) => {
           x2="64.751"
           y1="99.643"
           y2="186.617"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />
@@ -84,7 +84,7 @@ const CheckInIllustration = forwardRef((props, ref) => {
           x2="95.286"
           y1="280.421"
           y2="185.693"
-          gradientUnits="userSpaceOnUse"
+          gradientUnits="employeeSpaceOnUse"
         >
           <stop stopColor="var(--primary-light)" />
           <stop offset="1" stopColor="var(--primary-dark)" />

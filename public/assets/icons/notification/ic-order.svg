@@ -29,15 +29,15 @@
 </g>
 </g>
 <defs>
-<linearGradient id="paint0_linear_0_8848" x1="14.3997" y1="12.8109" x2="23.9998" y2="22.4115" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint0_linear_0_8848" x1="14.3997" y1="12.8109" x2="23.9998" y2="22.4115" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#77ED8B"/>
 <stop offset="1" stop-color="#22C55E"/>
 </linearGradient>
-<linearGradient id="paint1_linear_0_8848" x1="3.80957" y1="2.23462" x2="18.0556" y2="14.0791" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint1_linear_0_8848" x1="3.80957" y1="2.23462" x2="18.0556" y2="14.0791" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFAB00"/>
 <stop offset="1" stop-color="#B76E00"/>
 </linearGradient>
-<linearGradient id="paint2_linear_0_8848" x1="3.80957" y1="2.23462" x2="18.0556" y2="14.0791" gradientUnits="userSpaceOnUse">
+<linearGradient id="paint2_linear_0_8848" x1="3.80957" y1="2.23462" x2="18.0556" y2="14.0791" gradientUnits="employeeSpaceOnUse">
 <stop stop-color="#FFAB00"/>
 <stop offset="1" stop-color="#B76E00"/>
 </linearGradient>

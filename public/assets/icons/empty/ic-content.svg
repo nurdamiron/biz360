@@ -23,7 +23,7 @@
 <path opacity="0.48" fill-rule="evenodd" clip-rule="evenodd" d="M37.6667 61.6659H44.3333C45.2546 61.6659 46 60.8351 46 59.8085C46 58.7818 45.2546 57.9511 44.3333 57.9511H37.6667C36.7454 57.9511 36 58.7818 36 59.8085C36 60.8351 36.7454 61.6659 37.6667 61.6659ZM36 67.2381C36 66.2114 36.7454 65.3807 37.6667 65.3807H54.3333C55.2546 65.3807 56 66.2114 56 67.2381C56 68.2647 55.2546 69.0955 54.3333 69.0955H37.6667C36.7454 69.0955 36 68.2647 36 67.2381ZM37.6667 72.8103C36.7454 72.8103 36 73.641 36 74.6677C36 75.6943 36.7454 76.5251 37.6667 76.5251H54.3333C55.2546 76.5251 56 75.6943 56 74.6677C56 73.641 55.2546 72.8103 54.3333 72.8103H37.6667Z" fill="#919EAB"/>
 </g>
 <defs>
-<filter id="filter0_di_2575_2852044" x="20" y="41.2381" width="96" height="70" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_di_2575_2852044" x="20" y="41.2381" width="96" height="70" filterUnits="employeeSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dx="8" dy="8"/>
@@ -38,7 +38,7 @@
 <feColorMatrix type="matrix" values="0 0 0 0 0.388235 0 0 0 0 0.45098 0 0 0 0 0.505882 0 0 0 0.48 0"/>
 <feBlend mode="normal" in2="shape" result="effect2_innerShadow_2575_2852044"/>
 </filter>
-<filter id="filter1_di_2575_2852044" x="20" y="26" width="96" height="47.2381" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter1_di_2575_2852044" x="20" y="26" width="96" height="47.2381" filterUnits="employeeSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dx="8" dy="8"/>

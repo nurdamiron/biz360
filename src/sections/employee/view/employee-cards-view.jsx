@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { _userCards } from 'src/_mock';
+import { _employeeCards } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
@@ -36,7 +36,7 @@ export function EmployeeCardsView() {
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 
-      <EmployeeCardList employees={_userCards} />
+      <EmployeeCardList employees={_employeeCards} />
     </DashboardContent>
   );
 }

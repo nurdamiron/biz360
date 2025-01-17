@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { CONFIG } from 'src/global-config';
-import { _employeeList } from 'src/_mock/_user';
+import { _employeeList } from 'src/_mock/_employee';
 
 import { EmployeeEditView } from 'src/sections/employee/view';
 

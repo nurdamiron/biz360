@@ -78,7 +78,7 @@ export function HeroBackground({ sx, ...other }) {
               cy="0"
               r="1"
               gradientTransform="matrix(720 0 0 420 720 560)"
-              gradientUnits="userSpaceOnUse"
+              gradientUnits="employeeSpaceOnUse"
             >
               <stop offset="0%" stopColor="#FFFFFF" stopOpacity={1} />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0.08} />

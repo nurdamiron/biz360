@@ -52,7 +52,7 @@ const SentIcon = forwardRef((props, ref) => {
           x="7.205"
           y="4.553"
           colorInterpolationFilters="sRGB"
-          filterUnits="userSpaceOnUse"
+          filterUnits="employeeSpaceOnUse"
         >
           <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />

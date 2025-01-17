@@ -66,7 +66,7 @@ export function OrganizationalChartView() {
         heading: 'Organizational chart',
         moreLinks: [
           'https://www.npmjs.com/package/react-organizational-chart',
-          'https://daniel-hauser.github.io/react-organizational-chart/?path=/story/example-tree--basic',
+          'https://daniel-haemployee.github.io/react-organizational-chart/?path=/story/example-tree--basic',
         ],
       }}
       containerProps={{ maxWidth: 'lg' }}

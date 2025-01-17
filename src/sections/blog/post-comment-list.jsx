@@ -21,15 +21,15 @@ export function PostCommentList({ comments = [] }) {
             />
             {hasReply &&
               comment.replyComment.map((reply) => {
-                const userReply = comment.employees.find((employee) => employee.id === reply.userId);
+                const employeeReply = comment.employees.find((employee) => employee.id === reply.employeeId);
 
                 return (
                   <PostCommentItem
                     key={reply.id}
-                    name={userReply?.name || ''}
+                    name={employeeReply?.name || ''}
                     message={reply.message}
                     postedAt={reply.postedAt}
-                    avatarUrl={userReply?.avatarUrl || ''}
+                    avatarUrl={employeeReply?.avatarUrl || ''}
                     tagEmployee={reply.tagEmployee}
                     hasReply
                   />
