@@ -1,3 +1,5 @@
+// employee-quick-edit-form.jsx
+
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,13 +18,17 @@ import DialogContent from '@mui/material/DialogContent';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
-// Можете адаптировать статусы под сотрудников
+// Подключаем axiosInstance и endpoints
+import axiosInstance, { endpoints } from 'src/lib/axios';
+
+// Можно адаптировать статусы под вашу бизнес-логику
 const EMPLOYEE_STATUS_OPTIONS = [
   { value: 'active', label: 'Активен' },
   { value: 'pending', label: 'Ожидает' },
   { value: 'banned', label: 'Заблокирован' },
 ];
 
+// Схема валидации
 export const EmployeeQuickEditSchema = zod.object({
   fio: zod.string().min(1, { message: 'Необходимо ввести ФИО!' }),
   email: zod
@@ -33,23 +39,34 @@ export const EmployeeQuickEditSchema = zod.object({
   department: zod.string().min(1, { message: 'Необходимо указать отдел!' }),
   role: zod.string().min(1, { message: 'Необходимо указать роль!' }),
   status: zod.string(),
-  // Пример: если хотите менять метрики, можете добавить поля overall_performance, kpi и т.п.
 });
 
-export function EmployeeQuickEditForm({ currentEmployee, open, onClose }) {
+/**
+ * Компонент для "быстрого" (частичного) редактирования сотрудника.
+ *
+ * @param {Object} props
+ * @param {Object} props.currentEmployee - текущий сотрудник (ожидается, что у него есть поле id)
+ * @param {boolean} props.open - флаг, открыта ли модалка
+ * @param {Function} props.onClose - колбэк для закрытия модалки
+ * @param {Function} [props.onUpdateSuccess] - опциональный колбэк, если нужно обновить список в родительском компоненте
+ */
+export function EmployeeQuickEditForm({ currentEmployee, open, onClose, onUpdateSuccess }) {
+  // Значения по умолчанию (если currentEmployee пустой)
   const defaultValues = {
     fio: '',
     email: '',
     phoneNumber: '',
     department: '',
     role: '',
-    status: '',
+    status: 'active',
   };
 
+  // Инициализируем форму
   const methods = useForm({
     mode: 'all',
     resolver: zodResolver(EmployeeQuickEditSchema),
     defaultValues,
+    // values: когда есть currentEmployee, берем оттуда поля
     values: currentEmployee,
   });
 
@@ -59,25 +76,31 @@ export function EmployeeQuickEditForm({ currentEmployee, open, onClose }) {
     formState: { isSubmitting },
   } = methods;
 
+  /**
+   * Обработка сабмита: отправляем PUT-запрос для обновления
+   */
   const onSubmit = handleSubmit(async (data) => {
-    const fakePromise = new Promise((resolve) => setTimeout(resolve, 1000));
-
     try {
-      // Здесь будет реальный запрос на обновление
+      // Проверяем, есть ли у сотрудника id
+      if (!currentEmployee?.id) {
+        toast.error('Неизвестный сотрудник!');
+        return;
+      }
+
+      // Отправляем PUT-запрос на бэкенд ( partial/полное обновление )
+      const res = await axiosInstance.put(endpoints.employee.update(currentEmployee.id), data);
+
+      toast.success('Успешно обновлено!');
       reset();
       onClose();
 
-      toast.promise(fakePromise, {
-        loading: 'Сохраняем...',
-        success: 'Успешно обновлено!',
-        error: 'Ошибка при обновлении!',
-      });
-
-      await fakePromise;
-
-      console.info('DATA', data);
+      // Если нужно обновить данные в родительском компоненте
+      if (onUpdateSuccess) {
+        onUpdateSuccess(res.data);
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Ошибка при обновлении сотрудника:', error);
+      toast.error('Ошибка при обновлении!');
     }
   });
 

@@ -1,3 +1,5 @@
+// account-general.jsx
+
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +14,6 @@ import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { fData } from 'src/utils/format-number';
-
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 
@@ -20,6 +21,7 @@ import { useMockedEmployee } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
+// Схема "аккаунта" (пример, если нужна отдельная)
 export const UpdateEmployeeSchema = zod.object({
   displayName: zod.string().min(1, { message: 'Name is required!' }),
   email: zod
@@ -29,7 +31,6 @@ export const UpdateEmployeeSchema = zod.object({
   photoURL: schemaHelper.file({ message: 'Avatar is required!' }),
   phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
   country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-    // message for null value
     message: 'Country is required!',
   }),
   address: zod.string().min(1, { message: 'Address is required!' }),
@@ -37,15 +38,19 @@ export const UpdateEmployeeSchema = zod.object({
   city: zod.string().min(1, { message: 'City is required!' }),
   zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
   about: zod.string().min(1, { message: 'About is required!' }),
-  // Not required
+  // Можно добавить поля isPublic и т.д.
   isPublic: zod.boolean(),
 });
 
 // ----------------------------------------------------------------------
 
+/**
+ * Пример формы для "General" настроек аккаунта сотрудника (mock).
+ */
 export function AccountGeneral() {
   const { employee } = useMockedEmployee();
 
+  // Инициируем данные для формы, если есть employee
   const currentEmployee = {
     displayName: employee?.displayName,
     email: employee?.email,
@@ -74,6 +79,7 @@ export function AccountGeneral() {
     isPublic: false,
   };
 
+  // useForm
   const methods = useForm({
     mode: 'all',
     resolver: zodResolver(UpdateEmployeeSchema),
@@ -86,8 +92,10 @@ export function AccountGeneral() {
     formState: { isSubmitting },
   } = methods;
 
+  // Сабмит (имитация)
   const onSubmit = handleSubmit(async (data) => {
     try {
+      // Здесь реальный запрос PUT/PATCH к серверу
       await new Promise((resolve) => setTimeout(resolve, 500));
       toast.success('Update success!');
       console.info('DATA', data);
@@ -156,11 +164,12 @@ export function AccountGeneral() {
               <Field.Phone name="phoneNumber" label="Номер телефона" />
               <Field.Text name="address" label="Адрес" />
 
-              <Field.CountrySelect name="country" label="Отдел" placeholder="Выберите отдел" />
+              {/* Например, label="Страна" вместо "Отдел" */}
+              <Field.CountrySelect name="country" label="Страна" placeholder="Выберите страну" />
 
               <Field.Text name="state" label="Область/Регион" />
               <Field.Text name="city" label="Город" />
-              <Field.Text name="zipCode" label="050000" />
+              <Field.Text name="zipCode" label="Индекс" />
             </Box>
 
             <Stack spacing={3} sx={{ mt: 3, alignItems: 'flex-end' }}>

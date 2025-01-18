@@ -1,7 +1,11 @@
+// employee-new-edit-form.jsx
+
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
+
+import axios, { fetcher, endpoints } from 'src/lib/axios';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -22,8 +26,8 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Field, Form, schemaHelper } from 'src/components/hook-form';
 
-
-
+// ----------------------------------------------------------------------
+// Схема валидации данных сотрудника (Zod)
 const NewEmployeeSchema = zod.object({
   avatarUrl: schemaHelper.file().or(zod.null()),
   fio: zod.string().min(1, { message: 'ФИО обязательно!' }),
@@ -35,13 +39,19 @@ const NewEmployeeSchema = zod.object({
   department: zod.string().min(1, { message: 'Укажите отдел!' }),
   role: zod.string().min(1, { message: 'Укажите роль!' }),
   address: zod.string().optional(),
+  status: zod.string().optional(),
+  isVerified: zod.boolean().optional(),
+  // Новые поля (даты):
+  hireDate: zod.string().optional(),
+  birthday: zod.string().optional(),
+
+  // Если поля country/state/city/zipCode не нужны, можно удалить.
   country: zod.string().optional(),
   state: zod.string().optional(),
   city: zod.string().optional(),
   zipCode: zod.string().optional(),
-  status: zod.string().optional(),
-  isVerified: zod.boolean().optional(),
-  // Пример: поля для метрик
+
+  // Пример: поля для метрик (можно убрать при создании, если считаются автоматически)
   overall_performance: zod.number().or(zod.nan()).optional(),
   kpi: zod.number().or(zod.nan()).optional(),
   work_volume: zod.number().or(zod.nan()).optional(),
@@ -49,9 +59,17 @@ const NewEmployeeSchema = zod.object({
   quality: zod.number().or(zod.nan()).optional(),
 });
 
+// ----------------------------------------------------------------------
+
+/**
+ * Компонент формы для создания/редактирования сотрудника.
+ * @param {Object} props
+ * @param {Object} [props.currentEmployee] - Если передан, режим "редактирования"
+ */
 export function EmployeeNewEditForm({ currentEmployee }) {
   const router = useRouter();
 
+  // Значения по умолчанию (для "создания" сотрудника)
   const defaultValues = {
     avatarUrl: null,
     fio: '',
@@ -60,13 +78,16 @@ export function EmployeeNewEditForm({ currentEmployee }) {
     department: '',
     role: '',
     address: '',
+    status: 'active',
+    isVerified: true,
+    hireDate: '',
+    birthday: '',
+    // Если нужны
     country: '',
     state: '',
     city: '',
     zipCode: '',
-    status: 'active',
-    isVerified: true,
-    // Примерные значения для метрик
+    // Метрики (по умолчанию 0)
     overall_performance: 0,
     kpi: 0,
     work_volume: 0,
@@ -74,10 +95,12 @@ export function EmployeeNewEditForm({ currentEmployee }) {
     quality: 0,
   };
 
+  // Инициализируем React Hook Form
   const methods = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(NewEmployeeSchema),
     defaultValues,
+    // Если есть currentEmployee, поля формы получат их значения
     values: currentEmployee,
   });
 
@@ -91,27 +114,36 @@ export function EmployeeNewEditForm({ currentEmployee }) {
 
   const values = watch();
 
-  const onSubmit = handleSubmit(async (data) => {
+  // Сабмит формы
+  const onSubmit = handleSubmit(async (formData) => {
     try {
-      // Пример имитации запроса
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Проверяем: если есть currentEmployee?.id => режим редактирования
+      if (currentEmployee && currentEmployee.id) {
+        // Редактирование (PUT)
+        await axios.put(
+          `https://biz360-backend.onrender.com/api/employees/${currentEmployee.id}`,
+          formData
+        );
+        toast.success('Изменения сохранены!');
+      } else {
+        // Создание (POST)
+        await axios.post('https://biz360-backend.onrender.com/api/employees', formData);
+        toast.success('Сотрудник создан!');
+      }
 
       reset();
-      toast.success(currentEmployee ? 'Изменения сохранены!' : 'Сотрудник создан!');
-
       // Перенаправляем после сохранения
       router.push(paths.dashboard.employee.list);
-
-      console.info('DATA', data);
     } catch (error) {
-      console.error(error);
+      console.error('Ошибка при сохранении сотрудника:', error);
+      toast.error('Ошибка при сохранении сотрудника');
     }
   });
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        {/* Левая колонка с аватаром и статусами */}
+        {/* Левая колонка: аватар + статус */}
         <Grid item xs={12} md={4}>
           <Card sx={{ pt: 10, pb: 5, px: 3, position: 'relative' }}>
             {currentEmployee && (
@@ -149,6 +181,7 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               />
             </Box>
 
+            {/* Переключатель статуса (active/banned), только если редактируем */}
             {currentEmployee && (
               <FormControlLabel
                 labelPlacement="start"
@@ -202,7 +235,7 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
 
-            {/* Пример кнопки удаления */}
+            {/* Кнопка "Удалить сотрудника" (только если редактируем) */}
             {currentEmployee && (
               <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
                 <Button variant="soft" color="error">
@@ -213,7 +246,7 @@ export function EmployeeNewEditForm({ currentEmployee }) {
           </Card>
         </Grid>
 
-        {/* Правая колонка с полями ввода */}
+        {/* Правая колонка: поля формы */}
         <Grid item xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box
@@ -232,7 +265,6 @@ export function EmployeeNewEditForm({ currentEmployee }) {
                 label="Телефон"
                 country={!currentEmployee ? 'RU' : undefined}
               />
-
               <Field.Text name="department" label="Отдел" />
               <Field.Text name="role" label="Роль" />
               <Field.Text name="country" label="Страна" />
@@ -240,13 +272,12 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               <Field.Text name="city" label="Город" />
               <Field.Text name="address" label="Адрес" />
               <Field.Text name="zipCode" label="Индекс" />
-
-              {/* Примерные поля для метрик */}
-              <Field.Number name="overall_performance" label="Общая эффективность" />
-              <Field.Number name="kpi" label="KPI" />
-              <Field.Number name="work_volume" label="Объём работ" />
-              <Field.Number name="activity" label="Активность" />
-              <Field.Number name="quality" label="Качество" />
+              <Field.Text name="hireDate" label="Дата приёма на работу" type="date" />
+              <Field.Text name="birthday" label="Дата рождения" type="date" />
+              {/* Если нужны метрики:
+                  <Field.Text name="overall_performance" label="Общая эффективность" />
+                  ...
+              */}
             </Box>
 
             <Stack sx={{ mt: 3, alignItems: 'flex-end' }}>

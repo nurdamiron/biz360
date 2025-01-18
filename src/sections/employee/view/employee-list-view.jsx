@@ -1,6 +1,11 @@
-import { useState, useCallback } from 'react';
+// employee-list-view.jsx
+/// done
+import { useState, useEffect, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+
+import axiosInstance, { endpoints } from 'src/lib/axios'; // <-- Подключаем axios
+import { toast } from 'src/components/snackbar';            // <-- Для уведомлений
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -17,7 +22,6 @@ import { RouterLink } from 'src/routes/components';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { Label } from 'src/components/label';
-import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -41,41 +45,6 @@ import { EmployeeTableFiltersResult } from '../employee-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-// Пример статичных данных (пока нет API)
-const _employeeList = [
-  {
-    id: 1,
-    fio: 'Иванов Иван Иванович',
-    phoneNumber: '+7 999 123-45-67',
-    department: 'Отдел продаж',
-    role: 'manager',
-    status: 'active',
-    avatarUrl: null,
-    // Метрики
-    overall_performance: 85.5,
-    kpi: 90.0,
-    work_volume: 75.0,
-    activity: 80.0,
-    quality: 88.0,
-  },
-  {
-    id: 2,
-    fio: 'Петров Пётр Петрович',
-    phoneNumber: '+7 912 345-67-89',
-    department: 'Отдел маркетинга',
-    role: 'marketer',
-    status: 'banned',
-    avatarUrl: null,
-    overall_performance: 70.0,
-    kpi: 65.0,
-    work_volume: 80.0,
-    activity: 50.0,
-    quality: 90.0,
-  },
-];
-
-// Вы можете сформировать список статусов самостоятельно,
-// либо использовать те же, что и были у «юзеров».
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Все' },
   { value: 'active', label: 'Активен' },
@@ -83,12 +52,8 @@ const STATUS_OPTIONS = [
   { value: 'banned', label: 'Заблокирован' },
 ];
 
-// Таблица: какие колонки показываем
-// Добавлены поля для метрик (KPI, Объём работ и т.д.)
-// Пример нового TABLE_HEAD
 const TABLE_HEAD = [
   { id: 'fio', label: 'ФИО', width: 240 },
-  // Телефон будет отображаться под ФИО, так что убираем отдельный столбец
   { id: 'department', label: 'Отдел', width: 180 },
   { id: 'overall_performance', label: 'Общая эффективность', width: 140 },
   { id: 'kpi', label: 'KPI', width: 80 },
@@ -96,28 +61,83 @@ const TABLE_HEAD = [
   { id: 'activity', label: 'Активность', width: 100 },
   { id: 'quality', label: 'Качество', width: 100 },
   { id: 'status', label: 'Доступ', width: 100 },
-  { id: '', width: 88 }, // Столбец для меню действий
+  { id: '', width: 88 },
 ];
-
 
 // ----------------------------------------------------------------------
 
 export function EmployeeListView() {
+  // 1) Инициализация таблицы и диалога
   const table = useTable();
-
   const confirmDialog = useBoolean();
 
-  const [tableData, setTableData] = useState(_employeeList);
+  // 2) Изначально пустой массив сотрудников
+  const [tableData, setTableData] = useState([]);
 
+  // 3) Фильтры
   const filters = useSetState({
     fio: '',
     role: [],
     status: 'all',
   });
-
   const { state: currentFilters, setState: updateFilters } = filters;
 
-  // Применяем фильтры и сортировку
+  // 4) ЗАГРУЗКА сотрудников при монтировании
+  useEffect(() => {
+    axiosInstance
+      .get(endpoints.employee.list) 
+      //   -> 'https://biz360-backend.onrender.com/api/employees'
+      .then((res) => {
+        setTableData(res.data);
+      })
+      .catch((err) => {
+        console.error('Ошибка при загрузке сотрудников:', err);
+        toast.error('Не удалось загрузить сотрудников');
+      });
+  }, []);
+
+  // 5) Логика удаления одного сотрудника
+  const handleDeleteRow = useCallback(
+    async (id) => {
+      try {
+        // Удаляем на сервере
+        await axiosInstance.delete(endpoints.employee.delete(id));
+        toast.success('Успешно удалено!');
+
+        // Удаляем из локального state
+        const newData = tableData.filter((row) => row.id !== id);
+        setTableData(newData);
+        table.onUpdatePageDeleteRow(newData.length);
+      } catch (error) {
+        console.error('Ошибка удаления сотрудника:', error);
+        toast.error('Ошибка при удалении');
+      }
+    },
+    [table, tableData]
+  );
+
+  // 6) Логика массового удаления
+  const handleDeleteRows = useCallback(async () => {
+    try {
+      const idsToDelete = table.selected; // Массив id
+      await Promise.all(
+        idsToDelete.map((id) =>
+          axiosInstance.delete(endpoints.employee.delete(id))
+        )
+      );
+
+      toast.success('Успешно удалено!');
+      const newData = tableData.filter((row) => !idsToDelete.includes(row.id));
+      setTableData(newData);
+
+      table.onUpdatePageDeleteRows(newData.length, newData.length);
+    } catch (error) {
+      console.error('Ошибка при массовом удалении сотрудников:', error);
+      toast.error('Ошибка при удалении');
+    }
+  }, [table, tableData]);
+
+  // 7) Фильтры и сортировка
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -125,29 +145,14 @@ export function EmployeeListView() {
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-  const canReset = !!currentFilters.fio || currentFilters.role.length > 0 || currentFilters.status !== 'all';
+  const canReset =
+    !!currentFilters.fio ||
+    currentFilters.role.length > 0 ||
+    currentFilters.status !== 'all';
+
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  // Удаление одной строки
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      toast.success('Успешно удалено!');
-      setTableData(deleteRow);
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  // Удаление сразу нескольких строк
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    toast.success('Успешно удалено!');
-    setTableData(deleteRows);
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  // Переключение табов статусов
+  // 8) Переключение вкладок статусов
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       table.onResetPage();
@@ -156,7 +161,7 @@ export function EmployeeListView() {
     [updateFilters, table]
   );
 
-  // Модалка подтверждения удаления
+  // 9) Диалог подтверждения удаления
   const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
@@ -182,6 +187,7 @@ export function EmployeeListView() {
     />
   );
 
+  // 10) Рендер
   return (
     <>
       <DashboardContent>
@@ -194,8 +200,7 @@ export function EmployeeListView() {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.employee.new} 
-              // Здесь вы можете поменять paths.dashboard.employee.new на свой route (employee/new и т.п.)
+              href={paths.dashboard.employee.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
@@ -222,7 +227,11 @@ export function EmployeeListView() {
                 label={tab.label}
                 icon={
                   <Label
-                    variant={(tab.value === 'all' || tab.value === currentFilters.status) ? 'filled' : 'soft'}
+                    variant={
+                      tab.value === 'all' || tab.value === currentFilters.status
+                        ? 'filled'
+                        : 'soft'
+                    }
                     color={
                       (tab.value === 'active' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
@@ -301,7 +310,6 @@ export function EmployeeListView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        // editHref (для кнопки "Edit") можете менять под свои роуты
                         editHref={paths.dashboard.employee.edit(row.id)}
                       />
                     ))}
@@ -350,7 +358,9 @@ function applyFilter({ inputData, comparator, filters }) {
 
   // Фильтр по ФИО
   if (fio) {
-    inputData = inputData.filter((emp) => emp.fio.toLowerCase().includes(fio.toLowerCase()));
+    inputData = inputData.filter((emp) =>
+      emp.fio?.toLowerCase().includes(fio.toLowerCase())
+    );
   }
 
   // Фильтр по статусу

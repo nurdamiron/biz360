@@ -1,4 +1,3 @@
-// verify success
 import axios from 'axios';
 
 import { CONFIG } from 'src/global-config';
@@ -40,6 +39,7 @@ export const fetcher = async (args) => {
 
 // ----------------------------------------------------------------------
 
+const BASE_API_URL = 'https://biz360-backend.onrender.com';
 
 export const endpoints = {
   chat: '/api/chat',
@@ -47,9 +47,9 @@ export const endpoints = {
   calendar: '/api/calendar',
   auth: {
     me: '/api/auth/me',
-    signIn: 'https://biz360-backend.onrender.com/api/auth/sign-in',
-    signUp: 'https://biz360-backend.onrender.com/api/auth/sign-up',
-    verifyEmail: (token) => `https://biz360-backend.onrender.com/api/auth/verify-email/${token}`
+    signIn: `${BASE_API_URL}/api/auth/sign-in`,
+    signUp: `${BASE_API_URL}/api/auth/sign-up`,
+    verifyEmail: (token) => `${BASE_API_URL}/api/auth/verify-email/${token}`
   },
   mail: {
     list: '/api/mail/list',
@@ -63,8 +63,15 @@ export const endpoints = {
     search: '/api/post/search',
   },
   product: {
-    list: 'https://biz360-backend.onrender.com/api/product/list',
-    details: 'https://biz360-backend.onrender.com/api/product/details',
-    search: 'https://biz360-backend.onrender.com/api/product/search',
+    list: `${BASE_API_URL}/api/product/list`,
+    details: `${BASE_API_URL}/api/product/details`,
+    search: `${BASE_API_URL}/api/product/search`,
+  },
+  employee: {
+    list: `${BASE_API_URL}/api/employees`,
+    details: (id) => `${BASE_API_URL}/api/employees/${id}`,
+    create: `${BASE_API_URL}/api/employees`,
+    update: (id) => `${BASE_API_URL}/api/employees/${id}`,
+    delete: (id) => `${BASE_API_URL}/api/employees/${id}`,
   },
 };
