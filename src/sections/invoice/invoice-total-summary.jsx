@@ -1,3 +1,5 @@
+// invoice-total-summary.jsx
+
 import Box from '@mui/material/Box';
 
 import { fPercent, fCurrency } from 'src/utils/format-number';

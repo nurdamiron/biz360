@@ -1,22 +1,11 @@
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useBoolean } from 'minimal-shared/hooks';
-
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
+import { Typography, Stack, Box, IconButton, Divider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { _addressBooks } from 'src/_mock';
-
 import { Iconify } from 'src/components/iconify';
-
-import { AddressListDialog } from '../address';
-
-// ----------------------------------------------------------------------
+import { CustomerList } from './customer-list';
 
 export function InvoiceNewEditAddress() {
   const {
@@ -28,16 +17,27 @@ export function InvoiceNewEditAddress() {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
+  const [showFromDialog, setShowFromDialog] = useState(false);
+  const [showToDialog, setShowToDialog] = useState(false);
+
   const values = watch();
-
-  const addressTo = useBoolean();
-  const addressForm = useBoolean();
-
   const { invoiceFrom, invoiceTo } = values;
+
+  const handleSelectCustomer = (type, customer) => {
+    setValue(type, {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phoneNumber: customer.phone_number,
+      fullAddress: customer.address
+    });
+  };
 
   return (
     <>
       <Stack
+        spacing={{ xs: 3, md: 5 }}
+        direction={{ xs: 'column', md: 'row' }}
         divider={
           <Divider
             flexItem
@@ -45,85 +45,75 @@ export function InvoiceNewEditAddress() {
             sx={{ borderStyle: 'dashed' }}
           />
         }
-        sx={{ p: 3, gap: { xs: 3, md: 5 }, flexDirection: { xs: 'column', md: 'row' } }}
+        sx={{ p: 3 }}
       >
+        {/* From section */}
         <Stack sx={{ width: 1 }}>
           <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-              From:
+              От:
             </Typography>
 
-            <IconButton onClick={addressForm.onTrue}>
+            <IconButton onClick={() => setShowFromDialog(true)}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Box>
 
           <Stack spacing={1}>
-            <Typography variant="subtitle2">{invoiceFrom?.name}</Typography>
-            <Typography variant="body2">{invoiceFrom?.fullAddress}</Typography>
-            <Typography variant="body2"> {invoiceFrom?.phoneNumber}</Typography>
+            {invoiceFrom ? (
+              <>
+                <Typography variant="subtitle2">{invoiceFrom.name}</Typography>
+                <Typography variant="body2">{invoiceFrom.fullAddress}</Typography>
+                <Typography variant="body2">{invoiceFrom.phoneNumber}</Typography>
+              </>
+            ) : (
+              <Typography variant="subtitle2" sx={{ color: 'error.main' }}>
+                {errors.invoiceFrom?.message || 'Выберите отправителя'}
+              </Typography>
+            )}
           </Stack>
         </Stack>
 
+        {/* To section */}
         <Stack sx={{ width: 1 }}>
           <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-              To:
+              Кому:
             </Typography>
 
-            <IconButton onClick={addressTo.onTrue}>
+            <IconButton onClick={() => setShowToDialog(true)}>
               <Iconify icon={invoiceTo ? 'solar:pen-bold' : 'mingcute:add-line'} />
             </IconButton>
           </Box>
 
-          {invoiceTo ? (
-            <Stack spacing={1}>
-              <Typography variant="subtitle2">{invoiceTo?.name}</Typography>
-              <Typography variant="body2">{invoiceTo?.fullAddress}</Typography>
-              <Typography variant="body2"> {invoiceTo?.phoneNumber}</Typography>
-            </Stack>
-          ) : (
-            <Typography typography="caption" sx={{ color: 'error.main' }}>
-              {errors.invoiceTo?.message}
-            </Typography>
-          )}
+          <Stack spacing={1}>
+            {invoiceTo ? (
+              <>
+                <Typography variant="subtitle2">{invoiceTo.name}</Typography>
+                <Typography variant="body2">{invoiceTo.fullAddress}</Typography>
+                <Typography variant="body2">{invoiceTo.phoneNumber}</Typography>
+              </>
+            ) : (
+              <Typography variant="subtitle2" sx={{ color: 'error.main' }}>
+                {errors.invoiceTo?.message || 'Выберите получателя'}
+              </Typography>
+            )}
+          </Stack>
         </Stack>
       </Stack>
 
-      <AddressListDialog
-        title="Customers"
-        open={addressForm.value}
-        onClose={addressForm.onFalse}
-        selected={(selectedId) => invoiceFrom?.id === selectedId}
-        onSelect={(address) => setValue('invoiceFrom', address)}
-        list={_addressBooks}
-        action={
-          <Button
-            size="small"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ alignSelf: 'flex-end' }}
-          >
-            New
-          </Button>
-        }
+      <CustomerList
+        open={showFromDialog}
+        onClose={() => setShowFromDialog(false)}
+        selected={invoiceFrom?.id}
+        onSelect={(customer) => handleSelectCustomer('invoiceFrom', customer)}
       />
 
-      <AddressListDialog
-        title="Customers"
-        open={addressTo.value}
-        onClose={addressTo.onFalse}
-        selected={(selectedId) => invoiceTo?.id === selectedId}
-        onSelect={(address) => setValue('invoiceTo', address)}
-        list={_addressBooks}
-        action={
-          <Button
-            size="small"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{ alignSelf: 'flex-end' }}
-          >
-            New
-          </Button>
-        }
+      <CustomerList
+        open={showToDialog}
+        onClose={() => setShowToDialog(false)}
+        selected={invoiceTo?.id}
+        onSelect={(customer) => handleSelectCustomer('invoiceTo', customer)}
       />
     </>
   );

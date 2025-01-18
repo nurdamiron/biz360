@@ -1,3 +1,4 @@
+// invoice-create-view.jsx
 import { paths } from 'src/routes/paths';
 
 import { DashboardContent } from 'src/layouts/dashboard';

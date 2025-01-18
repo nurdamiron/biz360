@@ -1,3 +1,5 @@
+// invoice-list-view.jsx
+
 import { sumBy } from 'es-toolkit';
 import { useState, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';

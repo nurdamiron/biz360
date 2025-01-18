@@ -17,6 +17,7 @@ import { Field } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
 
 import { InvoiceTotalSummary } from './invoice-total-summary';
+import { InvoiceCustomer } from './invoice-customer-view'; // Импортируем модальное окно
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +40,7 @@ const getFieldNames = (index) => ({
 });
 
 export function InvoiceNewEditDetails() {
+  
   const { control, setValue, getValues } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
@@ -57,10 +59,16 @@ export function InvoiceNewEditDetails() {
     setValue('totalAmount', totalAmount);
   }, [setValue, subtotal, totalAmount]);
 
+  const handleCreateCustomer = (newCustomer) => {
+    // Здесь можно добавить логику для обновления списка клиентов (_addressBooks)
+    console.log('Создан новый клиент:', newCustomer);
+    setValue('invoiceFrom', newCustomer); // Устанавливаем нового клиента как "From"
+  };
+  
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h6" sx={{ color: 'text.disabled', mb: 3 }}>
-        Details:
+        Детали заказа:
       </Typography>
 
       <Stack divider={<Divider flexItem sx={{ borderStyle: 'dashed' }} />} spacing={3}>
@@ -90,7 +98,7 @@ export function InvoiceNewEditDetails() {
           onClick={() => append(defaultItem)}
           sx={{ flexShrink: 0 }}
         >
-          Add Item
+          Добавить товар
         </Button>
 
         <Box
@@ -104,7 +112,7 @@ export function InvoiceNewEditDetails() {
         >
           <Field.Text
             size="small"
-            label="Shipping($)"
+            label="Доставка ($)"
             name="shipping"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
@@ -113,7 +121,7 @@ export function InvoiceNewEditDetails() {
 
           <Field.Text
             size="small"
-            label="Discount($)"
+            label="Скидка ($)"
             name="discount"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
@@ -122,7 +130,7 @@ export function InvoiceNewEditDetails() {
 
           <Field.Text
             size="small"
-            label="Taxes(%)"
+            label="Налоги (%)"
             name="taxes"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
@@ -191,7 +199,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
         <Field.Text
           size="small"
           name={fieldNames.title}
-          label="Title"
+          label="Название"
           slotProps={{ inputLabel: { shrink: true } }}
         />
 
@@ -200,14 +208,14 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
           maxRows={3}
           size="small"
           name={fieldNames.description}
-          label="Description"
+          label="Описание"
           slotProps={{ inputLabel: { shrink: true } }}
         />
 
         <Field.Select
           size="small"
           name={fieldNames.service}
-          label="Service"
+          label="Услуга"
           slotProps={{ inputLabel: { shrink: true } }}
           sx={{ maxWidth: { md: 160 } }}
         >
@@ -216,7 +224,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
             onClick={handleClearService}
             sx={{ fontStyle: 'italic', color: 'text.secondary' }}
           >
-            None
+            Нет
           </MenuItem>
 
           <Divider sx={{ borderStyle: 'dashed' }} />
@@ -236,7 +244,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
           size="small"
           type="number"
           name={fieldNames.quantity}
-          label="Quantity"
+          label="Количество"
           placeholder="0"
           slotProps={{ inputLabel: { shrink: true } }}
           sx={{ maxWidth: { md: 96 } }}
@@ -246,7 +254,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
           size="small"
           type="number"
           name={fieldNames.price}
-          label="Price"
+          label="Цена"
           placeholder="0.00"
           slotProps={{
             input: {
@@ -265,7 +273,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
           size="small"
           name={fieldNames.total}
           type="number"
-          label="Total"
+          label="Итого"
           placeholder="0.00"
           slotProps={{
             input: {
@@ -289,7 +297,7 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
         startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         onClick={onRemoveItem}
       >
-        Remove
+        Удалить
       </Button>
     </Box>
   );

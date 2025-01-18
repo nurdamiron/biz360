@@ -1,3 +1,5 @@
+// invoice-table-row.jsx
+
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
