@@ -108,5 +108,13 @@ export const endpoints = {
     delete: (id) => `${BASE_API_URL}/api/customers/${id}`,  // DELETE /api/customers/:id
   },
 
+  supplier: {
+    list: `${BASE_API_URL}/api/suppliers`,          // GET /api/customers
+    details: `${BASE_API_URL}/api/suppliers/`, // GET /api/customers/:id
+    create: `${BASE_API_URL}/api/suppliers`,        // POST
+    update:`${BASE_API_URL}/api/suppliers/`,  // PUT /api/customers/:id
+    delete: `${BASE_API_URL}/api/suppliers/`,  // DELETE /api/customers/:id
+  },
+
 
 };

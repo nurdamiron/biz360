@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Typography, Stack, Box, IconButton, Divider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { Iconify } from 'src/components/iconify';
+import { SupplierList } from './supplier-list';
 import { CustomerList } from './customer-list';
 
 export function InvoiceNewEditAddress() {
@@ -17,20 +18,51 @@ export function InvoiceNewEditAddress() {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-  const [showFromDialog, setShowFromDialog] = useState(false);
-  const [showToDialog, setShowToDialog] = useState(false);
+  const [showFromDialog, setShowFromDialog] = useState(false); // Поставщики
+  const [showToDialog, setShowToDialog] = useState(false);     // Клиенты
 
+  // Достаём значения из формы
   const values = watch();
   const { invoiceFrom, invoiceTo } = values;
 
-  const handleSelectCustomer = (type, customer) => {
-    setValue(type, {
-      id: customer.id,
-      name: customer.name,
-      email: customer.email,
-      phoneNumber: customer.phone_number,
-      fullAddress: customer.address
+  // --- Выбор поставщика
+  const handleSelectSupplier = (supplier) => {
+    if (!supplier) return;
+    setValue('invoiceFrom', {
+      id: supplier.id || '',
+      name: supplier.name || '',
+      email: supplier.email || '',
+      phoneNumber: supplier.phone_number || '',
+      fullAddress: supplier.address || '',
     });
+  };
+
+  // --- Выбор клиента
+  const handleSelectCustomer = (customer) => {
+    if (!customer) return;
+    setValue('invoiceTo', {
+      id: customer.id || '',
+      name: customer.name || '',
+      email: customer.email || '',
+      phoneNumber: customer.phone_number || '',
+      fullAddress: customer.address || '',
+    });
+  };
+
+  // --- Если удалили поставщика — сбросим invoiceFrom, если он совпадает
+  const handleSupplierDeleted = (deletedId) => {
+    if (!deletedId) return;
+    if (invoiceFrom?.id === deletedId) {
+      setValue('invoiceFrom', null); // или {} — как вам удобнее
+    }
+  };
+
+  // --- Если удалили клиента — сбросим invoiceTo, если он совпадает
+  const handleCustomerDeleted = (deletedId) => {
+    if (!deletedId) return;
+    if (invoiceTo?.id === deletedId) {
+      setValue('invoiceTo', null);
+    }
   };
 
   return (
@@ -47,11 +79,11 @@ export function InvoiceNewEditAddress() {
         }
         sx={{ p: 3 }}
       >
-        {/* From section */}
+        {/* Левая часть: От (Поставщик) */}
         <Stack sx={{ width: 1 }}>
           <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-              От:
+              От (Поставщик):
             </Typography>
 
             <IconButton onClick={() => setShowFromDialog(true)}>
@@ -68,17 +100,17 @@ export function InvoiceNewEditAddress() {
               </>
             ) : (
               <Typography variant="subtitle2" sx={{ color: 'error.main' }}>
-                {errors.invoiceFrom?.message || 'Выберите отправителя'}
+                {errors.invoiceFrom?.message || 'Выберите поставщика'}
               </Typography>
             )}
           </Stack>
         </Stack>
 
-        {/* To section */}
+        {/* Правая часть: Кому (Клиент) */}
         <Stack sx={{ width: 1 }}>
           <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
-              Кому:
+              Кому (Клиент):
             </Typography>
 
             <IconButton onClick={() => setShowToDialog(true)}>
@@ -95,25 +127,41 @@ export function InvoiceNewEditAddress() {
               </>
             ) : (
               <Typography variant="subtitle2" sx={{ color: 'error.main' }}>
-                {errors.invoiceTo?.message || 'Выберите получателя'}
+                {errors.invoiceTo?.message || 'Выберите клиента'}
               </Typography>
             )}
           </Stack>
         </Stack>
       </Stack>
 
-      <CustomerList
+      {/* Диалог с поставщиками */}
+      <SupplierList
         open={showFromDialog}
         onClose={() => setShowFromDialog(false)}
         selected={invoiceFrom?.id}
-        onSelect={(customer) => handleSelectCustomer('invoiceFrom', customer)}
+        onSelect={(supplier) => {
+          handleSelectSupplier(supplier);
+          setShowFromDialog(false);
+        }}
+        // Новая проп: вызывается при удалении поставщика
+        onDeleted={(deletedId) => {
+          handleSupplierDeleted(deletedId);
+        }}
       />
 
+      {/* Диалог с клиентами */}
       <CustomerList
         open={showToDialog}
         onClose={() => setShowToDialog(false)}
         selected={invoiceTo?.id}
-        onSelect={(customer) => handleSelectCustomer('invoiceTo', customer)}
+        onSelect={(customer) => {
+          handleSelectCustomer(customer);
+          setShowToDialog(false);
+        }}
+        // Новая проп: вызывается при удалении клиента
+        onDeleted={(deletedId) => {
+          handleCustomerDeleted(deletedId);
+        }}
       />
     </>
   );

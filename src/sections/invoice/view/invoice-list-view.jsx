@@ -52,12 +52,12 @@ import { InvoiceTableFiltersResult } from '../invoice-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'invoiceNumber', label: 'Customer' },
-  { id: 'createDate', label: 'Create' },
-  { id: 'dueDate', label: 'Due' },
-  { id: 'price', label: 'Amount' },
-  { id: 'sent', label: 'Sent', align: 'center' },
-  { id: 'status', label: 'Status' },
+  { id: 'invoiceNumber', label: 'Клиент' },
+  { id: 'createDate', label: 'Создан' },
+  { id: 'dueDate', label: 'До' },
+  { id: 'price', label: 'Тотал' },
+  { id: 'sent', label: 'Отправить', align: 'center' },
+  { id: 'status', label: 'Тип документа' },
   { id: '' },
 ];
 
@@ -80,6 +80,15 @@ export function InvoiceListView() {
     endDate: null,
   });
   const { state: currentFilters, setState: updateFilters } = filters;
+
+  const DOCUMENT_TYPES = [
+    { value: 'all', label: 'Все', color: 'default' },
+    { value: 'kp', label: 'Коммерческое предложение', color: 'info' },
+    { value: 'invoice', label: 'Счёт на оплату', color: 'success' },
+    { value: 'act', label: 'Акт выполненных работ', color: 'warning' },
+    { value: 'sf', label: 'Счёт-фактура', color: 'primary' },
+  ];
+
 
   const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
@@ -110,38 +119,13 @@ export function InvoiceListView() {
 
   const getPercentByStatus = (status) => (getInvoiceLength(status) / tableData.length) * 100;
 
-  const TABS = [
-    {
-      value: 'all',
-      label: 'Все',
-      color: 'default',
-      count: tableData.length,
-    },
-    {
-      value: 'paid',
-      label: 'Paid',
-      color: 'success',
-      count: getInvoiceLength('paid'),
-    },
-    {
-      value: 'pending',
-      label: 'Pending',
-      color: 'warning',
-      count: getInvoiceLength('pending'),
-    },
-    {
-      value: 'overdue',
-      label: 'Overdue',
-      color: 'error',
-      count: getInvoiceLength('overdue'),
-    },
-    {
-      value: 'draft',
-      label: 'Draft',
-      color: 'default',
-      count: getInvoiceLength('draft'),
-    },
-  ];
+  const TABS = DOCUMENT_TYPES.map((type) => ({
+    ...type,
+    count:
+      type.value === 'all'
+        ? tableData.length
+        : tableData.filter((item) => item.documentType === type.value).length,
+  }));
 
   const handleDeleteRow = useCallback(
     (id) => {

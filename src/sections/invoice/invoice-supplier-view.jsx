@@ -9,18 +9,26 @@ import {
   Stack,
   Checkbox,
   FormControlLabel,
-  FormControl,
-  Select,
   MenuItem,
+  Select,
   InputLabel,
+  FormControl,
 } from '@mui/material';
 import { toast } from 'src/components/snackbar';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 
-export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
-  const isEditMode = Boolean(currentCustomer);
+/*
+Пропсы:
+- open (boolean) — показывать/скрывать диалог
+- onClose (func) — закрыть диалог
+- onSave (func) — колбэк после успешного сохранения (чтобы обновить список)
+- currentSupplier (object | null) — если есть, значит редактируем
+*/
 
-  // Здесь — расширенные поля, аналогичные "InvoiceSupplier"
+export function InvoiceSupplier({ open, onClose, onSave, currentSupplier }) {
+  const isEditMode = Boolean(currentSupplier);
+
+  // Локальный стейт для всех полей
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -37,32 +45,30 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
     additional_info: '',
   });
 
-  // При открытии / смене currentCustomer заполняем или очищаем форму
+  // При открытии (и при смене currentSupplier) заполняем/очищаем поля
   useEffect(() => {
-    if (isEditMode && currentCustomer) {
+    if (isEditMode && currentSupplier) {
       setFormData({
-        name: currentCustomer.name || '',
-        email: currentCustomer.email || '',
-        phone_number: currentCustomer.phone_number || '',
-        address: currentCustomer.address || '',
-        company_type: currentCustomer.company_type || '',
-        bin_iin: currentCustomer.bin_iin || '',
-        bank_name: currentCustomer.bank_name || '',
-        bank_bik: currentCustomer.bank_bik || '',
-        iik: currentCustomer.iik || '',
-        kbe: currentCustomer.kbe || '',
-        knp: currentCustomer.knp || '',
+        name: currentSupplier.name || '',
+        email: currentSupplier.email || '',
+        phone_number: currentSupplier.phone_number || '',
+        address: currentSupplier.address || '',
+        company_type: currentSupplier.company_type || '',
+        bin_iin: currentSupplier.bin_iin || '',
+        bank_name: currentSupplier.bank_name || '',
+        bank_bik: currentSupplier.bank_bik || '',
+        iik: currentSupplier.iik || '',
+        kbe: currentSupplier.kbe || '',
+        knp: currentSupplier.knp || '',
         is_resident:
-          currentCustomer.is_resident !== undefined
-            ? currentCustomer.is_resident
+          currentSupplier.is_resident !== undefined
+            ? currentSupplier.is_resident
             : true,
-        // Если additional_info хранится в БД как JSON, преобразуем в строку
-        additional_info: currentCustomer.additional_info
-          ? JSON.stringify(currentCustomer.additional_info)
+        additional_info: currentSupplier.additional_info
+          ? JSON.stringify(currentSupplier.additional_info)
           : '',
       });
     } else {
-      // Нового клиента создаём
       setFormData({
         name: '',
         email: '',
@@ -79,28 +85,25 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
         additional_info: '',
       });
     }
-  }, [isEditMode, currentCustomer]);
+  }, [isEditMode, currentSupplier]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Сабмитим форму: создаём (POST) или обновляем (PUT)
   const handleSubmit = async () => {
-    // Простейшая валидация, обязательны поля: name, email, phone_number, address
     if (!formData.name || !formData.email || !formData.phone_number || !formData.address) {
-      toast.error('Пожалуйста, заполните поля (Имя, Email, Телефон, Адрес).');
+      toast.error('Пожалуйста, заполните хотя бы поля (Имя/Название, E-mail, Телефон, Адрес)');
       return;
     }
 
     try {
-      // Преобразуем доп. инфу из строки в JSON (если пользователь ввёл что-то)
       let additionalInfoParsed = null;
       if (formData.additional_info.trim()) {
         try {
           additionalInfoParsed = JSON.parse(formData.additional_info);
-        } catch (err) {
-          toast.error('Поле "Доп. информация" содержит некорректный JSON');
+        } catch (error) {
+          toast.error('Поле "Доп. информация" должно быть корректным JSON');
           return;
         }
       }
@@ -110,30 +113,29 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
         additional_info: additionalInfoParsed,
       };
 
-      // Если редактируем
       if (isEditMode) {
         await axiosInstance.put(
-          `${endpoints.customer.update}/${currentCustomer.id}`,
+          `${endpoints.supplier.update}/${currentSupplier.id}`,
           payload
         );
-        toast.success('Клиент успешно обновлён!');
+        toast.success('Поставщик успешно обновлён!');
       } else {
-        // Создаём
-        await axiosInstance.post(endpoints.customer.create, payload);
-        toast.success('Клиент успешно создан!');
+        await axiosInstance.post(endpoints.supplier.create, payload);
+        toast.success('Поставщик успешно создан!');
       }
-
-      onSave();   // уведомим родительский компонент (например, чтобы обновить список)
-      onClose();  // закроем окно
+      onSave();
+      onClose();
     } catch (error) {
-      console.error('Ошибка при сохранении клиента:', error);
-      toast.error('Произошла ошибка при сохранении клиента');
+      console.error('Ошибка при сохранении поставщика:', error);
+      toast.error('Произошла ошибка при сохранении поставщика');
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{isEditMode ? 'Редактировать клиента' : 'Новый клиент'}</DialogTitle>
+      <DialogTitle>
+        {isEditMode ? 'Редактировать поставщика' : 'Новый поставщик'}
+      </DialogTitle>
 
       <DialogContent dividers>
         <Stack spacing={2}>
@@ -162,7 +164,6 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
           <FormControl fullWidth>
             <InputLabel>Тип организации</InputLabel>
             <Select
-              label="Тип организации"
               value={formData.company_type}
               onChange={(e) => handleChange('company_type', e.target.value)}
             >
@@ -172,7 +173,7 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
               <MenuItem value="ПК">ПК — Производственный кооператив</MenuItem>
               <MenuItem value="ГП">ГП — Государственное предприятие</MenuItem>
               <MenuItem value="Ф">Ф — Фонд</MenuItem>
-              <MenuItem value="ФП">ФП — Филиал/Представительство</MenuItem>
+              <MenuItem value="ФП">ФП — Филиал или представительство</MenuItem>
             </Select>
           </FormControl>
 
@@ -187,22 +188,22 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
             onChange={(e) => handleChange('bank_name', e.target.value)}
           />
           <TextField
-            label="БИК (банка)"
+            label="БИК (Банковский идентификационный код)"
             value={formData.bank_bik}
             onChange={(e) => handleChange('bank_bik', e.target.value)}
           />
           <TextField
-            label="ИИК"
+            label="ИИК (Индивидуальный идентификационный код)"
             value={formData.iik}
             onChange={(e) => handleChange('iik', e.target.value)}
           />
           <TextField
-            label="КБЕ"
+            label="КБЕ (Код Бенефициара)"
             value={formData.kbe}
             onChange={(e) => handleChange('kbe', e.target.value)}
           />
           <TextField
-            label="КНП"
+            label="КНП (Код назначения платежа)"
             value={formData.knp}
             onChange={(e) => handleChange('knp', e.target.value)}
           />
@@ -218,12 +219,12 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
           />
 
           <TextField
-            label="Доп. информация (JSON)"
+            label="Доп. информация"
             multiline
             rows={3}
             value={formData.additional_info}
             onChange={(e) => handleChange('additional_info', e.target.value)}
-            helperText="Доп. поля в формате JSON"
+            helperText="Можно хранить произвольные поля в формате JSON"
           />
         </Stack>
       </DialogContent>
