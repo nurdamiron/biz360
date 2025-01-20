@@ -46,12 +46,12 @@ export const navData = [
   {
     subheader: 'Анализ',
     items: [
-      { title: 'Дашборд', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Финансы', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-      { title: 'Продажи', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
+      { title: 'Дашборд', path: paths.dashboard.general.file, icon: ICONS.dashboard },
+      // { title: 'Дашборд', path: paths.dashboard.root, icon: ICONS.dashboard },
+      // { title: 'Финансы', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
+      // { title: 'Продажи', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
       { title: 'Учет', path: paths.dashboard.general.banking, icon: ICONS.banking },
       // { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
-      { title: 'File', path: paths.dashboard.general.file, icon: ICONS.file },
       // { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
     ],
   },
@@ -95,27 +95,17 @@ export const navData = [
         ],
       },
       {
-        title: 'Invoice',
+        title: 'Бухгалтерия',
         path: paths.dashboard.invoice.root,
         icon: ICONS.invoice,
-        children: [
-          { title: 'List', path: paths.dashboard.invoice.root },
-          { title: 'Details', path: paths.dashboard.invoice.demo.details },
-          { title: 'Create', path: paths.dashboard.invoice.new },
-          { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
-        ],
-      },
-      {
-        title: 'Job',
-        path: paths.dashboard.job.root,
-        icon: ICONS.job,
         // children: [
-        //   { title: 'List', path: paths.dashboard.job.root },
-        //   { title: 'Details', path: paths.dashboard.job.demo.details },
-        //   { title: 'Create', path: paths.dashboard.job.new },
-        //   { title: 'Edit', path: paths.dashboard.job.demo.edit },
+        //   { title: 'List', path: paths.dashboard.invoice.root },
+        //   { title: 'Details', path: paths.dashboard.invoice.demo.details },
+        //   { title: 'Create', path: paths.dashboard.invoice.new },
+        //   { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
         // ],
       },
+     
       // {
       //   title: 'Tour',
       //   path: paths.dashboard.tour.root,
@@ -170,6 +160,17 @@ export const navData = [
         //   { title: 'Details', path: paths.dashboard.post.demo.details },
         //   { title: 'Create', path: paths.dashboard.post.new },
         //   { title: 'Edit', path: paths.dashboard.post.demo.edit },
+        // ],
+      },
+      {
+        title: 'Вакансии',
+        path: paths.dashboard.job.root,
+        icon: ICONS.job,
+        // children: [
+        //   { title: 'List', path: paths.dashboard.job.root },
+        //   { title: 'Details', path: paths.dashboard.job.demo.details },
+        //   { title: 'Create', path: paths.dashboard.job.new },
+        //   { title: 'Edit', path: paths.dashboard.job.demo.edit },
         // ],
       },
       // {
