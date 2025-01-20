@@ -49,7 +49,7 @@ export const navData = [
       { title: 'Дашборд', path: paths.dashboard.general.file, icon: ICONS.dashboard },
       // { title: 'Дашборд', path: paths.dashboard.root, icon: ICONS.dashboard },
       // { title: 'Финансы', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-      // { title: 'Продажи', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
+      { title: 'Продажи', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
       { title: 'Учет', path: paths.dashboard.general.banking, icon: ICONS.banking },
       // { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
       // { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
@@ -89,10 +89,10 @@ export const navData = [
         title: 'Заказы',
         path: paths.dashboard.order.root,
         icon: ICONS.order,
-        children: [
-          { title: 'Список', path: paths.dashboard.order.root },
-          { title: 'Details', path: paths.dashboard.order.demo.details },
-        ],
+        // children: [
+        //   { title: 'Список', path: paths.dashboard.order.root },
+        //   { title: 'Details', path: paths.dashboard.order.demo.details },
+        // ],
       },
       {
         title: 'Бухгалтерия',

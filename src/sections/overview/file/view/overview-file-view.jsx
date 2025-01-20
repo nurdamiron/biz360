@@ -60,32 +60,32 @@ export function OverviewFileView() {
       total={GB}
       chart={{ series: 76 }}
       data={[
-        {
-          name: 'Images',
-          usedStorage: GB / 2,
-          filesCount: 223,
-          icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/files/ic-img.svg`} />,
-        },
-        {
-          name: 'Media',
-          usedStorage: GB / 5,
-          filesCount: 223,
-          icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/files/ic-video.svg`} />,
-        },
-        {
-          name: 'Documents',
-          usedStorage: GB / 5,
-          filesCount: 223,
-          icon: (
-            <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/files/ic-document.svg`} />
-          ),
-        },
-        {
-          name: 'Other',
-          usedStorage: GB / 10,
-          filesCount: 223,
-          icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/files/ic-file.svg`} />,
-        },
+        // {
+        //   name: 'Продажи',
+        //   usedStorage: GB / 2,
+        //   filesCount: 223,
+        //   icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`} />,
+        // },
+        // {
+        //   name: 'Продукт',
+        //   usedStorage: GB / 5,
+        //   filesCount: 223,
+        //   icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`} />,
+        // },
+        // {
+        //   name: 'Учет',
+        //   usedStorage: GB / 5,
+        //   filesCount: 223,
+        //   icon: (
+        //     <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-invoice.svg`} />
+        //   ),
+        // },
+        // {
+        //   name: 'Other',
+        //   usedStorage: GB / 10,
+        //   filesCount: 223,
+        //   icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/files/ic-file.svg`} />,
+        // },
       ]}
     />
   );
@@ -115,32 +115,32 @@ export function OverviewFileView() {
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
-              title="Dropbox"
+              title="Продажи"
               value={GB / 10}
               total={GB}
-              icon={`${CONFIG.assetsDir}/assets/icons/apps/ic-app-dropbox.svg`}
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`}
             />
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
-              title="Drive"
+              title="Продукт"
               value={GB / 5}
               total={GB}
-              icon={`${CONFIG.assetsDir}/assets/icons/apps/ic-app-drive.svg`}
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`}
             />
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
-              title="OneDrive"
+              title="Учет"
               value={GB / 2}
               total={GB}
-              icon={`${CONFIG.assetsDir}/assets/icons/apps/ic-app-onedrive.svg`}
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-invoice.svg`}
             />
           </Grid>
 
-          <Grid size={{ xs: 12, md: 6, lg: 8 }}>
+          {/* <Grid size={{ xs: 12, md: 6, lg: 8 }}>
             <FileDataActivity
               title="Data activity"
               chart={{
@@ -220,10 +220,12 @@ export function OverviewFileView() {
                 ))}
               </Box>
             </Box>
-          </Grid>
+          </Grid> */}
 
           <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-            <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{renderStorageOverview()}</Box>
+
+            {/* <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
               <UploadBox
                 onDrop={handleDrop}
                 placeholder={
@@ -248,10 +250,9 @@ export function OverviewFileView() {
                 }}
               />
 
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{renderStorageOverview()}</Box>
 
               <FileUpgrade />
-            </Box>
+            </Box> */}
           </Grid>
         </Grid>
       </DashboardContent>
