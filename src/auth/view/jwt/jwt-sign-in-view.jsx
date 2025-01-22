@@ -261,10 +261,10 @@ export function JwtSignInView() {
       await checkEmployeeSession?.();
 
       // Получаем параметр returnTo из query, если он существует
-      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || paths.dashboard.root;
+      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || paths.dashboard.general.file;
 
   
-      console.log('Redirecting to:', paths.dashboard.root);
+      console.log('Redirecting to:', paths.dashboard.general.file);
       router.push(returnTo); // Используйте router.replace(), если хотите перезаписать историю
     } catch (error) {
       console.error('❌ Login failed:', error);

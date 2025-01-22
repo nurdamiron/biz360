@@ -15,7 +15,7 @@ export function JobEditView({ job }) {
         heading="Edit"
         backHref={paths.dashboard.job.root}
         links={[
-          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
           { name: 'Вакансии', href: paths.dashboard.job.root },
           { name: job?.title },
         ]}

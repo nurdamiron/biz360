@@ -55,7 +55,7 @@ const STATUS_OPTIONS = [
 const TABLE_HEAD = [
   { id: 'fio', label: 'ФИО', width: 240 },
   { id: 'department', label: 'Отдел', width: 180 },
-  { id: 'overall_performance', label: 'Общая эффективность', width: 140 },
+  { id: 'overall_performance', label: 'Эффективность', width: 140 },
   { id: 'kpi', label: 'KPI', width: 80 },
   { id: 'work_volume', label: 'Объём работ', width: 120 },
   { id: 'activity', label: 'Активность', width: 100 },
@@ -194,7 +194,7 @@ export function EmployeeListView() {
         <CustomBreadcrumbs
           heading="Сотрудники"
           links={[
-            { name: 'Дэшборд', href: paths.dashboard.root },
+            { name: 'Дэшборд', href: paths.dashboard.general.file },
             { name: 'Сотрудники' },
           ]}
           action={

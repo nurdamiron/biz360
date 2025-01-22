@@ -105,7 +105,7 @@ export function JobListView() {
       <CustomBreadcrumbs
         heading="Список"
         links={[
-          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
           { name: 'Вакансии', href: paths.dashboard.job.root },
           { name: 'Список' },
         ]}

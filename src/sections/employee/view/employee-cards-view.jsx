@@ -19,9 +19,9 @@ export function EmployeeCardsView() {
       <CustomBreadcrumbs
         heading="Карточки сотрудников"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Employee', href: paths.dashboard.employee.root },
-          { name: 'Cards' },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Сотрудники', href: paths.dashboard.employee.root },
+          { name: 'Карточки сотрудников' },
         ]}
         action={
           <Button
@@ -30,7 +30,7 @@ export function EmployeeCardsView() {
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
           >
-            New employee
+            Новый сотрудник
           </Button>
         }
         sx={{ mb: { xs: 3, md: 5 } }}

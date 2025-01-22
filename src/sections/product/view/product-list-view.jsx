@@ -227,7 +227,7 @@ export function ProductListView() {
         <CustomBreadcrumbs
           heading="Список"
           links={[
-            { name: 'Дэшборд', href: paths.dashboard.root },
+            { name: 'Дэшборд', href: paths.dashboard.general.file },
             { name: 'Продукты', href: paths.dashboard.product.root },
             { name: 'Список' },
           ]}

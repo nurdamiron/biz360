@@ -57,37 +57,32 @@ export function OverviewFileView() {
 
   const renderStorageOverview = () => (
     <FileStorageOverview
-      total={GB}
-      chart={{ series: 76 }}
-      data={[
-        // {
-        //   name: 'Продажи',
-        //   usedStorage: GB / 2,
-        //   filesCount: 223,
-        //   icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`} />,
-        // },
-        // {
-        //   name: 'Продукт',
-        //   usedStorage: GB / 5,
-        //   filesCount: 223,
-        //   icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`} />,
-        // },
-        // {
-        //   name: 'Учет',
-        //   usedStorage: GB / 5,
-        //   filesCount: 223,
-        //   icon: (
-        //     <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-invoice.svg`} />
-        //   ),
-        // },
-        // {
-        //   name: 'Other',
-        //   usedStorage: GB / 10,
-        //   filesCount: 223,
-        //   icon: <Box component="img" src={`${CONFIG.assetsDir}/assets/icons/files/ic-file.svg`} />,
-        // },
-      ]}
-    />
+  sx={{ maxWidth: 360 }}
+  chart={{
+    series: 78, // 76% общая эффективность
+  }}
+  data={[
+    {
+      name: 'Продажи',
+      icon: <Iconify icon="eva:shopping-cart-fill" />,
+      value: 24, // 24% вклада
+      subtitle: 'Средний чек: 45k', // Доп. инфо
+    },
+    {
+      name: 'Продукт',
+      icon: <Iconify icon="eva:briefcase-fill" />,
+      value: 32,
+      subtitle: 'Качество: 95%',
+    },
+    {
+      name: 'Учёт',
+      icon: <Iconify icon="eva:file-text-fill" />,
+      value: 20,
+      subtitle: 'Ошибок: 2%',
+    },
+  ]}
+/>
+
   );
 
   const renderNewFilesDialog = () => (
@@ -114,29 +109,38 @@ export function OverviewFileView() {
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <FileWidget
-              title="Продажи"
-              value={GB / 10}
-              total={GB}
-              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`}
+          <FileWidget
+            icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`}
+            title="Продажи"
+            manager="Жанат Кульбаева"
+            managerIcon="eva:person-fill"
+            value={93}
+            total={100}
+            showAsPercent
             />
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <FileWidget
-              title="Продукт"
-              value={GB / 5}
-              total={GB}
-              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`}
+          <FileWidget
+            icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`}
+            title="Продукт"
+            manager="Амантаева Ляззат"
+            managerIcon="eva:person-fill"
+            value={92}
+            total={100}
+            showAsPercent
             />
           </Grid>
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <FileWidget
-              title="Учет"
-              value={GB / 2}
-              total={GB}
-              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-invoice.svg`}
+          <FileWidget
+            icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-invoice.svg`}
+            title="Учет"
+            manager="Әлемгер"
+            managerIcon="eva:person-fill"
+            value={90}
+            total={100}
+            showAsPercent
             />
           </Grid>
 

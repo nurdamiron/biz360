@@ -14,7 +14,7 @@ export function PostCreateView() {
       <CustomBreadcrumbs
         heading="Create a new post"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Dashboard', href: paths.dashboard.general.file },
           { name: 'Blog', href: paths.dashboard.post.root },
           { name: 'Create' },
         ]}

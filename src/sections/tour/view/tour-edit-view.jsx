@@ -15,7 +15,7 @@ export function TourEditView({ tour }) {
         heading="Edit"
         backHref={paths.dashboard.tour.root}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Dashboard', href: paths.dashboard.general.file },
           { name: 'Tour', href: paths.dashboard.tour.root },
           { name: tour?.name },
         ]}

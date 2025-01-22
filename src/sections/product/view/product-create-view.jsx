@@ -14,9 +14,9 @@ export function ProductCreateView() {
       <CustomBreadcrumbs
         heading="Create a new product"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Product', href: paths.dashboard.product.root },
-          { name: 'New product' },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Продукт', href: paths.dashboard.product.root },
+          { name: 'Новый продукт' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

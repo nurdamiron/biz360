@@ -103,12 +103,12 @@ function FriendCard({ item }) {
       <MenuList>
         <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Удалить
         </MenuItem>
 
         <MenuItem onClick={handleEdit}>
           <Iconify icon="solar:pen-bold" />
-          Edit
+          Изменить
         </MenuItem>
       </MenuList>
     </CustomPopover>

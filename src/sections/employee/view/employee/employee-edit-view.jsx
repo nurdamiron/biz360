@@ -20,7 +20,7 @@ export function EmployeeEditView({ employee: currentEmployee }) {
         heading="Edit"
         backHref={paths.dashboard.employee.list}
         links={[
-          { name: 'Дашборд', href: paths.dashboard.root },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
           { name: 'Сотрудник', href: paths.dashboard.employee.root },
           { name: currentEmployee?.name },
         ]}

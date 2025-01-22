@@ -188,14 +188,14 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
         {/* Меню действий */}
         <TableCell align="right">
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <Tooltip title="Quick Edit" placement="top" arrow>
+            {/* <Tooltip title="Quick Edit" placement="top" arrow>
               <IconButton
                 color={quickEditForm.value ? 'inherit' : 'default'}
                 onClick={quickEditForm.onTrue}
               >
                 <Iconify icon="solar:pen-bold" />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             <IconButton
               color={menuActions.open ? 'inherit' : 'default'}

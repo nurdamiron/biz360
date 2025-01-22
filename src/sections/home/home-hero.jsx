@@ -155,7 +155,7 @@ export function HomeHero({ sx, ...other }) {
         <Stack spacing={2.5} sx={{ alignItems: 'center' }}>
           <Button
             component={RouterLink}
-            href={paths.dashboard.root}
+            href={paths.dashboard.general.file}
             color="inherit"
             size="large"
             variant="contained"

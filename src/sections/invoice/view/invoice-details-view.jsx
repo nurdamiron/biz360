@@ -17,7 +17,7 @@ export function InvoiceDetailsView({ invoice }) {
         heading={invoice?.invoiceNumber}
         backHref={paths.dashboard.invoice.root}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Dashboard', href: paths.dashboard.general.file },
           { name: 'Invoice', href: paths.dashboard.invoice.root },
           { name: invoice?.invoiceNumber },
         ]}

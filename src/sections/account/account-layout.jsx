@@ -52,7 +52,7 @@ export function AccountLayout({ children, ...other }) {
       <CustomBreadcrumbs
         heading="Account"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
+          { name: 'Dashboard', href: paths.dashboard.general.file },
           { name: 'Employee', href: paths.dashboard.employee.root },
           { name: 'Account' },
         ]}
