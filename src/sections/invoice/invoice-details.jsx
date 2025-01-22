@@ -142,19 +142,19 @@ export function InvoiceDetails({ invoice }) {
 
           <Stack sx={{ typography: 'body2' }}>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Invoice from
+              От
             </Typography>
             {invoice?.invoiceFrom.name}
             <br />
             {invoice?.invoiceFrom.fullAddress}
             <br />
-            Phone: {invoice?.invoiceFrom.phoneNumber}
+            Телефон: {invoice?.invoiceFrom.phoneNumber}
             <br />
           </Stack>
 
           <Stack sx={{ typography: 'body2' }}>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              Invoice to
+              Кому
             </Typography>
             {invoice?.invoiceTo.name}
             <br />

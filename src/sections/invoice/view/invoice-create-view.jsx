@@ -13,11 +13,11 @@ export function InvoiceCreateView() {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Create a new invoice"
+        heading="Создать новый счет"
         links={[
-          { name: 'Dashboard', href: paths.dashboard.general.file },
-          { name: 'Invoice', href: paths.dashboard.invoice.root },
-          { name: 'New invoice' },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Бухгалтерия', href: paths.dashboard.invoice.root },
+          { name: 'Создать новый счет' },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />

@@ -21,7 +21,7 @@ export function AccountBillingHistory({ invoices, sx, ...other }) {
 
   return (
     <Card sx={sx} {...other}>
-      <CardHeader title="Invoice history" />
+      <CardHeader title="История счетов" />
 
       <Box
         sx={{

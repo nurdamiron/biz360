@@ -57,7 +57,7 @@ export function OverviewFileView() {
 
   const renderStorageOverview = () => (
     <FileStorageOverview
-  sx={{ maxWidth: 360 }}
+  sx={{ maxWidth: 400 }}
   chart={{
     series: 78, // 76% общая эффективность
   }}
@@ -104,7 +104,10 @@ export function OverviewFileView() {
     <>
       <DashboardContent maxWidth="xl">
         <Grid container spacing={3}>
-          <Grid sx={{ display: { xs: 'block', sm: 'none' } }} size={12}>
+          <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }} >
+            Добро пожаловать в BIZ360 👋
+          </Typography>
+          <Grid sx={{ display: { xs: '12', sm: '6' } }} size={18} >
             {renderStorageOverview()}
           </Grid>
 
@@ -227,8 +230,6 @@ export function OverviewFileView() {
           </Grid> */}
 
           <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{renderStorageOverview()}</Box>
-
             {/* <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
               <UploadBox
                 onDrop={handleDrop}

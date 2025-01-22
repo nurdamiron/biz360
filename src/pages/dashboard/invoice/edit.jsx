@@ -9,7 +9,7 @@ import { InvoiceEditView } from 'src/sections/invoice/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Invoice edit | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Редактировать счет | Дашборд - ${CONFIG.appName}` };
 
 export default function Page() {
   const { id = '' } = useParams();

@@ -189,9 +189,9 @@ export function InvoiceListView() {
         <CustomBreadcrumbs
           heading="List"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.general.file },
-            { name: 'Invoice', href: paths.dashboard.invoice.root },
-            { name: 'List' },
+            { name: 'Дашборд', href: paths.dashboard.general.file },
+            { name: 'Бухгалтерия', href: paths.dashboard.invoice.root },
+            { name: 'Список' },
           ]}
           action={
             <Button
@@ -200,7 +200,7 @@ export function InvoiceListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New invoice
+              Создать счет
             </Button>
           }
           sx={{ mb: { xs: 3, md: 5 } }}

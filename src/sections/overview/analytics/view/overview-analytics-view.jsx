@@ -26,7 +26,7 @@ export function OverviewAnalyticsView() {
   return (
     <DashboardContent maxWidth="xl">
       <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
-      Добро пожаловать в BIZ360 👋
+        Добро пожаловать в BIZ360👋
       </Typography>
 
       <Grid container spacing={3}>

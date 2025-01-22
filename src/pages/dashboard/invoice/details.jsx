@@ -9,7 +9,7 @@ import { InvoiceDetailsView } from 'src/sections/invoice/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Invoice details | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Детали счета | Дашборд - ${CONFIG.appName}` };
 
 export default function Page() {
   const { id = '' } = useParams();

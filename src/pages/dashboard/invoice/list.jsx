@@ -6,7 +6,7 @@ import { InvoiceListView } from 'src/sections/invoice/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Invoice list | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Список счетов | Дашборд - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

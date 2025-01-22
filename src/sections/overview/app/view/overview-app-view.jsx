@@ -153,7 +153,7 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, lg: 8 }}>
           <AppNewInvoice
-            title="New invoice"
+            title="Создать новый счет"
             tableData={_appInvoices}
             headCells={[
               { id: 'id', label: 'Invoice ID' },
