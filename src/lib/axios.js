@@ -92,11 +92,13 @@ export const endpoints = {
 
   // Счета (invoices)
   invoice: {
-    list: `${BASE_API_URL}/api/invoices`,         // GET /api/invoices
+    list: `${BASE_API_URL}/api/invoices`,
     details: (id) => `${BASE_API_URL}/api/invoices/${id}`,
     create: `${BASE_API_URL}/api/invoices`,
     update: (id) => `${BASE_API_URL}/api/invoices/${id}`,
     delete: (id) => `${BASE_API_URL}/api/invoices/${id}`,
+    updateStatus: (id, status) => `${BASE_API_URL}/api/invoices/${id}/status/${status}`,
+    send: (id) => `${BASE_API_URL}/api/invoices/${id}/send`,
   },
 
   // Клиенты (customers)

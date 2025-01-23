@@ -1,9 +1,10 @@
 // invoice-list-view.jsx
 
 import { sumBy } from 'es-toolkit';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import axiosInstance, { endpoints } from 'src/lib/axios';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -70,7 +71,7 @@ export function InvoiceListView() {
 
   const confirmDialog = useBoolean();
 
-  const [tableData, setTableData] = useState(_invoices);
+  const [tableData, setTableData] = useState([]);
 
   const filters = useSetState({
     name: '',
@@ -182,6 +183,19 @@ export function InvoiceListView() {
       }
     />
   );
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const response = await axiosInstance.get(endpoints.invoice.list);
+        setTableData(response.data);
+      } catch (error) {
+        console.error('Error fetching invoices:', error);
+        toast.error('Failed to load invoices');
+      }
+    };
+    fetchInvoices();
+  }, []);
 
   return (
     <>

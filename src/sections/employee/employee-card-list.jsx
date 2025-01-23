@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Pagination from '@mui/material/Pagination';
+import { CircularProgress } from '@mui/material';
 
 import { EmployeeCard } from './employee-card';
 
@@ -9,7 +10,6 @@ import { EmployeeCard } from './employee-card';
 
 export function EmployeeCardList({ employees }) {
   const [page, setPage] = useState(1);
-
   const rowsPerPage = 12;
 
   const handleChangePage = useCallback((event, newPage) => {

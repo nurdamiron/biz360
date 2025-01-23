@@ -1,33 +1,26 @@
 import { sumBy } from 'es-toolkit';
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import { inputBaseClasses } from '@mui/material/InputBase';
 
-import { INVOICE_SERVICE_OPTIONS } from 'src/_mock';
-
 import { Field } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
 
-import { InvoiceTotalSummary } from './invoice-total-summary';
-import { InvoiceCustomer } from './invoice-customer-view'; // Импортируем модальное окно
-
-// ----------------------------------------------------------------------
-
+// Default item structure matching database
 export const defaultItem = {
   title: '',
   description: '',
-  service: INVOICE_SERVICE_OPTIONS[0].name,
-  price: INVOICE_SERVICE_OPTIONS[0].price,
+  service: '',
   quantity: 1,
-  total: 0,
+  unit_price: 0,
+  total_price: 0
 };
 
 const getFieldNames = (index) => ({
@@ -35,36 +28,37 @@ const getFieldNames = (index) => ({
   description: `items[${index}].description`,
   service: `items[${index}].service`,
   quantity: `items[${index}].quantity`,
-  price: `items[${index}].price`,
-  total: `items[${index}].total`,
+  unit_price: `items[${index}].unit_price`,
+  total_price: `items[${index}].total_price`
 });
 
 export function InvoiceNewEditDetails() {
+  const { control, setValue, watch } = useFormContext();
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'items'
+  });
+
+  // Use watch to track form values
+  const items = watch('items') || [];
+  const tax = watch('tax') || 0;
+  const discount = watch('discount') || 0;
+  const shipping = watch('shipping') || 0;
+
+  // Calculate totals
+  const subtotal = sumBy(items, (item) => 
+    (item.quantity || 0) * (item.unit_price || 0)
+  );
   
-  const { control, setValue, getValues } = useFormContext();
+  const total = subtotal + shipping + tax - discount;
 
-  const { fields, append, remove } = useFieldArray({ control, name: 'items' });
-
-  const items = getValues('items');
-  const taxes = getValues('taxes');
-  const discount = getValues('discount');
-  const shipping = getValues('shipping');
-
-  const subtotal = sumBy(items, (item) => item.quantity * item.price);
-  const subtotalWithTax = subtotal + subtotal * (taxes / 100);
-  const totalAmount = subtotalWithTax - discount - shipping;
-
+  // Update form values when calculations change
   useEffect(() => {
     setValue('subtotal', subtotal);
-    setValue('totalAmount', totalAmount);
-  }, [setValue, subtotal, totalAmount]);
+    setValue('total', total);
+  }, [setValue, subtotal, total]);
 
-  const handleCreateCustomer = (newCustomer) => {
-    // Здесь можно добавить логику для обновления списка клиентов (_addressBooks)
-    console.log('Создан новый клиент:', newCustomer);
-    setValue('invoiceFrom', newCustomer); // Устанавливаем нового клиента как "From"
-  };
-  
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h6" sx={{ color: 'text.disabled', mb: 3 }}>
@@ -83,17 +77,14 @@ export function InvoiceNewEditDetails() {
 
       <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
 
-      <Box
-        sx={{
-          gap: 3,
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-          alignItems: { xs: 'flex-end', md: 'center' },
-        }}
-      >
+      <Box sx={{
+        gap: 3,
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'flex-end', md: 'center' }
+      }}>
         <Button
           size="small"
-          color="primary"
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={() => append(defaultItem)}
           sx={{ flexShrink: 0 }}
@@ -101,106 +92,107 @@ export function InvoiceNewEditDetails() {
           Добавить товар
         </Button>
 
-        <Box
-          sx={{
-            gap: 2,
-            width: 1,
-            display: 'flex',
-            justifyContent: 'flex-end',
-            flexDirection: { xs: 'column', md: 'row' },
-          }}
-        >
+        <Box sx={{
+          gap: 2,
+          width: 1,
+          display: 'flex',
+          justifyContent: 'flex-end',
+          flexDirection: { xs: 'column', md: 'row' }
+        }}>
           <Field.Text
             size="small"
-            label="Доставка ($)"
+            label="Доставка"
             name="shipping"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
-            slotProps={{ inputLabel: { shrink: true } }}
           />
 
           <Field.Text
             size="small"
-            label="Скидка ($)"
+            label="Скидка"
             name="discount"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
-            slotProps={{ inputLabel: { shrink: true } }}
           />
 
           <Field.Text
             size="small"
-            label="Налоги (%)"
-            name="taxes"
+            label="Налог"
+            name="tax"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
-            slotProps={{ inputLabel: { shrink: true } }}
           />
         </Box>
       </Box>
 
-      <InvoiceTotalSummary
-        taxes={taxes}
-        shipping={shipping}
-        subtotal={subtotal}
-        discount={discount}
-        totalAmount={totalAmount}
-      />
+      <Box sx={{ mt: 3 }}>
+        <Stack spacing={2}>
+          <Stack direction="row" justifyContent="space-between">
+            <Typography>Подытог:</Typography>
+            <Typography>{subtotal} ₸</Typography>
+          </Stack>
+          
+          {shipping > 0 && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography>Доставка:</Typography>
+              <Typography>+{shipping} ₸</Typography>
+            </Stack>
+          )}
+          
+          {tax > 0 && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography>Налог:</Typography>
+              <Typography>+{tax} ₸</Typography>
+            </Stack>
+          )}
+          
+          {discount > 0 && (
+            <Stack direction="row" justifyContent="space-between">
+              <Typography>Скидка:</Typography>
+              <Typography color="error">-{discount} ₸</Typography>
+            </Stack>
+          )}
+          
+          <Divider sx={{ borderStyle: 'dashed' }} />
+          
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="h6">Итого:</Typography>
+            <Typography variant="h6">{total} ₸</Typography>
+          </Stack>
+        </Stack>
+      </Box>
     </Box>
   );
 }
 
-// ----------------------------------------------------------------------
+function InvoiceItem({ fieldNames, onRemoveItem }) {
+  const { watch, setValue } = useFormContext();
 
-export function InvoiceItem({ onRemoveItem, fieldNames }) {
-  const { getValues, setValue } = useFormContext();
-
-  const priceInput = getValues(fieldNames.price);
-  const quantityInput = getValues(fieldNames.quantity);
+  const quantity = watch(fieldNames.quantity) || 0;
+  const unitPrice = watch(fieldNames.unit_price) || 0;
 
   useEffect(() => {
-    const totalValue = Number((priceInput * quantityInput).toFixed(2));
-
-    setValue(fieldNames.total, totalValue);
-  }, [fieldNames.total, priceInput, quantityInput, setValue]);
-
-  const handleSelectService = useCallback(
-    (option) => {
-      const selectedService = INVOICE_SERVICE_OPTIONS.find((service) => service.name === option);
-
-      setValue(fieldNames.price, selectedService?.price);
-    },
-    [fieldNames.price, setValue]
-  );
-
-  const handleClearService = useCallback(() => {
-    setValue(fieldNames.quantity, defaultItem.quantity);
-    setValue(fieldNames.price, defaultItem.price);
-    setValue(fieldNames.total, defaultItem.total);
-  }, [fieldNames.price, fieldNames.quantity, fieldNames.total, setValue]);
+    const total = Number((quantity * unitPrice).toFixed(2));
+    setValue(fieldNames.total_price, total);
+  }, [quantity, unitPrice, fieldNames.total_price, setValue]);
 
   return (
-    <Box
-      sx={{
-        gap: 1.5,
+    <Box sx={{
+      gap: 1.5,
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <Box sx={{
+        gap: 2,
+        width: 1,
         display: 'flex',
-        alignItems: 'flex-end',
-        flexDirection: 'column',
-      }}
-    >
-      <Box
-        sx={{
-          gap: 2,
-          width: 1,
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-        }}
-      >
+        flexDirection: { xs: 'column', md: 'row' }
+      }}>
         <Field.Text
           size="small"
           name={fieldNames.title}
           label="Название"
-          slotProps={{ inputLabel: { shrink: true } }}
+          required
         />
 
         <Field.Text
@@ -209,84 +201,53 @@ export function InvoiceItem({ onRemoveItem, fieldNames }) {
           size="small"
           name={fieldNames.description}
           label="Описание"
-          slotProps={{ inputLabel: { shrink: true } }}
         />
 
-        <Field.Select
+        <Field.Text
           size="small"
           name={fieldNames.service}
           label="Услуга"
-          slotProps={{ inputLabel: { shrink: true } }}
-          sx={{ maxWidth: { md: 160 } }}
-        >
-          <MenuItem
-            value=""
-            onClick={handleClearService}
-            sx={{ fontStyle: 'italic', color: 'text.secondary' }}
-          >
-            Нет
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          {INVOICE_SERVICE_OPTIONS.map((service) => (
-            <MenuItem
-              key={service.id}
-              value={service.name}
-              onClick={() => handleSelectService(service.name)}
-            >
-              {service.name}
-            </MenuItem>
-          ))}
-        </Field.Select>
+          required
+        />
 
         <Field.Text
           size="small"
           type="number"
           name={fieldNames.quantity}
           label="Количество"
-          placeholder="0"
-          slotProps={{ inputLabel: { shrink: true } }}
+          required
+          InputProps={{
+            inputProps: { min: 1 }
+          }}
           sx={{ maxWidth: { md: 96 } }}
         />
 
         <Field.Text
           size="small"
           type="number"
-          name={fieldNames.price}
-          label="Цена"
-          placeholder="0.00"
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
-                </InputAdornment>
-              ),
-            },
+          name={fieldNames.unit_price}
+          label="Цена за ед."
+          required
+          InputProps={{
+            startAdornment: <InputAdornment position="start">₸</InputAdornment>,
+            inputProps: { min: 0 }
           }}
-          sx={{ maxWidth: { md: 96 } }}
+          sx={{ maxWidth: { md: 120 } }}
         />
 
         <Field.Text
           disabled
           size="small"
-          name={fieldNames.total}
-          type="number"
+          name={fieldNames.total_price}
           label="Итого"
-          placeholder="0.00"
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
-                </InputAdornment>
-              ),
-            },
+          InputProps={{
+            startAdornment: <InputAdornment position="start">₸</InputAdornment>
           }}
           sx={{
-            maxWidth: { md: 128 },
-            [`& .${inputBaseClasses.input}`]: { textAlign: { md: 'right' } },
+            maxWidth: { md: 120 },
+            [`& .${inputBaseClasses.input}`]: {
+              textAlign: 'right'
+            }
           }}
         />
       </Box>

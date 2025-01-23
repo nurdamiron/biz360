@@ -1,5 +1,3 @@
-// invoice-table-row.jsx
-
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -13,19 +11,16 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
 
 import { RouterLink } from 'src/routes/components';
-
 import { fCurrency } from 'src/utils/format-number';
-import { fDate, fTime } from 'src/utils/format-time';
+import { fDate } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
-
-// ----------------------------------------------------------------------
 
 export function InvoiceTableRow({
   row,
@@ -38,142 +33,144 @@ export function InvoiceTableRow({
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
 
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
-    >
-      <MenuList>
-        <li>
-          <MenuItem component={RouterLink} href={detailsHref} onClick={menuActions.onClose}>
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-        </li>
+  // Get client information from row.invoiceTo which comes from the formatInvoiceResponse
+  const clientName = row.invoiceTo?.name;
+  const clientBin = row.invoiceTo?.bin;
 
-        <li>
-          <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-        </li>
+  const getStatusLabel = (status) => {
+    const labels = {
+      paid: 'Оплачен',
+      pending: 'Ожидает оплаты',
+      overdue: 'Просрочен',
+      draft: 'Черновик'
+    };
+    return labels[status] || status;
+  };
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+  const getStatusColor = (status) => {
+    const colors = {
+      paid: 'success',
+      pending: 'warning',
+      overdue: 'error',
+      draft: 'default'
+    };
+    return colors[status] || 'default';
+  };
 
-        <MenuItem
-          onClick={() => {
-            confirmDialog.onTrue();
-            menuActions.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={confirmDialog.value}
-      onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
-      action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
-          Delete
-        </Button>
-      }
-    />
-  );
+  const getDocumentTypeLabel = (type) => {
+    const types = {
+      invoice: 'Счет на оплату',
+      act: 'Акт выполненных работ',
+      sf: 'Счет-фактура',
+      kp: 'Коммерческое предложение'
+    };
+    return types[type] || type;
+  };
 
   return (
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox
-            checked={selected}
-            onClick={onSelectRow}
-            inputProps={{
-              id: `${row.id}-checkbox`,
-              'aria-label': `${row.id} checkbox`,
-            }}
-          />
+          <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
         <TableCell>
-          <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-            <Avatar alt={row.invoiceTo.name}>{row.invoiceTo.name.charAt(0).toUpperCase()}</Avatar>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar 
+              alt={clientName} 
+              sx={{ mr: 2, bgcolor: 'primary.main' }}
+            >
+              {clientName?.charAt(0)?.toUpperCase()}
+            </Avatar>
 
-            <ListItemText
-              primary={row.invoiceTo.name}
-              secondary={
-                <Link component={RouterLink} href={detailsHref} color="inherit">
-                  {row.invoiceNumber}
-                </Link>
-              }
-              slotProps={{
-                primary: { noWrap: true, sx: { typography: 'body2' } },
-                secondary: {
-                  sx: { color: 'text.disabled', '&:hover': { color: 'text.secondary' } },
-                },
-              }}
-            />
+            <Box>
+              <Typography variant="subtitle2">{clientName}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                БИН/ИИН: {clientBin}
+              </Typography>
+            </Box>
           </Box>
         </TableCell>
 
         <TableCell>
-          <ListItemText
-            primary={fDate(row.createDate)}
-            secondary={fTime(row.createDate)}
-            slotProps={{
-              primary: { noWrap: true, sx: { typography: 'body2' } },
-              secondary: { sx: { mt: 0.5, typography: 'caption' } },
-            }}
-          />
+          <Label
+            variant="soft"
+            color="info"
+          >
+            {getDocumentTypeLabel(row.documentType)}
+          </Label>
         </TableCell>
 
         <TableCell>
-          <ListItemText
-            primary={fDate(row.dueDate)}
-            secondary={fTime(row.dueDate)}
-            slotProps={{
-              primary: { noWrap: true, sx: { typography: 'body2' } },
-              secondary: { sx: { mt: 0.5, typography: 'caption' } },
-            }}
-          />
+          <Typography variant="body2">
+            {fDate(row.createDate)}
+          </Typography>
         </TableCell>
 
-        <TableCell>{fCurrency(row.totalAmount)}</TableCell>
-
-        <TableCell align="center">{row.sent}</TableCell>
+        <TableCell>
+          <Typography variant="body2">
+            {fCurrency(row.total)} ₸
+          </Typography>
+        </TableCell>
 
         <TableCell>
           <Label
             variant="soft"
-            color={
-              (row.status === 'paid' && 'success') ||
-              (row.status === 'pending' && 'warning') ||
-              (row.status === 'overdue' && 'error') ||
-              'default'
-            }
+            color={getStatusColor(row.status)}
           >
-            {row.status}
+            {getStatusLabel(row.status)}
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1 }}>
-          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
+        <TableCell align="right">
+          <IconButton onClick={menuActions.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
 
-      {renderMenuActions()}
-      {renderConfirmDialog()}
+      <CustomPopover
+        open={menuActions.open}
+        anchorEl={menuActions.anchorEl}
+        onClose={menuActions.onClose}
+      >
+        <MenuList>
+          <MenuItem component={RouterLink} href={detailsHref} onClick={menuActions.onClose}>
+            <Iconify icon="solar:eye-bold" />
+            Просмотр
+          </MenuItem>
+
+          <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
+            <Iconify icon="solar:pen-bold" />
+            Редактировать
+          </MenuItem>
+
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          <MenuItem
+            onClick={() => {
+              confirmDialog.onTrue();
+              menuActions.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Удалить
+          </MenuItem>
+        </MenuList>
+      </CustomPopover>
+
+      <ConfirmDialog
+        open={confirmDialog.value}
+        onClose={confirmDialog.onFalse}
+        title="Удаление"
+        content="Вы уверены, что хотите удалить этот документ?"
+        action={
+          <Button variant="contained" color="error" onClick={onDeleteRow}>
+            Удалить
+          </Button>
+        }
+      />
     </>
   );
 }

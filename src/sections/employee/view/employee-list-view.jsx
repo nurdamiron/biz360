@@ -71,8 +71,10 @@ export function EmployeeListView() {
   const table = useTable();
   const confirmDialog = useBoolean();
 
+  
   // 2) Изначально пустой массив сотрудников
   const [tableData, setTableData] = useState([]);
+
 
   // 3) Фильтры
   const filters = useSetState({
