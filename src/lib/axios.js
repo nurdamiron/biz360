@@ -70,7 +70,7 @@ export const endpoints = {
   // Товары (product)
   product: {
     list: `${BASE_API_URL}/api/product/list`,
-    details: `${BASE_API_URL}/api/product/details`,
+    details: (id) => `${BASE_API_URL}/api/product/details/${id}`, // <-- путь для деталей продукта
     search: `${BASE_API_URL}/api/product/search`,
   },
   // Сотрудники (employee)

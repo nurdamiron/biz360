@@ -178,7 +178,7 @@ export function InvoiceListView() {
             confirmDialog.onFalse();
           }}
         >
-          Delete
+          Удалить
         </Button>
       }
     />
