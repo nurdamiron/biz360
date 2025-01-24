@@ -1,5 +1,7 @@
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
-import { useState, useEffect, forwardRef, useCallback } from 'react';
+import { useState, useEffect, useRef, forwardRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -48,6 +50,9 @@ const PUBLISH_OPTIONS = [
   { value: 'draft', label: 'Нету в наличии' },
 ];
 
+const WS_URL = import.meta.env ? import.meta.env.VITE_WS_URL : 'wss://biz360-backend.onrender.com/ws';
+
+
 const HIDE_COLUMNS = { category: false };
 
 const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
@@ -55,11 +60,12 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
+  const ws = useRef(null);
   const confirmDialog = useBoolean();
-
+  
   const { products, productsLoading } = useGetProducts();
 
-  const [tableData, setTableData] = useState(products);
+  const [tableData, setTableData] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [filterButtonEl, setFilterButtonEl] = useState(null);
 
@@ -69,10 +75,52 @@ export function ProductListView() {
   const [columnVisibilityModel, setColumnVisibilityModel] = useState(HIDE_COLUMNS);
 
   useEffect(() => {
-    if (products.length) {
-      setTableData(products);
-    }
-  }, [products]);
+    let isComponentMounted = true;
+  
+    const connectWebSocket = () => {
+      ws.current = new WebSocket(WS_URL);
+  
+      ws.current.onopen = () => {
+        if (isComponentMounted) {
+          console.log('WebSocket Connected');
+        }
+      };
+  
+      ws.current.onerror = (error) => {
+        if (isComponentMounted) {
+          console.error('WebSocket Error:', error);
+        }
+      };
+  
+      ws.current.onmessage = (event) => {
+        if (isComponentMounted) {
+          const updatedProduct = JSON.parse(event.data);
+          setTableData((prevData) =>
+            prevData.map((product) =>
+              product.id === updatedProduct.id ? updatedProduct : product
+            )
+          );
+        }
+      };
+  
+      ws.current.onclose = () => {
+        if (isComponentMounted) {
+          console.log('WebSocket Closed. Reconnecting...');
+          setTimeout(connectWebSocket, 5000); // Автоматическое переподключение через 5 секунд
+        }
+      };
+    };
+  
+    connectWebSocket();
+  
+    return () => {
+      isComponentMounted = false;
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
+  
 
   const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
 
@@ -121,22 +169,17 @@ export function ProductListView() {
       field: 'name',
       headerName: 'Название',
       flex: 1,
-      minWidth: 360,
+      minWidth: 200,
       hideable: false,
       renderCell: (params) => (
         <RenderCellProduct params={params} href={paths.dashboard.product.details(params.row.id)} />
       ),
     },
-    {
-      field: 'createdAt',
-      headerName: 'Создан',
-      width: 160,
-      renderCell: (params) => <RenderCellCreatedAt params={params} />,
-    },
+    
     {
       field: 'inventoryType',
       headerName: 'Наличие',
-      width: 160,
+      width: 150,
       type: 'singleSelect',
       valueOptions: PRODUCT_STOCK_OPTIONS,
       renderCell: (params) => <RenderCellStock params={params} />,
@@ -144,9 +187,15 @@ export function ProductListView() {
     {
       field: 'price',
       headerName: 'Стоимость',
-      width: 140,
+      width: 160,
       editable: true,
       renderCell: (params) => <RenderCellPrice params={params} />,
+    },
+    {
+      field: 'createdAt',
+      headerName: 'Создан',
+      width: 160,
+      renderCell: (params) => <RenderCellCreatedAt params={params} />,
     },
     {
       field: 'publish',
@@ -163,7 +212,7 @@ export function ProductListView() {
       headerName: ' ',
       align: 'right',
       headerAlign: 'right',
-      width: 80,
+      width: 40,
       sortable: false,
       filterable: false,
       disableColumnMenu: true,
@@ -221,6 +270,25 @@ export function ProductListView() {
     />
   );
 
+  
+
+  useEffect(() => {
+    setTableData(products);
+  }, [products]);
+  
+  // if (!products || products.length === 0) {
+  //   return <EmptyContent title="Нет данных" />;
+  // }
+
+  if (productsLoading) {
+    return <EmptyContent title="Загрузка данных..." />;
+  }
+  
+  if (!tableData || tableData.length === 0) {
+    return <EmptyContent title="Нет данных для отображения" />;
+  }
+  
+  
   return (
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>

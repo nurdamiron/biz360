@@ -20,14 +20,14 @@ export const PRODUCT_COLOR_OPTIONS = [
 ];
 
 export const PRODUCT_COLOR_NAME_OPTIONS = [
-  { value: '#FF4842', label: 'Red' },
-  { value: '#1890FF', label: 'Blue' },
-  { value: '#FFC0CB', label: 'Pink' },
-  { value: '#00AB55', label: 'Green' },
-  { value: '#FFC107', label: 'Yellow' },
-  { value: '#7F00FF', label: 'Violet' },
-  { value: '#000000', label: 'Black' },
-  { value: '#FFFFFF', label: 'White' },
+  { value: '#FF4842', label: 'Красный' },
+  { value: '#1890FF', label: 'Синий' },
+  { value: '#FFC0CB', label: 'Розовый' },
+  { value: '#00AB55', label: 'Зеленый' },
+  { value: '#FFC107', label: 'Желтый' },
+  { value: '#7F00FF', label: 'Фиолетовый' },
+  { value: '#000000', label: 'Черный' },
+  { value: '#FFFFFF', label: 'Белый' },
 ];
 
 export const PRODUCT_SIZE_OPTIONS = [

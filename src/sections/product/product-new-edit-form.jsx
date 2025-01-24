@@ -1,7 +1,8 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -14,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import axiosInstance, { endpoints, fetcher } from 'src/lib/axios';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -35,8 +37,8 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 export const NewProductSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
   description: zod.string()
-    .min(100, { message: 'Description must be at least 100 characters' })
-    .max(500, { message: 'Description must be less than 500 characters' }),
+    .min(0, { message: 'Description must be at least 100 characters' })
+    .max(200, { message: 'Description must be less than 500 characters' }),
   sub_description: zod.string().optional(),
   images: zod.array(
     zod.union([
@@ -44,15 +46,15 @@ export const NewProductSchema = zod.object({
       zod.instanceof(File),
       zod.object({}) // Для обработки File-подобных объектов
     ])
-  ).min(1, { message: 'Добавьте хотя бы одно изображение!' }),
-  code: zod.string().min(1, { message: 'Product code is required!' }),
-  sku: zod.string().min(1, { message: 'Product SKU is required!' }),
+  ).min(0, { message: 'Добавьте хотя бы одно изображение!' }),
+  code: zod.string().min(0, { message: 'Product code is required!' }),
+  sku: zod.string().min(0, { message: 'Product SKU is required!' }),
   quantity: zod.number().min(0, { message: 'Quantity must be 0 or greater' }),
-  colors: zod.array(zod.string()).min(1, { message: 'Choose at least one color!' }),
-  sizes: zod.array(zod.string()).min(1, { message: 'Choose at least one size!' }),
-  tags: zod.array(zod.string()).min(2, { message: 'Must have at least 2 tags!' }),
-  gender: zod.array(zod.string()).min(1, { message: 'Choose at least one gender!' }),
-  price: zod.number().min(0.01, { message: 'Price must be greater than 0!' }),
+  colors: zod.array(zod.string()).min(0, { message: 'Choose at least one color!' }),
+  sizes: zod.array(zod.string()).min(0, { message: 'Choose at least one size!' }),
+  tags: zod.array(zod.string()).min(0, { message: 'Must have at least 2 tags!' }),
+  gender: zod.array(zod.string()).min(0, { message: 'Choose at least one gender!' }),
+  price: zod.number().min(0.0, { message: 'Price must be greater than 0!' }),
   price_sale: zod.number().nullable(),
   taxes: zod.number().nullable(),
   category: zod.string(),
@@ -67,15 +69,63 @@ export const NewProductSchema = zod.object({
   is_published: zod.boolean().default(true)
 });
 
+const API_URL = 'https://biz360-backend.onrender.com/api/product';
+
 // ----------------------------------------------------------------------
 
 export function ProductNewEditForm({ currentProduct }) {
+  const { id } = useParams(); // Получаем ID из URL
   const router = useRouter();
   const [includeTaxes, setIncludeTaxes] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [productData, setProductData] = useState(null);
+  const pathname = window.location.pathname;
+  const isEditMode = pathname.includes('/edit');
+  const isNewMode = pathname.includes('/new');
   const { uploadMultipleImages } = useFirebaseStorage();
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [existingProduct, setExistingProduct] = useState(null);
+  
+  useEffect(() => {
+    if (!isEditMode) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`${API_URL}/details/${id}`);
+        const data = await response.json();
+        
+        const transformedData = {
+          ...data,
+          price: parseFloat(data.price),
+          price_sale: data.price_sale ? parseFloat(data.price_sale) : null,
+          quantity: parseInt(data.quantity),
+          taxes: data.taxes ? parseFloat(data.taxes) : null,
+          new_label: data.new_label || { enabled: false, content: '' },
+          sale_label: data.sale_label || { enabled: false, content: '' },
+          colors: Array.isArray(data.colors) ? data.colors : [],
+          sizes: Array.isArray(data.sizes) ? data.sizes : [],
+          tags: Array.isArray(data.tags) ? data.tags : [],
+          gender: Array.isArray(data.gender) ? data.gender : [],
+          images: Array.isArray(data.images) ? data.images : []
+        };
+
+        setExistingProduct(transformedData);
+        setUploadedImageUrls(transformedData.images);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Failed to load product:', error);
+        toast.error('Failed to load product data');
+      }
+    };
+
+    fetchProduct();
+  }, [isEditMode, id]);
+
+
   
   const handleUpload = async (files) => {
     try {
@@ -125,49 +175,60 @@ export function ProductNewEditForm({ currentProduct }) {
 
   const methods = useForm({
     resolver: zodResolver(NewProductSchema),
-    defaultValues,
-    values: currentProduct,
-    mode: 'onTouched', // Изменяем на onTouched
-    reValidateMode: 'onChange',
+    defaultValues: existingProduct || defaultValues,
+    values: existingProduct || defaultValues
   });
 
-  const {
-    reset,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
 
+  const { 
+    reset, 
+    watch, 
+    setValue, 
+    handleSubmit,
+    formState: { isSubmitting } 
+  } = methods;
   const values = watch();
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      const formData = {
-        ...data,
-        taxes: includeTaxes ? data.taxes : null,
-        images: uploadedImageUrls,
-        is_published: values.is_published
-      };
+  // In ProductNewEditForm.js
+const onSubmit = handleSubmit(async (data) => {
+  try {
+    const updatedData = {
+      name: data.name,
+      description: data.description,
+      sub_description: data.sub_description,
+      code: data.code,
+      sku: data.sku,
+      price: parseFloat(data.price),
+      price_sale: data.price_sale ? parseFloat(data.price_sale) : null,
+      quantity: parseInt(data.quantity),
+      taxes: data.taxes ? parseFloat(data.taxes) : null,
+      colors: data.colors || [],
+      sizes: data.sizes || [],
+      tags: data.tags || [],
+      gender: data.gender || [],
+      category: data.category || null,
+      new_label: data.new_label || null,
+      sale_label: data.sale_label || null,
+      images: uploadedImageUrls.length ? uploadedImageUrls : (existingProduct?.images || []),
+      is_published: data.is_published
+    };
 
-      const response = await fetch('https://biz360-backend.onrender.com/api/product/', {
-        method: currentProduct ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+    const response = await axiosInstance({
+      url: isEditMode ? `/api/product/${id}` : '/api/product',
+      method: isEditMode ? 'PUT' : 'POST',
+      data: updatedData
+    });
 
-      if (!response.ok) throw new Error('Не удалось сохранить продукт');
-
-      toast.success(currentProduct ? 'Обновление прошло успешно!' : 'Успешно сохранено!');
+    if (response.data) {
+      toast.success(isEditMode ? 'Product updated' : 'Product created');
       router.push(paths.dashboard.product.root);
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Не удалось сохранить товар');
     }
-  });
-
+  } catch (error) {
+    console.error('Submit error:', error);
+    toast.error(error.response?.data?.message || 'Failed to save product');
+  }
+});
+  
   const handleRemoveFile = useCallback(
     (inputFile) => {
       const filtered = values.images?.filter((file) => file !== inputFile);
@@ -259,7 +320,7 @@ export function ProductNewEditForm({ currentProduct }) {
         >
           <Field.Text name="code" label="Код товара" />
 
-          <Field.Text name="sku" label="Артикул (SKU)" />
+          <Field.Text name="sku" label="Артикул" />
 
           <Field.Text
             name="quantity"
@@ -298,7 +359,7 @@ export function ProductNewEditForm({ currentProduct }) {
           <Field.MultiSelect checkbox name="sizes" label="Размеры" options={PRODUCT_SIZE_OPTIONS} />
         </Box>
 
-        <Field.Autocomplete
+        {/* <Field.Autocomplete
           name="tags"
           label="Теги"
           placeholder="+ Tags"
@@ -324,7 +385,7 @@ export function ProductNewEditForm({ currentProduct }) {
               />
             ))
           }
-        />
+        /> */}
 
         <Stack spacing={1}>
           <Typography variant="subtitle2">Пол</Typography>
@@ -441,22 +502,14 @@ export function ProductNewEditForm({ currentProduct }) {
   );
 
   const renderActions = () => (
-    <Box
-      sx={{
-        gap: 3,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-      }}
-    >
+    <Box sx={{ gap: 3, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
       <FormControlLabel
-        label="Publish"
+        label="Опубликовать"
         control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         sx={{ pl: 3, flexGrow: 1 }}
       />
-
       <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-        {!currentProduct ? 'Создать' : 'Сохранить изменения'}
+        {isEditMode ? 'Сохранить изменения' : 'Создать'}
       </LoadingButton>
     </Box>
   );

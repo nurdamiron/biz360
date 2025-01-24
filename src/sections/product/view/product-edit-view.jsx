@@ -12,11 +12,11 @@ export function ProductEditView({ product }) {
   return (
     <DashboardContent>
       <CustomBreadcrumbs
-        heading="Edit"
+        heading="Изменить"
         backHref={paths.dashboard.product.root}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.general.file },
-          { name: 'Product', href: paths.dashboard.product.root },
+          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Продукт', href: paths.dashboard.product.root },
           { name: product?.name },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
