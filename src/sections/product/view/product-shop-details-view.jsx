@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { useTabs } from 'minimal-shared/hooks';
 import { varAlpha } from 'minimal-shared/utils';
 
@@ -12,7 +13,6 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
-
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
@@ -25,52 +25,162 @@ import { ProductDetailsSummary } from '../product-details-summary';
 import { ProductDetailsCarousel } from '../product-details-carousel';
 import { ProductDetailsDescription } from '../product-details-description';
 
-// ----------------------------------------------------------------------
+const WS_URL = import.meta.env.VITE_WS_URL || 'wss://biz360-backend.onrender.com/ws';
 
-const SUMMARY = [
-  {
-    title: '100% original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-    icon: 'solar:verified-check-bold',
-  },
-  {
-    title: '10 days replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-    icon: 'solar:clock-circle-bold',
-  },
-  {
-    title: 'Year warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'solar:shield-check-bold',
-  },
-];
+const DEFAULT_PRODUCT = {
+  id: '',
+  name: '',
+  description: '',
+  images: [],
+  colors: [],
+  sizes: [],
+  reviews: [],
+  ratings: [],
+  totalRatings: 0,
+  totalReviews: 0,
+  available: 0,
+  price: 0,
+  price_sale: null,
+  new_label: null,
+  sale_label: null,
+  inventoryType: 'in stock',
+};
 
-// ----------------------------------------------------------------------
+const transformRatings = (ratings = []) => 
+  ratings.map(rating => ({
+    name: `${rating.stars} Star`,
+    starCount: rating.count || 0,
+    reviewCount: rating.reviews || 0
+  }));
 
-export function ProductShopDetailsView({ product, error, loading }) {
+const transformReviews = (reviews = []) => 
+  reviews.map(review => ({
+    id: review.id || `review-${Math.random()}`,
+    name: review.userName || 'Anonymous',
+    rating: Number(review.rating) || 0,
+    content: review.comment || '',
+    date: review.createdAt ? new Date(review.createdAt) : new Date()
+  }));
+
+export function ProductShopDetailsView({ 
+  productId, 
+  error: initialError, 
+  loading: initialLoading 
+}) {
   const { state: checkoutState, onAddToCart } = useCheckoutContext();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(initialLoading || true);
+  const [error, setError] = useState(initialError || null);
+  const ws = useRef(null);
+  const tabs = useTabs('description');
 
-  const containerStyles = {
-    mt: 5,
-    mb: 10,
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch(
+        `https://biz360-backend.onrender.com/api/product/details/${productId}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success || !result.data) {
+        throw new Error(result.message || 'Failed to fetch product data');
+      }
+
+      const transformedProduct = {
+        ...DEFAULT_PRODUCT,
+        ...result.data,
+        ratings: transformRatings(result.data.ratings),
+        reviews: transformReviews(result.data.reviews),
+        available: Number(result.data.available) || 0,
+        price: Number(result.data.price) || 0,
+        price_sale: result.data.price_sale ? Number(result.data.price_sale) : null,
+        new_label: result.data.new_label || null,
+        sale_label: result.data.sale_label || null,
+      };
+
+      setProduct(transformedProduct);
+    } catch (err) {
+      console.error('Error fetching product:', err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const tabs = useTabs('description');
+  const setupWebSocket = () => {
+    if (!productId || !window.WebSocket) return;
+
+    try {
+      ws.current = new WebSocket(`${WS_URL}?productId=${productId}`);
+
+      ws.current.onmessage = (event) => {
+        try {
+          const updatedData = JSON.parse(event.data);
+          
+          if (updatedData.id === productId) {
+            setProduct(prev => {
+              if (!prev) return prev;
+              
+              return {
+                ...prev,
+                ...updatedData,
+                ratings: updatedData.ratings ? transformRatings(updatedData.ratings) : prev.ratings,
+                reviews: updatedData.reviews ? transformReviews(updatedData.reviews) : prev.reviews,
+              };
+            });
+          }
+        } catch (wsError) {
+          console.error('WebSocket message processing error:', wsError);
+        }
+      };
+
+      ws.current.onerror = (wsError) => {
+        console.error('WebSocket error:', wsError);
+      };
+
+      ws.current.onclose = () => {
+        ws.current = null;
+      };
+
+    } catch (wsError) {
+      console.error('WebSocket setup error:', wsError);
+    }
+  };
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    setupWebSocket();
+
+    return () => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.close();
+      }
+    };
+  }, [productId]);
 
   if (loading) {
     return (
-      <Container sx={containerStyles}>
+      <Container sx={{ mt: 5, mb: 10 }}>
         <ProductDetailsSkeleton />
       </Container>
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
-      <Container sx={containerStyles}>
+      <Container sx={{ mt: 5, mb: 10 }}>
         <EmptyContent
           filled
-          title="Товар не найден!"
+          title={error?.message || 'Product not found!'}
           action={
             <Button
               component={RouterLink}
@@ -78,7 +188,7 @@ export function ProductShopDetailsView({ product, error, loading }) {
               startIcon={<Iconify width={16} icon="eva:arrow-ios-back-fill" />}
               sx={{ mt: 3 }}
             >
-              Вернуться к списку
+              Back to List
             </Button>
           }
           sx={{ py: 10 }}
@@ -88,86 +198,68 @@ export function ProductShopDetailsView({ product, error, loading }) {
   }
 
   return (
-    <Container sx={containerStyles}>
+    <Container sx={{ mt: 5, mb: 10 }}>
       <CartIcon totalItems={checkoutState.totalItems} />
 
       <CustomBreadcrumbs
         links={[
           { name: 'Home', href: '/' },
           { name: 'Shop', href: paths.product.root },
-          { name: product?.name },
+          { name: product.name || 'Product Details' },
         ]}
         sx={{ mb: 5 }}
       />
 
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
         <Grid size={{ xs: 12, md: 6, lg: 7 }}>
-          <ProductDetailsCarousel images={product?.images} />
+          <ProductDetailsCarousel 
+            productId={product.id} 
+            initialImages={product.images} 
+          />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 5 }}>
-          {product && (
-            <ProductDetailsSummary
-              product={product}
-              items={checkoutState.items}
-              onAddToCart={onAddToCart}
-              disableActions={!product?.available}
-            />
-          )}
+          <ProductDetailsSummary
+            productId={product.id}
+            items={checkoutState.items}
+            onAddToCart={onAddToCart}
+            disableActions={!product.available}
+          />
         </Grid>
       </Grid>
-      <Box
-        sx={{
-          gap: 5,
-          my: 10,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
-        }}
-      >
-        {SUMMARY.map((item) => (
-          <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
-            <Iconify icon={item.icon} width={32} sx={{ color: 'primary.main' }} />
 
-            <Typography variant="subtitle1" sx={{ mb: 1, mt: 2 }}>
-              {item.title}
-            </Typography>
-
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {item.description}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      <Card>
+      <Card sx={{ mt: 5 }}>
         <Tabs
           value={tabs.value}
           onChange={tabs.onChange}
-          sx={[
-            (theme) => ({
-              px: 3,
-              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }),
-          ]}
+          sx={{
+            px: 3,
+            boxShadow: (theme) => 
+              `inset 0 -2px 0 0 ${varAlpha(theme.palette.grey[500], 0.08)}`,
+          }}
         >
-          {[
-            { value: 'description', label: 'Description' },
-            { value: 'reviews', label: `Reviews (${product?.reviews.length})` },
-          ].map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={tab.label} />
-          ))}
+          <Tab value="description" label="Description" />
+          {product.reviews?.length > 0 && (
+            <Tab 
+              value="reviews" 
+              label={`Reviews (${product.reviews.length})`} 
+            />
+          )}
         </Tabs>
 
         {tabs.value === 'description' && (
-          <ProductDetailsDescription description={product?.description} />
+          <ProductDetailsDescription 
+            productId={product.id}
+            initialDescription={product.description}
+          />
         )}
 
-        {tabs.value === 'reviews' && (
+        {tabs.value === 'reviews' && product.reviews?.length > 0 && (
           <ProductDetailsReview
-            ratings={product?.ratings}
-            reviews={product?.reviews}
-            totalRatings={product?.totalRatings}
-            totalReviews={product?.totalReviews}
+            ratings={product.ratings}
+            reviews={product.reviews}
+            totalRatings={product.totalRatings}
+            totalReviews={product.totalReviews}
           />
         )}
       </Card>

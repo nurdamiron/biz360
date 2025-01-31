@@ -111,13 +111,13 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
           <Searchbar data={navData} />
 
           {/** @slot Language popover */}
-          <LanguagePopover data={allLangs} />
+          {/* <LanguagePopover data={allLangs} /> */}
 
           {/** @slot Notifications popover */}
           <NotificationsDrawer data={_notifications} />
 
           {/** @slot Contacts popover */}
-          <ContactsPopover data={_contacts} />
+          {/* <ContactsPopover data={_contacts} /> */}
 
           {/** @slot Settings button */}
           {/* <SettingsButton /> */}

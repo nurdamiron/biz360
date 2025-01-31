@@ -12,9 +12,10 @@ axiosInstance.interceptors.response.use(
     console.error('API Error:', {
       status: error.response?.status,
       data: error.response?.data,
-      url: error.config?.url
+      url: error.config?.url,
     });
-    return Promise.reject((error.response && error.response.data) || 'Something went wrong!')
+
+    throw new Error(error.response?.data?.message || 'Something went wrong!');
   }
 );
 
@@ -48,10 +49,21 @@ export const endpoints = {
   
   // Авторизация
   auth: {
-    me: '/api/auth/me',
-    signIn: `${BASE_API_URL}/api/auth/sign-in`,
-    signUp: `${BASE_API_URL}/api/auth/sign-up`,
-    verifyEmail: (token) => `${BASE_API_URL}/api/auth/verify-email/${token}`
+    me: `${BASE_API_URL}/api/auth/me`,
+    login: `${BASE_API_URL}/api/auth/login`,              // Changed from sign-in
+    register: `${BASE_API_URL}/api/auth/register`,        // Changed from sign-up
+    verifyEmail: (token) => `${BASE_API_URL}/api/auth/verify-email/${token}`,
+    forgotPassword: `${BASE_API_URL}/api/auth/forgot-password`,  // Added
+    resetPassword: `${BASE_API_URL}/api/auth/reset-password`,    // Added
+    logout: `${BASE_API_URL}/api/auth/logout`,                   // Added
+    refreshToken: `${BASE_API_URL}/api/auth/refresh-token`       // Added
+  },
+
+  company: {
+    list: `${BASE_API_URL}/api/companies`,
+    create: `${BASE_API_URL}/api/companies`,
+    checkBin: (bin) => `${BASE_API_URL}/api/companies/check-bin/${bin}`,
+    search: `${BASE_API_URL}/api/companies/search`
   },
 
   // Почта
@@ -69,7 +81,7 @@ export const endpoints = {
   },
   // Товары (product)
   product: {
-    list: `${BASE_API_URL}/api/product/list`,
+    list: `${BASE_API_URL}/api/product/`,
     details: (id) => `${BASE_API_URL}/api/product/details/${id}`,
     create: `${BASE_API_URL}/api/product`,  // Changed
     update: (id) => `${BASE_API_URL}/api/product/${id}`,  // Changed

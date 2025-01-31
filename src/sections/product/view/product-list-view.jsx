@@ -63,7 +63,7 @@ export function ProductListView() {
   const ws = useRef(null);
   const confirmDialog = useBoolean();
   
-  const { products, productsLoading } = useGetProducts();
+  const { products, productsLoading, productsError } = useGetProducts();
 
   const [tableData, setTableData] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -73,6 +73,15 @@ export function ProductListView() {
   const { state: currentFilters } = filters;
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState(HIDE_COLUMNS);
+
+
+  useEffect(() => {
+    if (products?.products && Array.isArray(products.products)) {
+      console.log('Setting table data:', products.products);
+      setTableData(products.products);
+    }
+  }, [products]);
+
 
   useEffect(() => {
     let isComponentMounted = true;
@@ -86,28 +95,29 @@ export function ProductListView() {
         }
       };
   
-      ws.current.onerror = (error) => {
-        if (isComponentMounted) {
-          console.error('WebSocket Error:', error);
-        }
-      };
-  
       ws.current.onmessage = (event) => {
         if (isComponentMounted) {
-          const updatedProduct = JSON.parse(event.data);
-          setTableData((prevData) =>
-            prevData.map((product) =>
-              product.id === updatedProduct.id ? updatedProduct : product
-            )
-          );
+          try {
+            const updatedProduct = JSON.parse(event.data);
+            setTableData(prevData =>
+              prevData.map(product =>
+                product.id === updatedProduct.id ? updatedProduct : product
+              )
+            );
+          } catch (error) {
+            console.error('WebSocket message parsing error:', error);
+          }
         }
       };
   
       ws.current.onclose = () => {
         if (isComponentMounted) {
-          console.log('WebSocket Closed. Reconnecting...');
-          setTimeout(connectWebSocket, 5000); // Автоматическое переподключение через 5 секунд
+          setTimeout(connectWebSocket, 5000);
         }
+      };
+
+      ws.current.onerror = (error) => {
+        console.error('WebSocket Error:', error);
       };
     };
   
@@ -115,13 +125,14 @@ export function ProductListView() {
   
     return () => {
       isComponentMounted = false;
-      if (ws.current) {
+      if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.close();
       }
     };
   }, []);
   
 
+  
   const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
 
   const dataFiltered = applyFilter({
@@ -281,13 +292,80 @@ export function ProductListView() {
   // }
 
   if (productsLoading) {
-    return <EmptyContent title="Загрузка данных..." />;
+    return (
+      <DashboardContent>
+        <EmptyContent title="Загрузка данных..." />
+      </DashboardContent>
+    );
   }
   
   if (!tableData || tableData.length === 0) {
-    return <EmptyContent title="Нет данных для отображения" />;
+    const emptyMessage = productsError ? 'Ошибка загрузки данных' : 'Нет данных для отображения';
+    return (
+      <DashboardContent>
+        <CustomBreadcrumbs
+          heading="Список"
+          links={[
+            { name: 'Дэшборд', href: paths.dashboard.general.file },
+            { name: 'Продукты', href: paths.dashboard.product.root },
+            { name: 'Список' },
+          ]}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.product.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              Новый продукт
+            </Button>
+          }
+        />
+        <EmptyContent 
+          title={emptyMessage}
+          description={productsError?.message} 
+        />
+      </DashboardContent>
+    );
   }
   
+  if (productsError) {
+    return (
+      <DashboardContent>
+        <EmptyContent 
+          title="Ошибка загрузки данных" 
+          description={productsError.message || 'Произошла ошибка при загрузке продуктов'}
+        />
+      </DashboardContent>
+    );
+  }
+
+  if (!Array.isArray(tableData) || tableData.length === 0) {
+    return (
+      <DashboardContent>
+        <CustomBreadcrumbs
+          heading="Список"
+          links={[
+            { name: 'Дэшборд', href: paths.dashboard.general.file },
+            { name: 'Продукты', href: paths.dashboard.product.root },
+            { name: 'Список' },
+          ]}
+          action={
+            <Button
+              component={RouterLink}
+              href={paths.dashboard.product.new}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
+              Новый продукт
+            </Button>
+          }
+        />
+        <EmptyContent title="Нет данных для отображения" />
+      </DashboardContent>
+    );
+  }
+
   
   return (
     <>

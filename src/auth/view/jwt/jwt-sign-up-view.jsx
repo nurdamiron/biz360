@@ -12,6 +12,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import MenuItem from '@mui/material/MenuItem';
+import axios, { fetcher, endpoints } from 'src/lib/axios';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
@@ -31,9 +33,20 @@ export const SignUpSchema = zod.object({
     .string()
     .min(1, { message: 'Пароль обязателен!' })
     .min(6, { message: 'Пароль должен содержать минимум 6 символов!' }),
+  registration_type: zod.enum(['company_owner', 'employee'], {
+    required_error: 'Выберите тип регистрации!'
+  }),
+  company_data: zod.object({
+    // For company owner
+    name: zod.string().optional(),
+    bin_iin: zod.string().optional(),
+    code: zod.string().optional(),
+    // For employee
+    company_bin_iin: zod.string().optional()
+  }).optional()
 });
 
-const API_BASE_URL = 'https://biz360-backend.onrender.com/api';
+const BASE_API_URL = 'https://biz360-backend.onrender.com';
 
 export function JwtSignUpView() {
   const router = useRouter();
@@ -48,6 +61,12 @@ export function JwtSignUpView() {
     lastName: '',
     email: '',
     password: '',
+    registration_type: 'company_owner',
+    company_data: {
+      name: '',
+      bin_iin: '',
+      code: ''
+    }
   };
 
   const methods = useForm({
@@ -57,61 +76,94 @@ export function JwtSignUpView() {
 
   const {
     handleSubmit,
+    watch,
+    setValue,
     formState: { isSubmitting },
   } = methods;
+
+  const registrationType = watch('registration_type');
+
+  const handleRegistrationTypeChange = (event) => {
+    const newType = event.target.value;
+    setValue('registration_type', newType);
+    
+    // Reset company data when switching types
+    if (newType === 'company_owner') {
+      setValue('company_data', {
+        name: '',
+        bin_iin: '',
+        code: ''
+      });
+    } else {
+      setValue('company_data', {
+        company_bin_iin: ''
+      });
+    }
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       setErrorMessage('');
       setEmployeeEmail(data.email);
       
-      const response = await fetch(`${API_BASE_URL}/auth/register/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-          first_name: data.firstName,
-          last_name: data.lastName
-        }),
-        mode: 'cors',
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData?.message || 'Ошибка регистрации');
+      const requestData = {
+        email: data.email,
+        password: data.password,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        registration_type: data.registration_type,
+        company_data: data.registration_type === 'company_owner' 
+          ? {
+              name: data.company_data.name,
+              bin_iin: data.company_data.bin_iin,
+              code: data.company_data.code
+            }
+          : {
+              company_bin_iin: data.company_data.company_bin_iin
+            }
+      };
+  
+      const response = await axios.post(`${BASE_API_URL}/api/auth/register`, requestData);
+  
+      if (response.data?.error) {
+        throw new Error(response.data.error);
       }
-
+  
       setIsSuccess(true);
-
-      // Запускаем таймер для редиректа
+      
       const timer = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            router.push(paths.auth.jwt.signIn);
+            router.push(paths.auth.jwt.login); // Обновлено с signIn на login
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-
+  
     } catch (error) {
       console.error('Registration error:', error);
       
-      if (error.message === 'Failed to fetch') {
-        setErrorMessage('Не удалось подключиться к серверу. Проверьте подключение к интернету.');
-      } else if (error.message.includes('NetworkError')) {
-        setErrorMessage('Ошибка сети. Попробуйте позже.');
-      } else if (error.message === 'Email already registered') {
-        setErrorMessage('Этот email уже зарегистрирован.');
+      let errorMsg = 'Произошла ошибка при регистрации';
+  
+      if (error.response) {
+        errorMsg = error.response.data?.error || 
+                  error.response.data?.message || 
+                  'Ошибка сервера';
+      } else if (error.request) {
+        errorMsg = 'Не удалось подключиться к серверу. Проверьте подключение к интернету.';
       } else {
-        setErrorMessage(error.message || 'Произошла ошибка при регистрации');
+        errorMsg = error.message;
       }
+  
+      if (errorMsg.includes('Email already registered')) {
+        errorMsg = 'Этот email уже зарегистрирован';
+      } else if (errorMsg.includes('Company with this BIN/IIN already exists')) {
+        errorMsg = 'Компания с таким БИН/ИИН уже существует';
+      }
+  
+      setErrorMessage(errorMsg);
     }
   });
 
@@ -152,6 +204,45 @@ export function JwtSignUpView() {
 
   const renderForm = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+      <Field.Select
+        name="registration_type"
+        label="Тип регистрации"
+        value={registrationType}
+        onChange={handleRegistrationTypeChange}
+        slotProps={{ inputLabel: { shrink: true } }}
+      >
+        <MenuItem value="company_owner">Владелец компании</MenuItem>
+        <MenuItem value="employee">Сотрудник</MenuItem>
+      </Field.Select>
+
+      {registrationType === 'company_owner' && (
+        <Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
+          <Field.Text
+            name="company_data.name"
+            label="Название компании"
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+          <Field.Text
+            name="company_data.bin_iin"
+            label="БИН/ИИН компании"
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+          <Field.Text
+            name="company_data.code"
+            label="Код компании (опционально)"
+            slotProps={{ inputLabel: { shrink: true } }}
+          />
+        </Box>
+      )}
+
+      {registrationType === 'employee' && (
+        <Field.Text
+          name="company_data.company_bin_iin"
+          label="БИН/ИИН компании"
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+      )}
+
       <Box
         sx={{
           display: 'flex',
