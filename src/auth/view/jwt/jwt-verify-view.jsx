@@ -74,7 +74,7 @@ export function VerifyView() {
         setVerificationState({
             status: 'error',
             message: error.message || 'Не удалось подтвердить email. Пожалуйста, попробуйте позже.',
-            countdown: 5
+            countdown: 10
         });
     }
 }, []);

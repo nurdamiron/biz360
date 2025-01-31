@@ -1,11 +1,9 @@
-// employee-new-edit-form.jsx
-
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
-import axios, { fetcher, endpoints } from 'src/lib/axios';
+import axiosInstance, { endpoints } from 'src/lib/axios';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -41,17 +39,12 @@ const NewEmployeeSchema = zod.object({
   address: zod.string().optional(),
   status: zod.string().optional(),
   isVerified: zod.boolean().optional(),
-  // Новые поля (даты):
   hireDate: zod.string().optional(),
   birthday: zod.string().optional(),
-
-  // Если поля country/state/city/zipCode не нужны, можно удалить.
   country: zod.string().optional(),
   state: zod.string().optional(),
   city: zod.string().optional(),
   zipCode: zod.string().optional(),
-
-  // Пример: поля для метрик (можно убрать при создании, если считаются автоматически)
   overall_performance: zod.number().or(zod.nan()).optional(),
   kpi: zod.number().or(zod.nan()).optional(),
   work_volume: zod.number().or(zod.nan()).optional(),
@@ -61,15 +54,9 @@ const NewEmployeeSchema = zod.object({
 
 // ----------------------------------------------------------------------
 
-/**
- * Компонент формы для создания/редактирования сотрудника.
- * @param {Object} props
- * @param {Object} [props.currentEmployee] - Если передан, режим "редактирования"
- */
 export function EmployeeNewEditForm({ currentEmployee }) {
   const router = useRouter();
 
-  // Значения по умолчанию (для "создания" сотрудника)
   const defaultValues = {
     avatarUrl: null,
     fio: '',
@@ -82,12 +69,10 @@ export function EmployeeNewEditForm({ currentEmployee }) {
     isVerified: true,
     hireDate: '',
     birthday: '',
-    // Если нужны
     country: '',
     state: '',
     city: '',
     zipCode: '',
-    // Метрики (по умолчанию 0)
     overall_performance: 0,
     kpi: 0,
     work_volume: 0,
@@ -95,13 +80,12 @@ export function EmployeeNewEditForm({ currentEmployee }) {
     quality: 0,
   };
 
-  // Инициализируем React Hook Form
+  // Инициализация формы
   const methods = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(NewEmployeeSchema),
     defaultValues,
-    // Если есть currentEmployee, поля формы получат их значения
-    values: currentEmployee,
+    values: currentEmployee || defaultValues,
   });
 
   const {
@@ -114,25 +98,19 @@ export function EmployeeNewEditForm({ currentEmployee }) {
 
   const values = watch();
 
-  // Сабмит формы
   const onSubmit = handleSubmit(async (formData) => {
     try {
-      // Проверяем: если есть currentEmployee?.id => режим редактирования
-      if (currentEmployee && currentEmployee.id) {
-        // Редактирование (PUT)
-        await axios.put(
-          `https://biz360-backend.onrender.com/api/employees/${currentEmployee.id}`,
-          formData
-        );
+      if (currentEmployee?.id) {
+        // Режим редактирования
+        await axiosInstance.put(endpoints.employee.update(currentEmployee.id), formData);
         toast.success('Изменения сохранены!');
       } else {
-        // Создание (POST)
-        await axios.post('https://biz360-backend.onrender.com/api/employees', formData);
+        // Режим создания
+        await axiosInstance.post(endpoints.employee.create, formData);
         toast.success('Сотрудник создан!');
       }
 
       reset();
-      // Перенаправляем после сохранения
       router.push(paths.dashboard.employee.list);
     } catch (error) {
       console.error('Ошибка при сохранении сотрудника:', error);
@@ -181,11 +159,10 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               />
             </Box>
 
-            {/* Переключатель статуса (active/banned), только если редактируем */}
             {currentEmployee && (
               <FormControlLabel
                 labelPlacement="start"
-                control={
+                control={(
                   <Controller
                     name="status"
                     control={control}
@@ -199,14 +176,14 @@ export function EmployeeNewEditForm({ currentEmployee }) {
                       />
                     )}
                   />
-                }
+                )}
                 label={
                   <>
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                       Заблокирован
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Применить отключение учётной записи сотрудника
+                      При включении сотрудник теряет доступ к системе
                     </Typography>
                   </>
                 }
@@ -228,14 +205,13 @@ export function EmployeeNewEditForm({ currentEmployee }) {
                     Подтверждён ли email
                   </Typography>
                   <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    При отключении функция отправит письмо для повторного подтверждения
+                    При отключении, возможно, потребуется повторная верификация
                   </Typography>
                 </>
               }
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
 
-            {/* Кнопка "Удалить сотрудника" (только если редактируем) */}
             {currentEmployee && (
               <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
                 <Button variant="soft" color="error">
@@ -274,15 +250,18 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               <Field.Text name="zipCode" label="Индекс" />
               <Field.Text name="hireDate" label="Дата приёма на работу" type="date" />
               <Field.Text name="birthday" label="Дата рождения" type="date" />
-              {/* Если нужны метрики:
-                  <Field.Text name="overall_performance" label="Общая эффективность" />
-                  ...
-              */}
+
+              {/* Поля для метрик, если нужны */}
+              <Field.Text name="overall_performance" label="Общая эффективность (%)" type="number" />
+              <Field.Text name="kpi" label="KPI" type="number" />
+              <Field.Text name="work_volume" label="Объём работ" type="number" />
+              <Field.Text name="activity" label="Активность" type="number" />
+              <Field.Text name="quality" label="Качество" type="number" />
             </Box>
 
             <Stack sx={{ mt: 3, alignItems: 'flex-end' }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentEmployee ? 'Создать сотрудника' : 'Сохранить изменения'}
+                {currentEmployee ? 'Сохранить изменения' : 'Создать сотрудника'}
               </LoadingButton>
             </Stack>
           </Card>

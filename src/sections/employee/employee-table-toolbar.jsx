@@ -16,9 +16,20 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
-export function EmployeeTableToolbar({ filters, options, onResetPage }) {
+/**
+ * Компонент панели инструментов для фильтрации и дополнительных действий в таблице сотрудников.
+ *
+ * @param {Object} props
+ * @param {Object} props.filters - объект вида { state, setState }, где:
+ *   - state: текущее состояние фильтров (fio, role и т.д.)
+ *   - setState: функция для обновления фильтров
+ * @param {Array<string>} props.roleOptions - массив допустимых ролей для фильтра
+ * @param {Function} props.onResetPage - колбэк, который сбрасывает пагинацию при изменении фильтров
+ */
+export function EmployeeTableToolbar({ filters, roleOptions, onResetPage }) {
   const menuActions = usePopover();
 
+  // Деструктурируем текущее состояние фильтров и функцию его обновления
   const { state: currentFilters, setState: updateFilters } = filters;
 
   // Фильтр по ФИО
@@ -44,6 +55,7 @@ export function EmployeeTableToolbar({ filters, options, onResetPage }) {
     [onResetPage, updateFilters]
   );
 
+  // Рендер всплывающего меню (печать, импорт, экспорт)
   const renderMenuActions = () => (
     <CustomPopover
       open={menuActions.open}
@@ -82,6 +94,7 @@ export function EmployeeTableToolbar({ filters, options, onResetPage }) {
           alignItems: { xs: 'flex-end', md: 'center' },
         }}
       >
+        {/* Выбор роли (множественный Select) */}
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
           <InputLabel htmlFor="filter-role-select">Роль</InputLabel>
           <Select
@@ -89,11 +102,11 @@ export function EmployeeTableToolbar({ filters, options, onResetPage }) {
             value={currentFilters.role}
             onChange={handleFilterRole}
             input={<OutlinedInput label="Роль" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={(selected) => selected.join(', ')}
             inputProps={{ id: 'filter-role-select' }}
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
-            {options.roles.map((option) => (
+            {roleOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 <Checkbox disableRipple size="small" checked={currentFilters.role.includes(option)} />
                 {option}
@@ -102,6 +115,7 @@ export function EmployeeTableToolbar({ filters, options, onResetPage }) {
           </Select>
         </FormControl>
 
+        {/* Поиск по ФИО */}
         <Box
           sx={{
             gap: 2,
@@ -125,6 +139,7 @@ export function EmployeeTableToolbar({ filters, options, onResetPage }) {
             }}
           />
 
+          {/* Кнопка "Ещё" для меню (печать, импорт, экспорт) */}
           <IconButton onClick={menuActions.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>

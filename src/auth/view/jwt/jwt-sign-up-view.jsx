@@ -211,7 +211,7 @@ export function JwtSignUpView() {
         onChange={handleRegistrationTypeChange}
         slotProps={{ inputLabel: { shrink: true } }}
       >
-        <MenuItem value="company_owner">Владелец компании</MenuItem>
+        <MenuItem value="company_owner">Владелец</MenuItem>
         <MenuItem value="employee">Сотрудник</MenuItem>
       </Field.Select>
 

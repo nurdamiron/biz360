@@ -1,11 +1,11 @@
 // employee-list-view.jsx
-/// done
 import { useState, useEffect, useCallback } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
-import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useBoolean } from 'minimal-shared/hooks';
 
-import axiosInstance, { endpoints } from 'src/lib/axios'; // <-- Подключаем axios
-import { toast } from 'src/components/snackbar';            // <-- Для уведомлений
+import axiosInstance, { endpoints } from 'src/lib/axios';
+import { toast } from 'src/components/snackbar';
+import Typography from '@mui/material/Typography';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -19,18 +19,18 @@ import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
-
 import { DashboardContent } from 'src/layouts/dashboard';
+
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import {
   useTable,
   emptyRows,
-  rowInPage,
   TableNoData,
   getComparator,
   TableEmptyRows,
@@ -64,248 +64,231 @@ const TABLE_HEAD = [
   { id: '', width: 88 },
 ];
 
+const ROLE_OPTIONS = ['manager', 'marketer', 'admin', 'developer'];
+
 // ----------------------------------------------------------------------
 
 export function EmployeeListView() {
-  // 1) Инициализация таблицы и диалога
   const table = useTable();
   const confirmDialog = useBoolean();
-
   
-  // 2) Изначально пустой массив сотрудников
-  const [tableData, setTableData] = useState([]);
-
-
-  // 3) Фильтры
-  const filters = useSetState({
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [filters, setFilters] = useState({
     fio: '',
     role: [],
     status: 'all',
   });
-  const { state: currentFilters, setState: updateFilters } = filters;
 
-  // 4) ЗАГРУЗКА сотрудников при монтировании
-  useEffect(() => {
-    axiosInstance
-      .get(endpoints.employee.list) 
-      //   -> 'https://biz360-backend.onrender.com/api/employees'
-      .then((res) => {
-        setTableData(res.data);
-      })
-      .catch((err) => {
-        console.error('Ошибка при загрузке сотрудников:', err);
-        toast.error('Не удалось загрузить сотрудников');
+  // Функция загрузки данных
+  const loadEmployees = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosInstance.get(endpoints.employee.list, {
+        params: {
+          page: table.page + 1,
+          limit: table.rowsPerPage,
+          search: filters.fio,
+          role: filters.role.join(','),
+          status: filters.status !== 'all' ? filters.status : undefined,
+          sort: table.orderBy,
+          order: table.order,
+        },
       });
-  }, []);
 
-  // 5) Логика удаления одного сотрудника
-  const handleDeleteRow = useCallback(
-    async (id) => {
-      try {
-        // Удаляем на сервере
-        await axiosInstance.delete(endpoints.employee.delete(id));
-        toast.success('Успешно удалено!');
+      setEmployees(response.data.data);
+      setTotalCount(response.data.pagination.total);
+    } catch (err) {
+      console.error('Error loading employees:', err);
+      setError('Не удалось загрузить список сотрудников');
+      toast.error(err.response?.data?.message || 'Ошибка при загрузке данных');
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, table.page, table.rowsPerPage, table.orderBy, table.order]);
 
-        // Удаляем из локального state
-        const newData = tableData.filter((row) => row.id !== id);
-        setTableData(newData);
-        table.onUpdatePageDeleteRow(newData.length);
-      } catch (error) {
-        console.error('Ошибка удаления сотрудника:', error);
-        toast.error('Ошибка при удалении');
+  // Загрузка при монтировании и изменении фильтров/пагинации
+  useEffect(() => {
+    loadEmployees();
+  }, [loadEmployees]);
+
+  // Обработчики фильтров
+  const handleFilterChange = useCallback((newFilters) => {
+    table.onResetPage();
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, [table]);
+
+  const handleFilterReset = useCallback(() => {
+    table.onResetPage();
+    setFilters({
+      fio: '',
+      role: [],
+      status: 'all',
+    });
+  }, [table]);
+
+  // Удаление сотрудника
+  const handleDeleteRow = useCallback(async (id) => {
+    try {
+      await axiosInstance.delete(endpoints.employee.delete(id));
+      toast.success('Сотрудник успешно удален');
+      loadEmployees();
+  
+      if (table.selected.includes(id)) {
+        table.onSelectRow(id);
       }
-    },
-    [table, tableData]
-  );
+    } catch (err) { // Изменено с error на err
+      console.error('Error deleting employee:', err);
+      toast.error('Ошибка при удалении сотрудника');
+    }
+  }, [loadEmployees, table]);
+  
 
-  // 6) Логика массового удаления
+  // Массовое удаление
   const handleDeleteRows = useCallback(async () => {
     try {
-      const idsToDelete = table.selected; // Массив id
       await Promise.all(
-        idsToDelete.map((id) =>
-          axiosInstance.delete(endpoints.employee.delete(id))
-        )
+        table.selected.map(id => axiosInstance.delete(endpoints.employee.delete(id)))
       );
-
-      toast.success('Успешно удалено!');
-      const newData = tableData.filter((row) => !idsToDelete.includes(row.id));
-      setTableData(newData);
-
-      table.onUpdatePageDeleteRows(newData.length, newData.length);
-    } catch (error) {
-      console.error('Ошибка при массовом удалении сотрудников:', error);
-      toast.error('Ошибка при удалении');
+      
+      toast.success('Выбранные сотрудники успешно удалены');
+      table.onSelectAllRows(false);
+      loadEmployees();
+    } catch (err) { // Изменено с error на err
+      console.error('Error deleting multiple employees:', err);
+      toast.error('Ошибка при удалении сотрудников');
     }
-  }, [table, tableData]);
+  }, [table.selected, loadEmployees, table]);
+  
 
-  // 7) Фильтры и сортировка
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters: currentFilters,
-  });
+  if (error) {
+    return (
+      <DashboardContent>
+        <Box sx={{ textAlign: 'center', py: 3 }}>
+          <Typography color="error">{error}</Typography>
+          <Button onClick={loadEmployees} sx={{ mt: 1 }}>
+            Попробовать снова
+          </Button>
+        </Box>
+      </DashboardContent>
+    );
+  }
 
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
-  const canReset =
-    !!currentFilters.fio ||
-    currentFilters.role.length > 0 ||
-    currentFilters.status !== 'all';
+  return (
+    <DashboardContent>
+      <CustomBreadcrumbs
+        heading="Сотрудники"
+        links={[
+          { name: 'Дэшборд', href: paths.dashboard.general.file },
+          { name: 'Сотрудники' },
+        ]}
+        action={
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.employee.new}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+          >
+            Новый сотрудник
+          </Button>
+        }
+        sx={{ mb: { xs: 3, md: 5 } }}
+      />
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  // 8) Переключение вкладок статусов
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      table.onResetPage();
-      updateFilters({ status: newValue });
-    },
-    [updateFilters, table]
-  );
-
-  // 9) Диалог подтверждения удаления
-  const renderConfirmDialog = () => (
-    <ConfirmDialog
-      open={confirmDialog.value}
-      onClose={confirmDialog.onFalse}
-      title="Удалить"
-      content={
-        <>
-          Вы уверены, что хотите удалить <strong>{table.selected.length}</strong> сотрудников?
-        </>
-      }
-      action={
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => {
-            handleDeleteRows();
-            confirmDialog.onFalse();
+      <Card>
+        <Tabs
+          value={filters.status}
+          onChange={(_, value) => handleFilterChange({ status: value })}
+          sx={{
+            px: 2.5,
+            boxShadow: (theme) => `inset 0 -2px 0 0 ${varAlpha(theme.palette.grey[500], 0.08)}`,
           }}
         >
-          Удалить
-        </Button>
-      }
-    />
-  );
+          {STATUS_OPTIONS.map((tab) => (
+            <Tab
+              key={tab.value}
+              value={tab.value}
+              label={tab.label}
+              icon={
+                <Label
+                  variant={tab.value === filters.status ? 'filled' : 'soft'}
+                  color={
+                    (tab.value === 'active' && 'success') ||
+                    (tab.value === 'pending' && 'warning') ||
+                    (tab.value === 'banned' && 'error') ||
+                    'default'
+                  }
+                >
+                  {tab.value === 'all' ? totalCount : 
+                    employees.filter(emp => emp.status === tab.value).length}
+                </Label>
+              }
+            />
+          ))}
+        </Tabs>
 
-  // 10) Рендер
-  return (
-    <>
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Сотрудники"
-          links={[
-            { name: 'Дэшборд', href: paths.dashboard.general.file },
-            { name: 'Сотрудники' },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.employee.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              Новый сотрудник
-            </Button>
-          }
-          sx={{ mb: { xs: 3, md: 5 } }}
+        <EmployeeTableToolbar
+          filters={filters}
+          onFilters={handleFilterChange}
+          roleOptions={ROLE_OPTIONS}
         />
 
-        <Card>
-          <Tabs
-            value={currentFilters.status}
-            onChange={handleFilterStatus}
-            sx={[(theme) => ({
-              px: 2.5,
-              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            })]}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      tab.value === 'all' || tab.value === currentFilters.status
-                        ? 'filled'
-                        : 'soft'
-                    }
-                    color={
-                      (tab.value === 'active' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['active', 'pending', 'banned'].includes(tab.value)
-                      ? tableData.filter((emp) => emp.status === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <EmployeeTableToolbar
+        {(filters.fio || filters.role.length > 0 || filters.status !== 'all') && (
+          <EmployeeTableFiltersResult
             filters={filters}
-            onResetPage={table.onResetPage}
-            options={{ roles: ['manager', 'marketer', 'admin', 'developer'] }}
+            onResetFilters={handleFilterReset}
+            results={totalCount}
+            sx={{ p: 2.5, pt: 0 }}
+          />
+        )}
+
+        <Box sx={{ position: 'relative' }}>
+          <TableSelectedAction
+            dense={table.dense}
+            numSelected={table.selected.length}
+            rowCount={employees.length}
+            onSelectAllRows={(checked) =>
+              table.onSelectAllRows(
+                checked,
+                employees.map((row) => row.id)
+              )
+            }
+            action={
+              <Tooltip title="Удалить">
+                <IconButton color="primary" onClick={confirmDialog.onTrue}>
+                  <Iconify icon="solar:trash-bin-trash-bold" />
+                </IconButton>
+              </Tooltip>
+            }
           />
 
-          {canReset && (
-            <EmployeeTableFiltersResult
-              filters={filters}
-              totalResults={dataFiltered.length}
-              onResetPage={table.onResetPage}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
+          <Scrollbar>
+            <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={TABLE_HEAD}
+                rowCount={employees.length}
+                numSelected={table.selected.length}
+                onSort={table.onSort}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    employees.map((row) => row.id)
+                  )
+                }
+              />
 
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Удалить">
-                  <IconButton color="primary" onClick={confirmDialog.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headCells={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
-                />
-
-                <TableBody>
-                  {dataFiltered
-                    .slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
-                    .map((row) => (
+              <TableBody>
+                {loading ? (
+                  <TableEmptyRows height={76} emptyRows={table.rowsPerPage} />
+                ) : (
+                  <>
+                    {employees.map((row) => (
                       <EmployeeTableRow
                         key={row.id}
                         row={row}
@@ -316,64 +299,52 @@ export function EmployeeListView() {
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 76}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
-                  />
+                    <TableEmptyRows
+                      height={76}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, totalCount)}
+                    />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
+                    <TableNoData notFound={!loading && !employees.length} />
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </Box>
 
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={dataFiltered.length}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
-      </DashboardContent>
+        <TablePaginationCustom
+          count={totalCount}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          dense={table.dense}
+          onChangeDense={table.onChangeDense}
+        />
+      </Card>
 
-      {renderConfirmDialog()}
-    </>
+      <ConfirmDialog
+        open={confirmDialog.value}
+        onClose={confirmDialog.onFalse}
+        title="Удалить"
+        content={
+          <>
+            Вы уверены, что хотите удалить <strong>{table.selected.length}</strong> сотрудников?
+          </>
+        }
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              handleDeleteRows();
+              confirmDialog.onFalse();
+            }}
+          >
+            Удалить
+          </Button>
+        }
+      />
+    </DashboardContent>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { fio, status, role } = filters;
-
-  // Сортировка
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  // Фильтр по ФИО
-  if (fio) {
-    inputData = inputData.filter((emp) =>
-      emp.fio?.toLowerCase().includes(fio.toLowerCase())
-    );
-  }
-
-  // Фильтр по статусу
-  if (status !== 'all') {
-    inputData = inputData.filter((emp) => emp.status === status);
-  }
-
-  // Фильтр по роли
-  if (role.length) {
-    inputData = inputData.filter((emp) => role.includes(emp.role));
-  }
-
-  return inputData;
 }
