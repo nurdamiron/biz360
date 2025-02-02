@@ -16,43 +16,47 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
+const defaultFilters = {
+  state: {
+    fio: '',
+    role: [],
+  },
+  setState: () => {},
+};
+
 /**
  * Компонент панели инструментов для фильтрации и дополнительных действий в таблице сотрудников.
- *
- * @param {Object} props
- * @param {Object} props.filters - объект вида { state, setState }, где:
- *   - state: текущее состояние фильтров (fio, role и т.д.)
- *   - setState: функция для обновления фильтров
- * @param {Array<string>} props.roleOptions - массив допустимых ролей для фильтра
- * @param {Function} props.onResetPage - колбэк, который сбрасывает пагинацию при изменении фильтров
  */
-export function EmployeeTableToolbar({ filters, roleOptions, onResetPage }) {
+export function EmployeeTableToolbar({ 
+  filters = defaultFilters, 
+  roleOptions = [], 
+  onResetPage = () => {} 
+}) {
   const menuActions = usePopover();
 
-  // Деструктурируем текущее состояние фильтров и функцию его обновления
-  const { state: currentFilters, setState: updateFilters } = filters;
+  const currentFilters = filters?.state || defaultFilters.state;
+  const updateFilters = filters?.setState || defaultFilters.setState;
 
   // Фильтр по ФИО
   const handleFilterFio = useCallback(
     (event) => {
       onResetPage();
-      updateFilters({ fio: event.target.value });
+      updateFilters({ ...currentFilters, fio: event.target.value });
     },
-    [onResetPage, updateFilters]
+    [onResetPage, updateFilters, currentFilters]
   );
 
   // Фильтр по роли
   const handleFilterRole = useCallback(
     (event) => {
-      const newValue =
-        typeof event.target.value === 'string'
-          ? event.target.value.split(',')
-          : event.target.value;
+      const newValue = typeof event.target.value === 'string'
+        ? event.target.value.split(',')
+        : event.target.value;
 
       onResetPage();
-      updateFilters({ role: newValue });
+      updateFilters({ ...currentFilters, role: newValue });
     },
-    [onResetPage, updateFilters]
+    [onResetPage, updateFilters, currentFilters]
   );
 
   // Рендер всплывающего меню (печать, импорт, экспорт)
@@ -99,7 +103,7 @@ export function EmployeeTableToolbar({ filters, roleOptions, onResetPage }) {
           <InputLabel htmlFor="filter-role-select">Роль</InputLabel>
           <Select
             multiple
-            value={currentFilters.role}
+            value={currentFilters.role || []}
             onChange={handleFilterRole}
             input={<OutlinedInput label="Роль" />}
             renderValue={(selected) => selected.join(', ')}
@@ -108,7 +112,11 @@ export function EmployeeTableToolbar({ filters, roleOptions, onResetPage }) {
           >
             {roleOptions.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={currentFilters.role.includes(option)} />
+                <Checkbox 
+                  disableRipple 
+                  size="small" 
+                  checked={currentFilters.role?.includes(option) || false} 
+                />
                 {option}
               </MenuItem>
             ))}
@@ -127,7 +135,7 @@ export function EmployeeTableToolbar({ filters, roleOptions, onResetPage }) {
         >
           <TextField
             fullWidth
-            value={currentFilters.fio}
+            value={currentFilters.fio || ''}
             onChange={handleFilterFio}
             placeholder="Поиск по ФИО..."
             InputProps={{

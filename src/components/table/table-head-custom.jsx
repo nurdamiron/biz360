@@ -23,14 +23,24 @@ const visuallyHidden = {
 
 export function TableHeadCustom({
   sx,
-  order,
+  order = 'asc',
   onSort,
   orderBy,
-  headCells,
+  headCells = [],
   rowCount = 0,
   numSelected = 0,
   onSelectAllRows,
 }) {
+  if (!headCells) {
+    return null;
+  }
+
+  const handleSort = (id) => {
+    if (onSort) {
+      onSort(id);
+    }
+  };
+
   return (
     <TableHead sx={sx}>
       <TableRow>
@@ -41,8 +51,8 @@ export function TableHeadCustom({
               checked={!!rowCount && numSelected === rowCount}
               onChange={(event) => onSelectAllRows(event.target.checked)}
               inputProps={{
-                id: `all-row-checkbox`,
-                'aria-label': `All row Checkbox`,
+                id: 'all-row-checkbox',
+                'aria-label': 'All row Checkbox',
               }}
             />
           </TableCell>
@@ -54,16 +64,16 @@ export function TableHeadCustom({
             align={headCell.align || 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
             sx={[
-              { width: headCell.width },
+              { width: headCell.width, minWidth: headCell.minWidth },
               ...(Array.isArray(headCell.sx) ? headCell.sx : [headCell.sx]),
-            ]}
+            ].filter(Boolean)}
           >
             {onSort ? (
               <TableSortLabel
                 hideSortIcon
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : 'asc'}
-                onClick={() => onSort(headCell.id)}
+                onClick={() => handleSort(headCell.id)}
               >
                 {headCell.label}
 

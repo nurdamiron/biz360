@@ -1,52 +1,111 @@
-// employee-table-filters-result.jsx
-import { useCallback } from 'react';
-
+import PropTypes from 'prop-types';
 import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import { Iconify } from 'src/components/iconify';
+import Typography from '@mui/material/Typography';
 
-import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
+/**
+ * Component to display active filters and total results for the employee table
+ */
+export function EmployeeTableFiltersResult({ filters, onResetFilters, results, sx }) {
+  const showRoleFilter = filters.role && filters.role.length > 0;
+  const showFioFilter = filters.fio && filters.fio.length > 0;
+  const showStatusFilter = filters.status && filters.status !== 'all';
 
-export function EmployeeTableFiltersResult({ filters, onResetPage, totalResults, sx }) {
-  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
-
-  const handleRemoveFio = useCallback(() => {
-    onResetPage();
-    updateFilters({ fio: '' });
-  }, [onResetPage, updateFilters]);
-
-  const handleRemoveStatus = useCallback(() => {
-    onResetPage();
-    updateFilters({ status: 'all' });
-  }, [onResetPage, updateFilters]);
-
-  const handleRemoveRole = useCallback(
-    (inputValue) => {
-      const newValue = currentFilters.role.filter((item) => item !== inputValue);
-      onResetPage();
-      updateFilters({ role: newValue });
-    },
-    [onResetPage, updateFilters, currentFilters.role]
-  );
-
-  const handleReset = useCallback(() => {
-    onResetPage();
-    resetFilters();
-  }, [onResetPage, resetFilters]);
+  if (!showRoleFilter && !showFioFilter && !showStatusFilter) {
+    return null;
+  }
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Статус:" isShow={currentFilters.status !== 'all'}>
-        <Chip {...chipProps} label={currentFilters.status} onDelete={handleRemoveStatus} />
-      </FiltersBlock>
+    <Stack
+      spacing={1.5}
+      sx={{
+        flexGrow: 1,
+        ...sx,
+      }}
+    >
+      <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {showFioFilter && (
+          <Chip
+            label={`ФИО: ${filters.fio}`}
+            size="small"
+            onDelete={() => {
+              const newFilters = {
+                ...filters,
+                fio: '',
+              };
+              onResetFilters(newFilters);
+            }}
+          />
+        )}
 
-      <FiltersBlock label="Роль:" isShow={!!currentFilters.role.length}>
-        {currentFilters.role.map((item) => (
-          <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveRole(item)} />
-        ))}
-      </FiltersBlock>
+        {showRoleFilter &&
+          filters.role.map((role) => (
+            <Chip
+              key={role}
+              label={`Роль: ${role}`}
+              size="small"
+              onDelete={() => {
+                const newFilters = {
+                  ...filters,
+                  role: filters.role.filter((item) => item !== role),
+                };
+                onResetFilters(newFilters);
+              }}
+            />
+          ))}
 
-      <FiltersBlock label="ФИО:" isShow={!!currentFilters.fio}>
-        <Chip {...chipProps} label={currentFilters.fio} onDelete={handleRemoveFio} />
-      </FiltersBlock>
-    </FiltersResult>
+        {showStatusFilter && (
+          <Chip
+            label={`Статус: ${filters.status}`}
+            size="small"
+            onDelete={() => {
+              const newFilters = {
+                ...filters,
+                status: 'all',
+              };
+              onResetFilters(newFilters);
+            }}
+          />
+        )}
+
+        <Button
+          color="error"
+          onClick={() => onResetFilters()}
+          startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+        >
+          Очистить
+        </Button>
+
+        <Stack direction="row" spacing={0.5} alignItems="center">
+          <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+            Найдено:
+          </Typography>
+          <Typography variant="subtitle2">{results} сотрудников</Typography>
+        </Stack>
+      </Stack>
+    </Stack>
   );
 }
+
+EmployeeTableFiltersResult.propTypes = {
+  filters: PropTypes.shape({
+    fio: PropTypes.string,
+    role: PropTypes.arrayOf(PropTypes.string),
+    status: PropTypes.string,
+  }),
+  onResetFilters: PropTypes.func,
+  results: PropTypes.number,
+  sx: PropTypes.object,
+};
+
+EmployeeTableFiltersResult.defaultProps = {
+  filters: {
+    fio: '',
+    role: [],
+    status: 'all',
+  },
+  results: 0,
+  sx: {},
+};

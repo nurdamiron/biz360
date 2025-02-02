@@ -1,5 +1,3 @@
-// employee-table-row.jsx
-
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -15,40 +13,41 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
-
 import { RouterLink } from 'src/routes/components';
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
-
 import { EmployeeQuickEditForm } from './employee-quick-edit-form';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 
-// ----------------------------------------------------------------------
-
 /**
- * Строка таблицы для одного сотрудника
- * @param {Object} props
- * @param {Object} props.row - данные сотрудника
- * @param {boolean} props.selected - выбран ли чекбокс
- * @param {string} props.editHref - ссылка на страницу редактирования
- * @param {Function} props.onSelectRow - колбэк выбора строки
- * @param {Function} props.onDeleteRow - колбэк удаления (вызовет DELETE)
+ * Component for rendering a single employee row in the table
+ * @param {Object} props Component properties
+ * @param {Object} props.row - Employee data object
+ * @param {boolean} props.selected - Whether the row is selected
+ * @param {string} props.editHref - URL for editing the employee
+ * @param {Function} props.onSelectRow - Callback when row is selected
+ * @param {Function} props.onDeleteRow - Callback when row is deleted
  */
 export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }) {
+  // Hooks for managing UI state
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
 
-  // При успешном обновлении (через QuickEditForm), если нужно обновлять row
+  /**
+   * Updates the local employee data after a successful edit
+   * @param {Object} updatedData - New employee data
+   */
   const handleUpdateSuccess = (updatedData) => {
-    // Локально обновляем row
     Object.assign(row, updatedData);
   };
 
-  // Отрисовка формы "Быстрое редактирование"
-  const renderQuickEditForm = () => (
+  /**
+   * Renders the quick edit form component
+   */
+  const QuickEditFormComponent = () => (
     <EmployeeQuickEditForm
       currentEmployee={row}
       open={quickEditForm.value}
@@ -57,8 +56,10 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
     />
   );
 
-  // Меню действий: "Редактировать", "Удалить"
-  const renderMenuActions = () => (
+  /**
+   * Renders the actions menu popover
+   */
+  const MenuActionsComponent = () => (
     <CustomPopover
       open={menuActions.open}
       anchorEl={menuActions.anchorEl}
@@ -72,7 +73,6 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
             Редактировать
           </MenuItem>
         </li>
-
         <MenuItem
           onClick={() => {
             confirmDialog.onTrue();
@@ -87,8 +87,10 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
     </CustomPopover>
   );
 
-  // Диалог подтверждения удаления
-  const renderConfirmDialog = () => (
+  /**
+   * Renders the confirmation dialog for deletion
+   */
+  const DeleteConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
@@ -102,10 +104,25 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
     />
   );
 
+  /**
+   * Gets the status color based on employee status
+   */
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'pending':
+        return 'warning';
+      case 'banned':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
+
   return (
     <>
       <TableRow hover selected={selected} aria-checked={selected} tabIndex={-1}>
-        {/* Чекбокс для множественного выбора */}
         <TableCell padding="checkbox">
           <Checkbox
             checked={selected}
@@ -117,11 +134,9 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
           />
         </TableCell>
 
-        {/* ФИО + телефон */}
         <TableCell>
           <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
             <Avatar alt={row.fio} src={row.avatarUrl} />
-
             <Stack sx={{ typography: 'body2', flex: '1 1 auto' }}>
               <Link
                 component={RouterLink}
@@ -132,7 +147,6 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
               >
                 {row.fio}
               </Link>
-
               {row.phoneNumber && (
                 <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                   {row.phoneNumber}
@@ -142,17 +156,15 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
           </Box>
         </TableCell>
 
-        {/* Отдел */}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {row.department || '—'}
         </TableCell>
 
-        {/* Общая эффективность (Progress bar) */}
         <TableCell>
           <Box sx={{ minWidth: 80 }}>
             <LinearProgress
               variant="determinate"
-              value={row.overall_performance} // от 0 до 100
+              value={row.overall_performance}
               sx={{ mb: 0.5 }}
             />
             <Typography variant="caption" sx={{ color: 'text.disabled' }}>
@@ -161,42 +173,22 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
           </Box>
         </TableCell>
 
-        {/* KPI */}
         <TableCell>{row.kpi ?? '—'}</TableCell>
-        {/* Объём работ */}
         <TableCell>{row.work_volume ?? '—'}</TableCell>
-        {/* Активность */}
         <TableCell>{row.activity ?? '—'}</TableCell>
-        {/* Качество */}
         <TableCell>{row.quality ?? '—'}</TableCell>
 
-        {/* Статус (доступ) */}
         <TableCell>
           <Label
             variant="soft"
-            color={
-              (row.status === 'active' && 'success') ||
-              (row.status === 'pending' && 'warning') ||
-              (row.status === 'banned' && 'error') ||
-              'default'
-            }
+            color={getStatusColor(row.status)}
           >
             {row.status}
           </Label>
         </TableCell>
 
-        {/* Меню действий */}
         <TableCell align="right">
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            {/* <Tooltip title="Quick Edit" placement="top" arrow>
-              <IconButton
-                color={quickEditForm.value ? 'inherit' : 'default'}
-                onClick={quickEditForm.onTrue}
-              >
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
-            </Tooltip> */}
-
             <IconButton
               color={menuActions.open ? 'inherit' : 'default'}
               onClick={menuActions.onOpen}
@@ -207,9 +199,9 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
         </TableCell>
       </TableRow>
 
-      {renderQuickEditForm()}
-      {renderMenuActions()}
-      {renderConfirmDialog()}
+      <QuickEditFormComponent />
+      <MenuActionsComponent />
+      <DeleteConfirmDialog />
     </>
   );
 }

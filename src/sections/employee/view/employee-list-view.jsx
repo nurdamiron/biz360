@@ -88,23 +88,33 @@ export function EmployeeListView() {
       setLoading(true);
       setError(null);
 
-      const response = await axiosInstance.get(endpoints.employee.list, {
-        params: {
-          page: table.page + 1,
-          limit: table.rowsPerPage,
-          search: filters.fio,
-          role: filters.role.join(','),
-          status: filters.status !== 'all' ? filters.status : undefined,
-          sort: table.orderBy,
-          order: table.order,
-        },
-      });
+      const params = {
+        page: table.page + 1,
+        limit: table.rowsPerPage,
+        search: filters.fio,
+        role: filters.role.join(','),
+        status: filters.status !== 'all' ? filters.status : undefined,
+        sort: table.orderBy,
+        order: table.order,
+      };
+
+      console.log('Fetching employees with params:', params);
+
+      const response = await axiosInstance.get(endpoints.employee.list, { params });
+      
+      console.log('API Response:', response.data);
+
+      if (!response.data || !Array.isArray(response.data.data)) {
+        throw new Error('Invalid response format from API');
+      }
 
       setEmployees(response.data.data);
-      setTotalCount(response.data.pagination.total);
+      setTotalCount(response.data.pagination?.total || response.data.data.length);
+      
+      console.log('Employees loaded:', response.data.data.length);
     } catch (err) {
       console.error('Error loading employees:', err);
-      setError('Не удалось загрузить список сотрудников');
+      setError(err.response?.data?.message || 'Ошибка при загрузке данных');
       toast.error(err.response?.data?.message || 'Ошибка при загрузке данных');
     } finally {
       setLoading(false);
@@ -113,8 +123,17 @@ export function EmployeeListView() {
 
   // Загрузка при монтировании и изменении фильтров/пагинации
   useEffect(() => {
+    console.log('Loading employees...');
     loadEmployees();
   }, [loadEmployees]);
+
+  console.log('Current state:', {
+    loading,
+    error,
+    employeesCount: employees.length,
+    totalCount,
+    filters
+  });
 
   // Обработчики фильтров
   const handleFilterChange = useCallback((newFilters) => {
@@ -179,7 +198,7 @@ export function EmployeeListView() {
   }
 
   return (
-    <DashboardContent>
+     <DashboardContent>
       <CustomBreadcrumbs
         heading="Сотрудники"
         links={[
@@ -205,7 +224,7 @@ export function EmployeeListView() {
           onChange={(_, value) => handleFilterChange({ status: value })}
           sx={{
             px: 2.5,
-            boxShadow: (theme) => `inset 0 -2px 0 0 ${varAlpha(theme.palette.grey[500], 0.08)}`,
+            boxShadow: (theme) => `inset 0 -2px 0 0 ${varAlpha('145 158 171', 0.08)}`,
           }}
         >
           {STATUS_OPTIONS.map((tab) => (
@@ -232,9 +251,12 @@ export function EmployeeListView() {
         </Tabs>
 
         <EmployeeTableToolbar
-          filters={filters}
-          onFilters={handleFilterChange}
+          filters={{ 
+            state: filters,
+            setState: setFilters
+          }}
           roleOptions={ROLE_OPTIONS}
+          onResetPage={table.onResetPage}
         />
 
         {(filters.fio || filters.role.length > 0 || filters.status !== 'all') && (
