@@ -11,7 +11,6 @@ export const ORDER_STATUS_OPTIONS = [
 
 const ITEMS = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
-  sku: `16H9UR${index}`,
   quantity: index + 1,
   name: _mock.productName(index),
   coverUrl: _mock.image.product(index),

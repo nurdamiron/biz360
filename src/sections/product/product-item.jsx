@@ -94,7 +94,7 @@ export function ProductItem({ product, detailsHref }) {
         </Fab>
       )}
 
-      <Tooltip title={!available && 'out of stock'} placement="bottom-end">
+      <Tooltip title={!available && 'нет в наличии'} placement="bottom-end">
         <Image
           alt={name}
           src={coverUrl}

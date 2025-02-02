@@ -147,7 +147,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
                 <ListItemText
                   primary={item.name}
-                  secondary={item.sku}
+                  secondary={item.code}
                   slotProps={{
                     primary: {
                       sx: { typography: 'body2' },

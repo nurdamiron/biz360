@@ -287,7 +287,7 @@ const handleWebSocketMessage = (event) => {
               color: product.available > 0 ? 'success.main' : 'error.main',
             }}
           >
-            {product.available > 0 ? 'В наличии' : 'Нет в наличии'}
+            {product.available > 0 ? 'в наличии' : 'нет в наличии'}
           </Box>
 
           <Typography variant="h5">{product.name}</Typography>

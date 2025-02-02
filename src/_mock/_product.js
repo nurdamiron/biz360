@@ -1,7 +1,7 @@
 export const PRODUCT_GENDER_OPTIONS = [
-  { label: 'Men', value: 'Men' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Kids', value: 'Kids' },
+  { label: 'Мужской', value: 'Men' },
+  { label: 'Женский', value: 'Women' },
+  { label: 'Детский', value: 'Kids' },
 ];
 
 export const PRODUCT_CATEGORY_OPTIONS = ['Shose', 'Apparel', 'Accessories'];
@@ -45,9 +45,9 @@ export const PRODUCT_SIZE_OPTIONS = [
 ];
 
 export const PRODUCT_STOCK_OPTIONS = [
-  { value: 'in stock', label: 'В наличии' },
-  { value: 'low stock', label: 'Мало' },
-  { value: 'out of stock', label: 'Нет в наличии' },
+  { value: 'в наличии', label: 'в наличии' },
+  { value: 'мало', label: 'мало' },
+  { value: 'нет в наличии', label: 'нет в наличии' },
 ];
 
 export const PRODUCT_PUBLISH_OPTIONS = [
@@ -63,7 +63,6 @@ export const PRODUCT_SORT_OPTIONS = [
 ];
 
 export const PRODUCT_CATEGORY_GROUP_OPTIONS = [
-  { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather', 'Accessories'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Troemployees', 'Waistcoats', 'Apparel'] },
-  { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
+  { group: 'Одежда', classify: ['Костюмы'] },
+  { group: 'Низ', classify: ['Штаны'] },
 ];

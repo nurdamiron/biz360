@@ -97,7 +97,7 @@ export function OrderDetailsItems({
 
             <ListItemText
               primary={item.name}
-              secondary={item.sku}
+              secondary={item.code}
               slotProps={{
                 primary: { sx: { typography: 'body2' } },
                 secondary: {

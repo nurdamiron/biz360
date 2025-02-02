@@ -95,7 +95,7 @@ function InvoiceItem({ index, onRemove, productList }) {
               value={product.id}
               disabled={product.quantity <= 0}
             >
-              {product.name} {product.quantity <= 0 ? '(Нет в наличии)' : ''}
+              {product.name} {product.quantity <= 0 ? '(нет в наличии)' : ''}
             </MenuItem>
           ))}
         </Field.Select>

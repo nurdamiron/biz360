@@ -41,7 +41,7 @@ export function ProductSearch({ redirectPath, sx }) {
 
   const filterOptions = createFilterOptions({
     matchFrom: 'any',
-    stringify: (option) => `${option.name} ${option.sku}`,
+    stringify: (option) => `${option.name} ${option.code}`,
   });
 
   const paperStyles = {

@@ -1,7 +1,7 @@
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 import { useState, useEffect, useRef, forwardRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import axiosInstance, { endpoints } from 'src/lib/axios';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -46,15 +46,13 @@ import {
 // ----------------------------------------------------------------------
 
 const PUBLISH_OPTIONS = [
-  { value: 'published', label: 'В наличии' },
-  { value: 'draft', label: 'Нету в наличии' },
+  { value: 'published', label: 'опубликован' },
+  { value: 'draft', label: 'черновик' },
 ];
 
 const WS_URL = import.meta.env ? import.meta.env.VITE_WS_URL : 'wss://biz360-backend.onrender.com/ws';
 
-
 const HIDE_COLUMNS = { category: false };
-
 const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 
 // ----------------------------------------------------------------------
@@ -63,76 +61,77 @@ export function ProductListView() {
   const ws = useRef(null);
   const confirmDialog = useBoolean();
   
-  const { products, productsLoading, productsError } = useGetProducts();
+  // Получаем массив продуктов из хука
+  const {
+    products,
+    productsLoading,
+    productsError,
+    productsEmpty,
+    refetchProducts,
+  } = useGetProducts();
 
   const [tableData, setTableData] = useState([]);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [filterButtonEl, setFilterButtonEl] = useState(null);
-
   const filters = useSetState({ publish: [], stock: [] });
   const { state: currentFilters } = filters;
-
   const [columnVisibilityModel, setColumnVisibilityModel] = useState(HIDE_COLUMNS);
 
-
+  // Исправляем: products уже является массивом
   useEffect(() => {
-    if (products?.products && Array.isArray(products.products)) {
-      console.log('Setting table data:', products.products);
-      setTableData(products.products);
+    if (Array.isArray(products)) {
+      console.log('Setting table data:', products);
+      setTableData(products);
+    } else {
+      setTableData([]);
     }
   }, [products]);
 
-
   useEffect(() => {
-    let isComponentMounted = true;
-  
-    const connectWebSocket = () => {
+    let isMounted = true;
+    function connectWebSocket() {
       ws.current = new WebSocket(WS_URL);
-  
+
       ws.current.onopen = () => {
-        if (isComponentMounted) {
+        if (isMounted) {
           console.log('WebSocket Connected');
         }
       };
-  
+
       ws.current.onmessage = (event) => {
-        if (isComponentMounted) {
+        if (isMounted) {
           try {
             const updatedProduct = JSON.parse(event.data);
-            setTableData(prevData =>
-              prevData.map(product =>
-                product.id === updatedProduct.id ? updatedProduct : product
-              )
+            setTableData((prev) =>
+              prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
             );
           } catch (error) {
-            console.error('WebSocket message parsing error:', error);
+            console.error('WebSocket message parse error:', error);
           }
         }
       };
-  
+
       ws.current.onclose = () => {
-        if (isComponentMounted) {
-          setTimeout(connectWebSocket, 5000);
+        if (isMounted) {
+          setTimeout(connectWebSocket, 5000); // рекурсивно переподключаем через 5 сек
         }
       };
 
-      ws.current.onerror = (error) => {
-        console.error('WebSocket Error:', error);
+      ws.current.onerror = (err) => {
+        console.error('WebSocket error:', err);
       };
-    };
-  
+    }
+
     connectWebSocket();
-  
+
     return () => {
-      isComponentMounted = false;
+      isMounted = false;
       if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.close();
       }
     };
   }, []);
-  
 
-  
   const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
 
   const dataFiltered = applyFilter({
@@ -140,24 +139,35 @@ export function ProductListView() {
     filters: currentFilters,
   });
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
+  const handleDeleteRow = useCallback(async (id) => {
+    try {
+      // Отправляем DELETE запрос на сервер
+      await axiosInstance.delete(endpoints.product.delete(id));
+      toast.success('Продукт успешно удалён!');
+      // Удаляем продукт из состояния
+      setTableData(prevData => prevData.filter(product => product.id !== id));
+    } catch (error) {
+      console.error('Ошибка удаления продукта:', error);
+      toast.error(error.response?.data?.message || 'Ошибка удаления продукта');
+    }
+  }, [setTableData]);
+  
 
-      toast.success('Delete success!');
-
-      setTableData(deleteRow);
-    },
-    [tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !selectedRowIds.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-  }, [selectedRowIds, tableData]);
+  const handleDeleteRows = useCallback(async () => {
+    try {
+      // Для каждого выбранного ID отправляем DELETE запрос
+      await Promise.all(
+        selectedRowIds.map(id => axiosInstance.delete(endpoints.product.delete(id)))
+      );
+      toast.success('Продукты успешно удалены!');
+      // Обновляем состояние
+      setTableData(prevData => prevData.filter(row => !selectedRowIds.includes(row.id)));
+    } catch (error) {
+      console.error('Ошибка удаления продуктов:', error);
+      toast.error(error.response?.data?.message || 'Ошибка удаления продуктов');
+    }
+  }, [selectedRowIds, setTableData]);
+  
 
   const CustomToolbarCallback = useCallback(
     () => (
@@ -186,7 +196,6 @@ export function ProductListView() {
         <RenderCellProduct params={params} href={paths.dashboard.product.details(params.row.id)} />
       ),
     },
-    
     {
       field: 'inventoryType',
       headerName: 'Наличие',
@@ -208,15 +217,15 @@ export function ProductListView() {
       width: 160,
       renderCell: (params) => <RenderCellCreatedAt params={params} />,
     },
-    {
-      field: 'publish',
-      headerName: 'Статус',
-      width: 110,
-      type: 'singleSelect',
-      editable: true,
-      valueOptions: PUBLISH_OPTIONS,
-      renderCell: (params) => <RenderCellPublish params={params} />,
-    },
+    // {
+    //   field: 'publish',
+    //   headerName: 'Статус',
+    //   width: 110,
+    //   type: 'singleSelect',
+    //   editable: true,
+    //   valueOptions: PUBLISH_OPTIONS,
+    //   renderCell: (params) => <RenderCellPublish params={params} />,
+    // },
     {
       type: 'actions',
       field: 'actions',
@@ -281,16 +290,6 @@ export function ProductListView() {
     />
   );
 
-  
-
-  useEffect(() => {
-    setTableData(products);
-  }, [products]);
-  
-  // if (!products || products.length === 0) {
-  //   return <EmptyContent title="Нет данных" />;
-  // }
-
   if (productsLoading) {
     return (
       <DashboardContent>
@@ -340,33 +339,6 @@ export function ProductListView() {
     );
   }
 
-  if (!Array.isArray(tableData) || tableData.length === 0) {
-    return (
-      <DashboardContent>
-        <CustomBreadcrumbs
-          heading="Список"
-          links={[
-            { name: 'Дэшборд', href: paths.dashboard.general.file },
-            { name: 'Продукты', href: paths.dashboard.product.root },
-            { name: 'Список' },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.product.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              Новый продукт
-            </Button>
-          }
-        />
-        <EmptyContent title="Нет данных для отображения" />
-      </DashboardContent>
-    );
-  }
-
-  
   return (
     <>
       <DashboardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
