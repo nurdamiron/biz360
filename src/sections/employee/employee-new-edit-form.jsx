@@ -1,9 +1,9 @@
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; 
 import { z as zod } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
-
-import axiosInstance, { endpoints } from 'src/lib/axios';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -14,18 +14,19 @@ import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
-
 import { fData } from 'src/utils/format-number';
-
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Field, Form, schemaHelper } from 'src/components/hook-form';
 
+import axiosInstance, { endpoints } from 'src/lib/axios';
+
 // ----------------------------------------------------------------------
-// Схема валидации данных сотрудника (Zod)
+// Схема валидации данных сотрудника
 const NewEmployeeSchema = zod.object({
   avatarUrl: schemaHelper.file().or(zod.null()),
   fio: zod.string().min(1, { message: 'ФИО обязательно!' }),
@@ -53,10 +54,51 @@ const NewEmployeeSchema = zod.object({
 });
 
 // ----------------------------------------------------------------------
+//
+// Единый компонент: если :id есть -> редактирование, иначе -> создание
+//
+export function EmployeeNewEditForm() {
+  // 1) Параметр id из адреса (если используете react-router-dom v6)
+  const { id } = useParams();
 
-export function EmployeeNewEditForm({ currentEmployee }) {
+  // 2) Для переключения режимов
+  const isEdit = Boolean(id);
+
+  // 3) Состояния для загрузки/ошибок
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // 4) Храним данные сотрудника (если режим редактирования)
+  const [currentEmployee, setCurrentEmployee] = useState(null);
+
+  // 5) Роутинг-хук для переходов
   const router = useRouter();
 
+  // При первом рендере, если есть id, подгружаем данные
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      if (!isEdit) return; // Если нет id, значит "создание"
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axiosInstance.get(endpoints.employee.details(id));
+        const data = response.data?.data;
+        if (!data) {
+          setError('Сотрудник не найден');
+        } else {
+          setCurrentEmployee(data);
+        }
+      } catch (err) {
+        console.error('Ошибка при загрузке сотрудника:', err);
+        setError('Не удалось загрузить данные сотрудника');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEmployee();
+  }, [id, isEdit]);
+
+  // Стартовые значения формы, если сотрудник пуст
   const defaultValues = {
     avatarUrl: null,
     fio: '',
@@ -80,10 +122,11 @@ export function EmployeeNewEditForm({ currentEmployee }) {
     quality: 0,
   };
 
-  // Инициализация формы
+  // Сама форма (react-hook-form)
   const methods = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(NewEmployeeSchema),
+    // Если currentEmployee есть, подставим его, иначе используем defaultValues
     defaultValues,
     values: currentEmployee || defaultValues,
   });
@@ -98,33 +141,62 @@ export function EmployeeNewEditForm({ currentEmployee }) {
 
   const values = watch();
 
+  // При сабмите формы
   const onSubmit = handleSubmit(async (formData) => {
     try {
-      if (currentEmployee?.id) {
+      if (isEdit) {
         // Режим редактирования
-        await axiosInstance.put(endpoints.employee.update(currentEmployee.id), formData);
+        await axiosInstance.put(endpoints.employee.update(id), formData);
         toast.success('Изменения сохранены!');
       } else {
         // Режим создания
         await axiosInstance.post(endpoints.employee.create, formData);
         toast.success('Сотрудник создан!');
       }
-
+      // По завершении
       reset();
       router.push(paths.dashboard.employee.list);
-    } catch (error) {
-      console.error('Ошибка при сохранении сотрудника:', error);
+    } catch (err) {
+      console.error('Ошибка при сохранении сотрудника:', err);
       toast.error('Ошибка при сохранении сотрудника');
     }
   });
 
+  // Если мы в режиме редактирования и идёт загрузка
+  if (isEdit && loading) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Если при редактировании возникла ошибка
+  if (isEdit && error) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  // Если "isEdit" и "currentEmployee === null" после загрузки (значит не найден)
+  if (isEdit && !loading && !currentEmployee && !error) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography color="error">Сотрудник не найден</Typography>
+      </Box>
+    );
+  }
+
+  // Формируем JSX формы
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
         {/* Левая колонка: аватар + статус */}
         <Grid item xs={12} md={4}>
           <Card sx={{ pt: 10, pb: 5, px: 3, position: 'relative' }}>
-            {currentEmployee && (
+            {isEdit && (
               <Label
                 color={
                   (values.status === 'active' && 'success') ||
@@ -159,7 +231,8 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               />
             </Box>
 
-            {currentEmployee && (
+            {/* Если редактируем, показываем переключатель "Заблокирован" */}
+            {isEdit && (
               <FormControlLabel
                 labelPlacement="start"
                 control={(
@@ -196,6 +269,7 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               />
             )}
 
+            {/* Переключатель "Подтверждён ли email" */}
             <Field.Switch
               name="isVerified"
               labelPlacement="start"
@@ -212,7 +286,8 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
 
-            {currentEmployee && (
+            {/* Кнопка удаления (только в режиме редактирования) */}
+            {isEdit && (
               <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
                 <Button variant="soft" color="error">
                   Удалить сотрудника
@@ -239,7 +314,7 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               <Field.Phone
                 name="phoneNumber"
                 label="Телефон"
-                country={!currentEmployee ? 'RU' : undefined}
+                country={!isEdit ? 'RU' : undefined}
               />
               <Field.Text name="department" label="Отдел" />
               <Field.Text name="role" label="Роль" />
@@ -250,18 +325,11 @@ export function EmployeeNewEditForm({ currentEmployee }) {
               <Field.Text name="zipCode" label="Индекс" />
               <Field.Text name="hireDate" label="Дата приёма на работу" type="date" />
               <Field.Text name="birthday" label="Дата рождения" type="date" />
-
-              {/* Поля для метрик, если нужны */}
-              <Field.Text name="overall_performance" label="Общая эффективность (%)" type="number" />
-              <Field.Text name="kpi" label="KPI" type="number" />
-              <Field.Text name="work_volume" label="Объём работ" type="number" />
-              <Field.Text name="activity" label="Активность" type="number" />
-              <Field.Text name="quality" label="Качество" type="number" />
             </Box>
 
             <Stack sx={{ mt: 3, alignItems: 'flex-end' }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {currentEmployee ? 'Сохранить изменения' : 'Создать сотрудника'}
+                {isEdit ? 'Сохранить изменения' : 'Создать сотрудника'}
               </LoadingButton>
             </Stack>
           </Card>
