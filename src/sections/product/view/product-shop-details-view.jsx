@@ -43,7 +43,7 @@ const DEFAULT_PRODUCT = {
   price_sale: null,
   new_label: null,
   sale_label: null,
-  inventoryType: 'in stock',
+  inventoryType: 'в наличии',
 };
 
 const transformRatings = (ratings = []) => 

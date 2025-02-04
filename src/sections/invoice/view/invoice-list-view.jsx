@@ -166,7 +166,7 @@ export function InvoiceListView() {
       title="Delete"
       content={
         <>
-          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+          Вы уверены, что хотите удалить <strong> {table.selected.length} </strong> элемента?
         </>
       }
       action={
@@ -236,7 +236,7 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title="Paid"
+                title="Оплачено"
                 total={getInvoiceLength('paid')}
                 percent={getPercentByStatus('paid')}
                 price={getTotalAmount('paid')}
@@ -245,7 +245,7 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title="Pending"
+                title="В ожидании"
                 total={getInvoiceLength('pending')}
                 percent={getPercentByStatus('pending')}
                 price={getTotalAmount('pending')}

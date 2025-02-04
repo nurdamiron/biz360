@@ -4,7 +4,7 @@ import {
   viVN as viVNCore,
   zhCN as zhCNCore,
   arSA as arSACore,
-  kkKZ as kkKZCore,
+  ruRU as ruRUCore,
 } from '@mui/material/locale';
 // date pickers (MUI)
 import {
@@ -13,6 +13,7 @@ import {
   viVN as viVNDate,
   zhCN as zhCNDate,
   kzKZ as kkKZDate,
+  ruRU as ruRUDate 
 
 } from '@mui/x-date-pickers/locales';
 // data grid (MUI)
@@ -22,19 +23,19 @@ import {
   viVN as viVNDataGrid,
   zhCN as zhCNDataGrid,
   arSD as arSDDataGrid,
+  ruRU as ruRUDataGrid
 } from '@mui/x-data-grid/locales';
 
-// ----------------------------------------------------------------------
 
 export const allLangs = [
   {
-    value: 'kz',
+    value: 'ru',
     label: 'Kazakh',
-    countryCode: 'KZ',
-    adapterLocale: 'kk',
-    numberFormat: { code: 'kk-KZ', currency: 'KZT' },
+    countryCode: 'RU',
+    adapterLocale: 'ru',
+    numberFormat: { code: 'ru-RU', currency: 'KZT' },
     systemValue: {
-      components: { ...kkKZCore.components, ...enUSDataGrid.components },
+      components: { ...ruRUCore.components, ...ruRUDate.components, ...ruRUDataGrid.components },
     },
   },
   {

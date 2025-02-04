@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import 'dayjs/locale/ru'; // Подключаем русский язык
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -28,13 +29,14 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
+dayjs.locale('ru'); // Устанавливаем локаль на русский
 
 // ----------------------------------------------------------------------
 
 export const formatPatterns = {
-  dateTime: 'DD MMM YYYY h:mm a', // 17 Apr 2022 12:00 am
-  date: 'DD MMM YYYY', // 17 Apr 2022
-  time: 'h:mm a', // 12:00 am
+  dateTime: 'DD MMMM YYYY HH:mm', // 17 апреля 2025 12:00
+  date: 'DD MMMM YYYY', // 17 апреля 2025
+  time: 'HH:mm', // 12:00
   split: {
     dateTime: 'DD/MM/YYYY h:mm a', // 17/04/2022 12:00 am
     date: 'DD/MM/YYYY', // 17/04/2022
@@ -62,10 +64,9 @@ export function today(template) {
 // ----------------------------------------------------------------------
 
 export function fDateTime(date, template) {
-  if (!isValidDate(date)) {
-    return 'Invalid date';
+  if (!date || !dayjs(date).isValid()) {
+    return 'Неверная дата';
   }
-
   return dayjs(date).format(template ?? formatPatterns.dateTime);
 }
 
@@ -78,10 +79,9 @@ export function fDateTime(date, template) {
 // ----------------------------------------------------------------------
 
 export function fDate(date, template) {
-  if (!isValidDate(date)) {
-    return 'Invalid date';
+  if (!date || !dayjs(date).isValid()) {
+    return 'Неверная дата';
   }
-
   return dayjs(date).format(template ?? formatPatterns.date);
 }
 
@@ -94,13 +94,11 @@ export function fDate(date, template) {
 // ----------------------------------------------------------------------
 
 export function fTime(date, template) {
-  if (!isValidDate(date)) {
-    return 'Invalid date';
+  if (!date || !dayjs(date).isValid()) {
+    return 'Неверная дата';
   }
-
   return dayjs(date).format(template ?? formatPatterns.time);
 }
-
 // ----------------------------------------------------------------------
 
 /**
@@ -126,13 +124,11 @@ export function fTimestamp(date) {
 // ----------------------------------------------------------------------
 
 export function fToNow(date) {
-  if (!isValidDate(date)) {
-    return 'Invalid date';
+  if (!date || !dayjs(date).isValid()) {
+    return 'Неверная дата';
   }
-
   return dayjs(date).toNow(true);
 }
-
 // ----------------------------------------------------------------------
 
 /**

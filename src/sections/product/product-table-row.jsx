@@ -76,9 +76,9 @@ export function RenderCellCreatedAt({ params }) {
 
 export function RenderCellStock({ params }) {
   const inventoryLabels = {
-    'out of so': 'Нет в наличии',
-    'low stock': 'Мало',
-    'в наличии': 'в наличии'
+    'нет в наличии': 'Нет в наличии',
+    'мало': 'Мало',
+    'в наличии': 'В наличии'
   };
 
   return (
@@ -87,8 +87,8 @@ export function RenderCellStock({ params }) {
         value={(params.row.available * 100) / params.row.quantity}
         variant="determinate"
         color={
-          (params.row.inventoryType === 'Out of Stock' && 'error') ||
-          (params.row.inventoryType === 'Мало' && 'warning') ||
+          (params.row.inventoryType === 'нет в наличии' && 'error') ||
+          (params.row.inventoryType === 'мало' && 'warning') ||
           'success'
         }
         sx={{ mb: 1, height: 6, width: 80 }}

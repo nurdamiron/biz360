@@ -1,7 +1,7 @@
 // ----------------------------------------------------------------------
 
-export const fallbackLng = 'en';
-export const languages = ['en', 'fr', 'vi', 'cn', 'ar'];
+export const fallbackLng = 'ru';
+export const languages = ['ru', 'fr', 'vi', 'cn', 'ar'];
 export const defaultNS = 'common';
 
 // ----------------------------------------------------------------------
@@ -21,7 +21,7 @@ export function i18nOptions(lng = fallbackLng, ns = defaultNS) {
 // ----------------------------------------------------------------------
 
 export const changeLangMessages = {
-  en: {
+  ru: {
     success: 'Language has been changed!',
     error: 'Error changing language!',
     loading: 'Loading...',

@@ -51,8 +51,8 @@ export const PRODUCT_STOCK_OPTIONS = [
 ];
 
 export const PRODUCT_PUBLISH_OPTIONS = [
-  { value: 'published', label: 'В наличии' },
-  { value: 'draft', label: 'Нету в наличии' },
+  { value: 'Опубликован', label: 'Опубликован' },
+  { value: 'черновик', label: 'черновик' },
 ];
 
 export const PRODUCT_SORT_OPTIONS = [

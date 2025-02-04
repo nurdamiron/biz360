@@ -1,6 +1,6 @@
 import { formatNumberLocale } from 'src/locales';
 
-const DEFAULT_LOCALE = { code: 'kk-KZ', currency: 'KZT' };
+const DEFAULT_LOCALE = { code: 'ru-RU', currency: 'KZT' };
 
 function processInput(inputValue) {
   if (inputValue == null || Number.isNaN(inputValue)) return null;
@@ -10,7 +10,7 @@ function processInput(inputValue) {
 // ----------------------------------------------------------------------
 
 export function fNumber(inputValue, options) {
-  const locale = formatNumberLocale() || DEFAULT_LOCALE;
+  const locale = DEFAULT_LOCALE;
 
   const number = processInput(inputValue);
   if (number === null) return '';
@@ -32,7 +32,7 @@ export function fCurrency(inputValue, options) {
   const number = processInput(inputValue);
   if (number === null) return '';
 
-  const fm = new Intl.NumberFormat(locale.code, {
+  const fm = new Intl.NumberFormat(locale.currency, {
     style: 'currency',
     currency: locale.currency,
     minimumFractionDigits: 0,

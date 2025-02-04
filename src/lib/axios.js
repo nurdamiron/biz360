@@ -4,8 +4,9 @@ import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ baseURL: CONFIG.serverUrl });
-
+const axiosInstance = axios.create({ 
+  baseURL: CONFIG.serverUrl || 'https://biz360-backend.onrender.com'
+});
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -26,16 +27,8 @@ export default axiosInstance;
 // ----------------------------------------------------------------------
 
 export const fetcher = async (args) => {
-  try {
-    const [url, config] = Array.isArray(args) ? args : [args];
-
-    const res = await axiosInstance.get(url, { ...config });
-
-    return res.data;
-  } catch (error) {
-    console.error('Failed to fetch:', error);
-    throw error;
-  }
+  const [url, config] = Array.isArray(args) ? args : [args];
+  return (await axiosInstance.get(url, { ...config })).data;
 };
 
 // ----------------------------------------------------------------------

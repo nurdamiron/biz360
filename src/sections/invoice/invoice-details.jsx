@@ -13,7 +13,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 
-import { fDate } from 'src/utils/format-time';
+import { fDate, fDateTime } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { INVOICE_STATUS_OPTIONS } from 'src/_mock';

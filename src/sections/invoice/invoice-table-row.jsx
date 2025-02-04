@@ -109,7 +109,7 @@ export function InvoiceTableRow({
 
         <TableCell>
           <Typography variant="body2">
-            {fCurrency(row.total)} ₸
+            {fCurrency(row.total)}
           </Typography>
         </TableCell>
 

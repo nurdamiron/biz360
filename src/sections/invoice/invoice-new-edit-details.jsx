@@ -108,14 +108,14 @@ function InvoiceItem({ index, onRemove, productList }) {
           required
         /> */}
 
-        <Field.Text
+        {/* <Field.Text
           multiline
           maxRows={3}
           size="small"
           name={fieldNames.description}
           label="Описание"
           disabled
-        />
+        /> */}
 
         <Field.Text
           size="small"
