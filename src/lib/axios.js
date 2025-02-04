@@ -11,7 +11,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     console.error('API Error:', {
       status: error.response?.status,
-      data: error.response?.data,
+      data: error.response?.data,   
       url: error.config?.url,
     });
 

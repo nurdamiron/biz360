@@ -13,40 +13,54 @@ import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
+
 import { RouterLink } from 'src/routes/components';
+import { useAuthContext } from 'src/auth/hooks'; // или любой хук/контекст, откуда берем роль
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 import { EmployeeQuickEditForm } from './employee-quick-edit-form';
 import axiosInstance, { endpoints } from 'src/lib/axios';
+// import { toast } from 'src/components/snackbar'; // если хотите показывать уведомления
 
-/**
- * Component for rendering a single employee row in the table
- * @param {Object} props Component properties
- * @param {Object} props.row - Employee data object
- * @param {boolean} props.selected - Whether the row is selected
- * @param {string} props.editHref - URL for editing the employee
- * @param {Function} props.onSelectRow - Callback when row is selected
- * @param {Function} props.onDeleteRow - Callback when row is deleted
- */
-export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDeleteRow }) {
-  // Hooks for managing UI state
+export function EmployeeTableRow({
+  row,
+  selected,
+  editHref,
+  onSelectRow,
+  onDeleteRow,
+}) {
+  // Роль залогиненного пользователя
+  const { user } = useAuthContext(); 
+  const userRole = user?.employee?.role || ''; 
+  // Например, userRole = 'owner', 'admin', 'manager' или 'employee'
+
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
 
-  /**
-   * Updates the local employee data after a successful edit
-   * @param {Object} updatedData - New employee data
-   */
+  // Кнопка "подтвердить" (только для owner/admin, и только если у сотрудника pending)
+  const handleConfirmEmployee = async () => {
+    try {
+      await axiosInstance.put(endpoints.employee.update(row.id), {
+        status: 'active',
+      });
+      // Локально меняем статус
+      row.status = 'active';
+      // toast.success('Сотрудник успешно подтверждён!');
+    } catch (error) {
+      console.error('Ошибка при подтверждении сотрудника:', error);
+      // toast.error('Не удалось подтвердить сотрудника');
+    }
+  };
+
+  // При успешном быстром редактировании
   const handleUpdateSuccess = (updatedData) => {
     Object.assign(row, updatedData);
   };
 
-  /**
-   * Renders the quick edit form component
-   */
+  // Вспомогательный компонент — «быстрое» редактирование
   const QuickEditFormComponent = () => (
     <EmployeeQuickEditForm
       currentEmployee={row}
@@ -56,23 +70,23 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
     />
   );
 
-  /**
-   * Renders the actions menu popover
-   */
+  // Меню «Ещё» (редактировать / удалить)
   const MenuActionsComponent = () => (
     <CustomPopover
       open={menuActions.open}
       anchorEl={menuActions.anchorEl}
       onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
     >
       <MenuList>
-        <li>
-          <MenuItem component={RouterLink} href={editHref} onClick={menuActions.onClose}>
-            <Iconify icon="solar:pen-bold" />
-            Редактировать
-          </MenuItem>
-        </li>
+        <MenuItem
+          component={RouterLink}
+          href={editHref}
+          onClick={menuActions.onClose}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Редактировать
+        </MenuItem>
+
         <MenuItem
           onClick={() => {
             confirmDialog.onTrue();
@@ -87,9 +101,7 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
     </CustomPopover>
   );
 
-  /**
-   * Renders the confirmation dialog for deletion
-   */
+  // Диалог подтверждения удаления
   const DeleteConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
@@ -104,9 +116,7 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
     />
   );
 
-  /**
-   * Gets the status color based on employee status
-   */
+  // Цвета для статуса
   const getStatusColor = (status) => {
     switch (status) {
       case 'active':
@@ -114,34 +124,38 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
       case 'pending':
         return 'warning';
       case 'banned':
+      case 'blocked':
         return 'error';
       default:
         return 'default';
     }
   };
 
+  // Проверяем, можем ли показывать кнопку подтверждения
+  const canConfirm = 
+    (userRole === 'owner' || userRole === 'admin') && 
+    row.status === 'pending';
+
   return (
     <>
       <TableRow hover selected={selected} aria-checked={selected} tabIndex={-1}>
+        {/* Чекбокс выделения */}
         <TableCell padding="checkbox">
           <Checkbox
             checked={selected}
             onClick={onSelectRow}
-            inputProps={{
-              id: `${row.id}-checkbox`,
-              'aria-label': `${row.id} checkbox`,
-            }}
+            inputProps={{ 'aria-label': `select row ${row.id}` }}
           />
         </TableCell>
 
+        {/* Информация о сотруднике */}
         <TableCell>
-          <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
-            <Avatar alt={row.fio} src={row.avatarUrl} />
-            <Stack sx={{ typography: 'body2', flex: '1 1 auto' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar alt={row.fio} src={row.avatarUrl} sx={{ mr: 2 }} />
+            <Stack>
               <Link
                 component={RouterLink}
                 href={editHref}
-                color="inherit"
                 variant="subtitle2"
                 sx={{ cursor: 'pointer' }}
               >
@@ -156,19 +170,17 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
           </Box>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {row.department || '—'}
-        </TableCell>
+        <TableCell>{row.department || '—'}</TableCell>
 
         <TableCell>
           <Box sx={{ minWidth: 80 }}>
             <LinearProgress
               variant="determinate"
-              value={row.overall_performance}
+              value={row.overall_performance || 0}
               sx={{ mb: 0.5 }}
             />
             <Typography variant="caption" sx={{ color: 'text.disabled' }}>
-              {`${row.overall_performance}%`}
+              {(row.overall_performance || 0) + '%'}
             </Typography>
           </Box>
         </TableCell>
@@ -178,24 +190,34 @@ export function EmployeeTableRow({ row, selected, editHref, onSelectRow, onDelet
         <TableCell>{row.activity ?? '—'}</TableCell>
         <TableCell>{row.quality ?? '—'}</TableCell>
 
+        {/* Отображение статуса (active/pending/banned...) */}
         <TableCell>
-          <Label
-            variant="soft"
-            color={getStatusColor(row.status)}
-          >
+          <Label variant="soft" color={getStatusColor(row.status)}>
             {row.status}
           </Label>
         </TableCell>
 
+        {/* Действия */}
         <TableCell align="right">
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <IconButton
-              color={menuActions.open ? 'inherit' : 'default'}
-              onClick={menuActions.onOpen}
-            >
-              <Iconify icon="eva:more-vertical-fill" />
-            </IconButton>
-          </Box>
+          {/* Кнопка "Подтвердить" видна только если (owner || admin) и сотрудник в статусе pending */}
+          {canConfirm && (
+            <Tooltip title="Подтвердить сотрудника">
+              <Button
+                size="small"
+                variant="outlined"
+                color="success"
+                onClick={handleConfirmEmployee}
+                sx={{ mr: 1 }}
+              >
+                Подтвердить
+              </Button>
+            </Tooltip>
+          )}
+
+          {/* Кнопка "Ещё" (Меню) */}
+          <IconButton onClick={menuActions.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
         </TableCell>
       </TableRow>
 
