@@ -1,210 +1,230 @@
-// invoice-new-edit-form.jsx
-
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
-import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import Box from '@mui/material/Box';
+import { useState, useEffect } from 'react';
+import { Box } from '@mui/material';
 import Card from '@mui/material/Card';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useEffect } from 'react';
 
-import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-
-import { today, fIsAfter } from 'src/utils/format-time';
-
-import { _addressBooks } from 'src/_mock';
-
-import { Form, schemaHelper } from 'src/components/hook-form';
+import { Form } from 'src/components/hook-form';
+import { toast } from 'src/components/snackbar';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import { InvoiceNewEditAddress } from './invoice-new-edit-address';
 import { InvoiceNewEditStatusDate } from './invoice-new-edit-status-date';
-import { defaultItem, InvoiceNewEditDetails } from './invoice-new-edit-details';
+import { InvoiceNewEditDetails, defaultItem } from './invoice-new-edit-details';
 
 import axiosInstance, { endpoints } from 'src/lib/axios';
-import { toast } from 'src/components/snackbar';
-// ----------------------------------------------------------------------
 
-// Zod-схема + валидация
-export const NewInvoiceSchema = zod.object({
-  document_type: zod.enum(['invoice', 'kp', 'act', 'sf']).default('invoice'),
+// ----------------------------------------------------------------------
+// Шаг 1. Схема валидации через Zod
+
+// Пример: можно расширять по ситуации (kp, act, nakladnaya)
+const DocTypeEnum = zod.enum(['invoice', 'kp', 'act', 'sf', 'nakladnaya']);
+
+const NewInvoiceSchema = zod.object({
+  // Тип документа
+  document_type: DocTypeEnum.default('invoice'),
+  // Статус
   status: zod.string().default('draft'),
-  due_date: zod.date({
-    required_error: 'Due date is required',
-  }),
-  billing_from: zod.number({
-    required_error: 'Supplier is required',
-  }),
-  billing_to: zod.number({
-    required_error: 'Customer is required',
-  }),
+  // Дата окончания (например, "срок оплаты")
+  due_date: zod.date().nullable().optional(),
+  // Поставщик
+  billing_from: zod.number().or(zod.string()).default(''),
+  // Клиент
+  billing_to: zod.number().or(zod.string()).default(''),
+
+  // Массив товаров
   items: zod.array(
     zod.object({
-      title: zod.string().min(1, 'Title is required'),
-      description: zod.string().optional(),
-      service: zod.string().min(1, 'Service is required'),
-      quantity: zod.number().int().positive(),
-      unit_price: zod.number().nonnegative(),
-      total_price: zod.number().optional()
+      title: zod.string().min(1, 'Название обязательно'),
+      service: zod.string().default(0),
+      // Кол-во
+      quantity: zod
+        .number({
+          required_error: 'Количество обязательно',
+          invalid_type_error: 'Количество должно быть числом',
+        })
+        .int('Количество должно быть целым числом')
+        .min(1, 'Минимум 1 единица'), 
+      // Цена
+      unit_price: zod
+        .number({
+          required_error: 'Цена обязательна',
+          invalid_type_error: 'Цена должна быть числом',
+        })
+        .nonnegative('Цена не может быть отрицательной'),
+      total_price: zod.number().default(0),
     })
-  ).min(1, 'At least one item is required'),
-  subtotal: zod.number().nonnegative(),
-  shipping: zod.number().nonnegative().default(0),
-  discount: zod.number().nonnegative().default(0),
-  tax: zod.number().nonnegative().default(0),
-  total: zod.number().nonnegative(),
-  notes: zod.string().optional()
+  ).min(1, 'Нужно добавить хотя бы одну позицию товаров'),
+
+  // Поля для расчёта
+  subtotal: zod.number().default(0),
+  shipping: zod.number().default(0),
+  discount: zod.number().default(0),
+  tax: zod.number().default(0),
+  total: zod.number().default(0),
+
+  notes: zod.string().optional(),
 });
 
 // ----------------------------------------------------------------------
+// Шаг 2. Основной компонент
 
 export function InvoiceNewEditForm({ currentInvoice }) {
   const router = useRouter();
-  const loadingSave = useBoolean();
-  const loadingSend = useBoolean();
+  const loadingSave = useBoolean(); // Состояние кнопки "Save as Draft"
+  const loadingSend = useBoolean(); // Состояние кнопки "Create & Send"
 
+  const [vatPerUnit, setVatPerUnit] = useState(0);
+
+
+  // Значения по умолчанию для новой формы
   const defaultValues = {
     document_type: 'invoice',
     status: 'draft',
     due_date: null,
-    billing_from: null,
-    billing_to: null,
-    items: [{
-      title: '',
-      description: '',
-      service: '',
-      quantity: 1,
-      unit_price: 0,
-      total_price: 0
-    }],
+    billing_from: '',
+    billing_to: '',
+    items: [defaultItem], // хотя бы одна строка товара
     subtotal: 0,
     shipping: 0,
     discount: 0,
     tax: 0,
     total: 0,
-    notes: ''
+    notes: '',
   };
 
+  // Инициализируем React Hook Form
   const methods = useForm({
-    mode: 'all',
+    mode: 'onChange',
     resolver: zodResolver(NewInvoiceSchema),
     defaultValues,
-    values: currentInvoice ? {
-      ...currentInvoice,
-      due_date: currentInvoice.dueDate ? new Date(currentInvoice.dueDate) : null,
-      billing_from: currentInvoice.invoice?.billing_from,
-      billing_to: currentInvoice.invoice?.billing_to,
-      items: currentInvoice.items?.map(item => ({
-        title: item.title,
-        description: item.description || '',
-        service: item.service,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        total_price: item.total_price
-      }))
-    } : undefined
+    // Если есть "currentInvoice" (редактируемый), можно подставить в "values"
+    values: currentInvoice
+      ? {
+          ...currentInvoice,
+          due_date: currentInvoice.dueDate
+            ? new Date(currentInvoice.dueDate)
+            : null,
+          billing_from: currentInvoice.billing_from || '',
+          billing_to: currentInvoice.billing_to || '',
+          items: currentInvoice.items?.map((item) => ({
+            title: item.title || '',
+            description: item.description || '',
+            service: item.service || '',
+            quantity: item.quantity || 1,
+            unit_price: item.unit_price || 0,
+            total_price: item.total_price || 0,
+          })) || [defaultItem],
+        }
+      : undefined,
   });
 
-  const { 
-    watch, 
-    setValue, 
+  // Деструктурируем удобства
+  const {
+    watch,
+    setValue,
     handleSubmit,
     reset,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
   } = methods;
-  
-  const items = watch('items');
-  
-  useEffect(() => {
-    const subtotal = items.reduce((sum, item) => 
-      sum + (item.quantity * item.unit_price), 0);
-    
-    setValue('subtotal', subtotal);
-    
-    const total = subtotal + 
-      (watch('shipping') || 0) + 
-      (watch('tax') || 0) - 
-      (watch('discount') || 0);
-    
-    setValue('total', total);
-  }, [items, setValue, watch]);
 
-  const handleSaveAsDraft = handleSubmit(async (data) => {
+  // Следим за items, shipping, discount, tax, чтобы пересчитать subtotal / total
+  const items = watch('items');
+  const shipping = watch('shipping');
+  const discount = watch('discount');
+  const tax = watch('tax');
+
+  useEffect(() => {
+    // Подсчёт subtotal = сумма total_price по всем строкам
+    let calcSubtotal = 0;
+    items.forEach((it) => {
+      calcSubtotal += it.quantity * it.unit_price;
+    });
+
+    // total = subtotal + shipping + tax - discount
+    const calcTotal = calcSubtotal + Number(shipping) + Number(tax) - Number(discount);
+
+    // Обновляем поля
+    setValue('subtotal', calcSubtotal);
+    setValue('total', calcTotal);
+  }, [items, shipping, discount, tax, setValue]);
+
+  // Функция "Сохранить как черновик"
+  const handleSaveAsDraft = handleSubmit(async (formData) => {
     loadingSave.onTrue();
     try {
+      // Если редактируем уже существующий
       if (currentInvoice?.id) {
-        await axiosInstance.put(
-          endpoints.invoice.update(currentInvoice.id),
-          {
-            ...data,
-            status: 'draft',
-            items: data.items.map(item => ({
-              ...item,
-              total_price: item.quantity * item.unit_price
-            }))
-          }
-        );
-        toast.success('Draft updated successfully');
+        await axiosInstance.put(endpoints.invoice.update(currentInvoice.id), {
+          ...formData,
+          status: 'draft',
+          items: formData.items.map((i) => ({
+            ...i,
+            total_price: i.quantity * i.unit_price,
+          })),
+        });
+        toast.success('Draft updated successfully!');
       } else {
-        const response = await axiosInstance.post(
-          endpoints.invoice.create,
-          {
-            ...data,
-            status: 'draft',
-            items: data.items.map(item => ({
-              ...item,
-              total_price: item.quantity * item.unit_price
-            }))
-          }
-        );
-        toast.success('Draft created successfully');
+        // Создаём новый
+        await axiosInstance.post(endpoints.invoice.create, {
+          ...formData,
+          status: 'draft',
+          items: formData.items.map((i) => ({
+            ...i,
+            total_price: i.quantity * i.unit_price,
+          })),
+        });
+        toast.success('Draft created successfully!');
       }
-      
+
       reset();
-      router.push(paths.dashboard.invoice.root);
+      router.push('/dashboard/invoices'); // либо paths.dashboard.invoice.root
     } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.error || 'Error saving draft');
+      console.error('handleSaveAsDraft error:', error);
+      toast.error(error?.message || 'Failed to save draft');
     } finally {
       loadingSave.onFalse();
     }
   });
 
-  const handleCreateAndSend = handleSubmit(async (data) => {
+  // Функция "Создать и Отправить"
+  const handleCreateAndSend = handleSubmit(async (formData) => {
     loadingSend.onTrue();
     try {
       const payload = {
-        ...data,
+        ...formData,
         status: 'pending',
-        sent: 1,
-        items: data.items.map(item => ({
-          ...item,
-          total_price: item.quantity * item.unit_price
-        }))
+        sent: 1, // признак отправки
+        items: formData.items.map((i) => ({
+          ...i,
+          total_price: i.quantity * i.unit_price,
+        })),
       };
 
       if (currentInvoice?.id) {
-        await axiosInstance.put(
-          endpoints.invoice.update(currentInvoice.id),
-          payload
-        );
-        toast.success('Invoice updated and sent');
+        // Обновляем счёт
+        await axiosInstance.put(endpoints.invoice.update(currentInvoice.id), payload);
+        toast.success('Invoice updated and sent!');
       } else {
+        // Создаём новый счёт
         await axiosInstance.post(endpoints.invoice.create, payload);
-        toast.success('Invoice created and sent');
+        toast.success('Invoice created and sent!');
       }
 
       reset();
-      router.push(paths.dashboard.invoice.root);
+      router.push('/dashboard/invoices');
     } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.error || 'Error creating/sending invoice');
+      console.error('handleCreateAndSend error:', error);
+      toast.error(error?.message || 'Failed to create and send');
     } finally {
       loadingSend.onFalse();
     }
   });
+
 
   return (
     <Form methods={methods}>
@@ -214,11 +234,11 @@ export function InvoiceNewEditForm({ currentInvoice }) {
         <InvoiceNewEditDetails />
       </Card>
 
-      <Box sx={{ mt: 3, gap: 2, display: 'flex', justifyContent: 'flex-end' }}>
+     <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <LoadingButton
           color="inherit"
-          size="large"
           variant="outlined"
+          size="large"
           loading={loadingSave.value && isSubmitting}
           onClick={handleSaveAsDraft}
         >
@@ -226,8 +246,8 @@ export function InvoiceNewEditForm({ currentInvoice }) {
         </LoadingButton>
 
         <LoadingButton
-          size="large"
           variant="contained"
+          size="large"
           loading={loadingSend.value && isSubmitting}
           onClick={handleCreateAndSend}
         >

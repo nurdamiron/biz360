@@ -1,5 +1,3 @@
-// invoice-new-edit-status-date.jsx
-
 import { useFormContext } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
@@ -11,7 +9,6 @@ import { Field } from 'src/components/hook-form';
 
 export function InvoiceNewEditStatusDate() {
   const { watch } = useFormContext();
-
   const values = watch();
 
   return (
@@ -24,28 +21,47 @@ export function InvoiceNewEditStatusDate() {
         flexDirection: { xs: 'column', sm: 'row' },
       }}
     >
+      {/* Номер документа */}
       <Field.Text
-        disabled
         name="invoiceNumber"
         label="Номер документа"
-        value={values.invoiceNumber}
+        // value={values.invoiceNumber} // если нужно
       />
 
-      <Field.Select
+      {/* Статус */}
+      {/* <Field.Select
         fullWidth
         name="status"
         label="Status"
-        slotProps={{ inputLabel: { shrink: true } }}
       >
-        {['paid', 'pending', 'overdue', 'draft'].map((option) => (
+        {['draft', 'pending', 'paid', 'overdue'].map((option) => (
           <MenuItem key={option} value={option} sx={{ textTransform: 'capitalize' }}>
             {option}
           </MenuItem>
         ))}
+      </Field.Select> */}
+
+      {/* Выбор типа документа */}
+      <Field.Select
+        name="document_type"
+        label="Тип документа"
+      >
+        <MenuItem value="invoice">Счет на оплату</MenuItem>
+        <MenuItem value="nakladnaya">Накладная</MenuItem>
+        <MenuItem value="sf">Счет-фактура</MenuItem>
       </Field.Select>
 
-      <Field.DatePicker name="createDate" label="Дата создания" />
-      <Field.DatePicker name="dueDate" label="Дата окончания" />
+      {/* Дата создания */}
+      <Field.DatePicker
+        name="createDate"
+        label="Дата создания"
+      />
+
+      {/* Дата окончания */}
+      <Field.DatePicker
+        name="due_date"
+        label="Дата окончания"
+      />
     </Box>
   );
 }

@@ -68,17 +68,20 @@ export function InvoiceNewEditAddress() {
   return (
     <>
       <Stack
-        spacing={{ xs: 3, md: 5 }}
-        direction={{ xs: 'column', md: 'row' }}
-        divider={
-          <Divider
-            flexItem
-            orientation={mdUp ? 'vertical' : 'horizontal'}
-            sx={{ borderStyle: 'dashed' }}
-          />
-        }
-        sx={{ p: 3 }}
-      >
+      spacing={{ xs: 3, md: 5 }}
+      direction={{ xs: 'column', md: 'row' }}
+      divider={
+        // Можно Divider для красоты
+        <Box
+          sx={{
+            borderLeft: { xs: 'none', md: '1px dashed grey' },
+            borderTop: { xs: '1px dashed grey', md: 'none' },
+            minHeight: { md: 120 },
+          }}
+        />
+      }
+      sx={{ p: 3 }}
+    >
         {/* Левая часть: От (Поставщик) */}
         <Stack sx={{ width: 1 }}>
           <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
