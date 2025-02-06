@@ -10,21 +10,27 @@ import {
   DialogActions,
   DialogContent,
   CircularProgress,
+  Avatar,
+  Typography,
 } from '@mui/material';
 import { Iconify } from 'src/components/iconify';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { toast } from 'src/components/snackbar';
 import { InvoiceCustomer } from './invoice-customer-view';
+import { ConfirmationDialog } from 'src/components/confirmationDialog';
+import { kazakhstanBanks } from './kazakhstanBanks';
+
 
 export function CustomerList({ open, onClose, onSelect, selected }) {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Модалка для создания/редактирования
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [currentEditingCustomer, setCurrentEditingCustomer] = useState(null);
-
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  
 
   const fetchCustomers = useCallback(async () => {
     setLoading(true);
@@ -66,15 +72,25 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
     onClose();
   };
 
-  const handleDeleteCustomer = async (event, customerId) => {
+  const handleDeleteIconClick = (event, customerId) => {
     event.stopPropagation();
+    setDeleteId(customerId);
+    setShowConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await axiosInstance.delete(`${endpoints.customer.delete}/${customerId}`);
-      toast.success('Клиент успешно удалён');
-      fetchCustomers();
+      if (deleteId) {
+        await axiosInstance.delete(endpoints.customer.delete(deleteId));
+        toast.success('Клиент успешно удалён');
+        fetchCustomers();
+      }
     } catch (error) {
       console.error('Ошибка при удалении клиента:', error);
       toast.error('Не удалось удалить клиента');
+    } finally {
+      setShowConfirm(false);
+      setDeleteId(null);
     }
   };
 
@@ -88,7 +104,7 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
             justifyContent: 'space-between',
           }}
         >
-          Заказчик
+          Заказчики
           <Button
             size="small"
             variant="contained"
@@ -106,86 +122,84 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
             </Box>
           ) : (
             <List sx={{ width: '100%' }}>
-              {customers.map((customer) => (
-                <ListItem
-                key={customer.id}
-                onMouseEnter={() => setHoveredItem(customer.id)}
-                onMouseLeave={() => setHoveredItem(null)}
-                onClick={() => handleSelectCustomer(customer)}
-                sx={{
-                  cursor: 'pointer',
-                  py: 2,
-                  px: 3,
-                  mb: 1, // Добавляем отступы между элементами
-                  borderRadius: 1, // Закругляем углы
-                  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)', // Тень для выделения элемента
-                  transition: 'all 0.2s',
-                  bgcolor: selected === customer.id ? 'action.selected' : 'background.paper',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                  },
-                }}
-              >
-                <Box
-                  sx={{
-                    width: '100%',
-                    display: 'flex',
-                    flexDirection: 'column', // Отображаем данные в колонку
-                    gap: 1, // Расстояние между строками
-                  }}
-                >
-                  <Box sx={{ typography: 'subtitle1', fontWeight: 'bold' }}>{customer.name}</Box>
-                  <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
-                    БИН/ИИН: {customer.bin_iin}
-                  </Box>
-                  {/* <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
-                    Email: {customer.email}
-                  </Box>
-                  <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
-                    Адрес: {customer.address}
-                  </Box> */}
-                </Box>
-              
-                {/* Блок действий */}
-                {(hoveredItem === customer.id || selected === customer.id) && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-                    <IconButton
-                      edge="end"
-                      color="primary"
-                      onClick={(e) => handleOpenEditCustomer(e, customer)}
-                      sx={{ mr: 1 }}
-                    >
-                      <Iconify icon="solar:pen-bold" />
-                    </IconButton>
-                    <IconButton
-                      edge="end"
-                      color="error"
-                      onClick={(e) => handleDeleteCustomer(e, customer.id)}
-                      sx={{ mr: 1 }}
-                    >
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                    {/* <IconButton
-                      edge="end"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSelectCustomer(customer);
-                      }}
-                    >
-                      <Iconify
-                        icon={
-                          selected === customer.id ? 'mingcute:check-fill' : 'mingcute:check-line'
-                        }
-                        sx={{
-                          color: selected === customer.id ? 'primary.main' : 'text.secondary',
-                        }}
-                      />
-                    </IconButton> */}
-                  </Box>
-                )}
-              </ListItem>
-              
-              ))}
+              {customers.map((customer) => {
+                const bank = kazakhstanBanks.find((b) => b.name === customer.bank_name);
+
+                return (
+                  <ListItem
+                    key={customer.id}
+                    onMouseEnter={() => setHoveredItem(customer.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    onClick={() => handleSelectCustomer(customer)}
+                    sx={{
+                      cursor: 'pointer',
+                      py: 2,
+                      px: 3,
+                      mb: 1,
+                      borderRadius: 1,
+                      boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s',
+                      bgcolor: selected === customer.id ? 'action.selected' : 'background.paper',
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                      },
+                    }}
+                  >
+                    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {customer.name}
+                      </Typography>
+
+                      {customer.company_type && (
+                        <Typography variant="body2" color="text.secondary">
+                          Тип организации: {customer.company_type}
+                        </Typography>
+                      )}
+
+                      <Typography variant="body2" color="text.secondary">
+                        БИН/ИИН: {customer.bin_iin}
+                      </Typography>
+
+                      {customer.iik && (
+                        <Typography variant="body2" color="text.secondary">
+                          Номер счета: {customer.iik}
+                        </Typography>
+                      )}
+
+                      {bank && (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Avatar src={bank.logo} alt={bank.name} sx={{ width: 24, height: 24 }} />
+                          <Typography variant="body2">{bank.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            (БИК: {bank.bik})
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {(hoveredItem === customer.id || selected === customer.id) && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
+                        <IconButton
+                          edge="end"
+                          color="primary"
+                          onClick={(e) => handleOpenEditCustomer(e, customer)}
+                          sx={{ mr: 1 }}
+                        >
+                          <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          color="error"
+                          onClick={(e) => handleDeleteIconClick(e, customer.id)}
+                          sx={{ mr: 1 }}
+                        >
+                          <Iconify icon="solar:trash-bin-trash-bold" />
+                        </IconButton>
+                      </Box>
+                    )}
+                  </ListItem>
+                );
+              })}
             </List>
           )}
         </DialogContent>
@@ -202,6 +216,19 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
         onClose={() => setShowCustomerForm(false)}
         onSave={handleCustomerSaved}
         currentCustomer={currentEditingCustomer}
+      />
+
+      <ConfirmationDialog
+        open={showConfirm}
+        title="Подтвердите удаление"
+        description="Вы действительно хотите удалить клиента?"
+        confirmText="Удалить"
+        cancelText="Отмена"
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          setShowConfirm(false);
+          setDeleteId(null);
+        }}
       />
     </>
   );

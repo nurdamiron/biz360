@@ -9,13 +9,18 @@ import {
   Stack,
   Checkbox,
   FormControlLabel,
-  MenuItem,
-  Select,
-  InputLabel,
   FormControl,
+  ListItemText,
+  ListItemIcon,
+  Avatar,
+  Select,
+  MenuItem,
+  InputLabel,
+  Box
 } from '@mui/material';
 import { toast } from 'src/components/snackbar';
 import axiosInstance, { endpoints } from 'src/lib/axios';
+import { kazakhstanBanks } from './kazakhstanBanks';
 
 /*
 Пропсы:
@@ -24,6 +29,7 @@ import axiosInstance, { endpoints } from 'src/lib/axios';
 - onSave (func) — колбэк после успешного сохранения (чтобы обновить список)
 - currentSupplier (object | null) — если есть, значит редактируем
 */
+ 
 
 export function InvoiceSupplier({ open, onClose, onSave, currentSupplier }) {
   const isEditMode = Boolean(currentSupplier);
@@ -44,6 +50,24 @@ export function InvoiceSupplier({ open, onClose, onSave, currentSupplier }) {
     is_resident: true,
     additional_info: '',
   });
+
+
+  const validateFields = () => {
+    const { company_type, bin_iin, bank_name, bank_bik, iik, kbe } = formData;
+
+    if (company_type && !bin_iin) {
+      toast.error('Для выбранного типа организации необходимо указать БИН/ИИН.');
+      return false;
+    }
+
+    if ((bank_name || bank_bik || iik || kbe) && (!bank_name || !bank_bik || !iik || !kbe)) {
+      toast.error('Необходимо заполнить все банковские реквизиты: ИИК, КБЕ, КНП.');
+      return false;
+    }
+
+    return true;
+  };
+
 
   // При открытии (и при смене currentSupplier) заполняем/очищаем поля
   useEffect(() => {
@@ -91,11 +115,27 @@ export function InvoiceSupplier({ open, onClose, onSave, currentSupplier }) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleBankChange = (event) => {
+    const selectedBankName = event.target.value;
+    const selectedBank = kazakhstanBanks.find(
+      (bank) => bank.name === selectedBankName
+    );
+    if (selectedBank) {
+      setFormData((prev) => ({
+        ...prev,
+        bank_name: selectedBank.name,
+        bank_bik: selectedBank.bik,
+      }));
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.name || !formData.email || !formData.phone_number || !formData.address) {
       toast.error('Пожалуйста, заполните хотя бы поля (Имя/Название, E-mail, Телефон, Адрес)');
       return;
     }
+
+    if (!validateFields()) return;
 
     try {
       let additionalInfoParsed = null;
@@ -103,7 +143,7 @@ export function InvoiceSupplier({ open, onClose, onSave, currentSupplier }) {
         try {
           additionalInfoParsed = JSON.parse(formData.additional_info);
         } catch (error) {
-          toast.error('Поле "Доп. информация" должно быть корректным JSON');
+          toast.error('Поле "Доп. информация" должно быть корректным');
           return;
         }
       }
@@ -182,16 +222,42 @@ export function InvoiceSupplier({ open, onClose, onSave, currentSupplier }) {
             value={formData.bin_iin}
             onChange={(e) => handleChange('bin_iin', e.target.value)}
           />
+          <FormControl fullWidth>
+            <InputLabel>Название банка</InputLabel>
+            <Select
+              value={formData.bank_name}
+              onChange={handleBankChange}
+              displayEmpty
+              renderValue={(selected) => {
+                if (!selected) return '';
+          
+                const selectedBank = kazakhstanBanks.find((bank) => bank.name === selected);
+                if (!selectedBank) return selected; // На случай ошибки
+          
+                return (
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Avatar src={selectedBank.logo} alt={selectedBank.name} sx={{ width: 24, height: 24 }} />
+                    {selectedBank.name}
+                  </Box>
+                );
+              }}
+            >
+              {kazakhstanBanks.map((bank) => (
+                <MenuItem key={bank.bik} value={bank.name}>
+                  <ListItemIcon>
+                    <Avatar src={bank.logo} alt={bank.name} sx={{ width: 24, height: 24 }} />
+                  </ListItemIcon>
+                  <ListItemText primary={bank.name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
-            label="Название банка"
-            value={formData.bank_name}
-            onChange={(e) => handleChange('bank_name', e.target.value)}
-          />
-          <TextField
-            label="БИК (Банковский идентификационный код)"
-            value={formData.bank_bik}
-            onChange={(e) => handleChange('bank_bik', e.target.value)}
-          />
+                      label="БИК (банка)"
+                      value={formData.bank_bik}
+                      onChange={(e) => handleChange('bank_bik', e.target.value)}
+                      disabled
+                    />
           <TextField
             label="ИИК (Индивидуальный идентификационный код)"
             value={formData.iik}

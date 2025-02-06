@@ -17,7 +17,8 @@ import { Iconify } from 'src/components/iconify';
 import { Field } from 'src/components/hook-form';
 import { fetcher, endpoints } from 'src/lib/axios';
 
-// Исходные поля для новой строки
+
+// Исходные поля для новой строки (товара)
 export const defaultItem = {
   productId: '',
   title: '',
@@ -28,7 +29,7 @@ export const defaultItem = {
   total_price: 0,
 };
 
-// Функция-утилита: получить имена полей для items[index]
+// Функция-утилита: получить имена полей items[index]
 const getFieldNames = (index) => ({
   productId: `items[${index}].productId`,
   title: `items[${index}].title`,
@@ -39,24 +40,29 @@ const getFieldNames = (index) => ({
   total_price: `items[${index}].total_price`,
 });
 
-// Компонент «одна позиция товара»
+function shouldApplyVat(companyType) {
+  if (!companyType) return false;
+  const vatCompanies = ['ТОО', 'АО', 'ГП', 'ПК'];
+  return vatCompanies.includes(companyType);
+}
+
+// Одна строка (товар) в списке
 function InvoiceItemRow({ index, onRemove, productList }) {
   const { watch, setValue } = useFormContext();
   const fieldNames = getFieldNames(index);
 
-  // Локально храним детали выбранного товара (чтобы отобразить «Доступно: N»)
+  // Храним детали выбранного товара (для "Доступно: ...")
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  // Следим за количеством и ценой
+  // Следим за кол-вом и ценой
   const quantity = watch(fieldNames.quantity) || 1;
   const unitPrice = watch(fieldNames.unit_price) || 0;
 
-  // При выборе товара
+  // При выборе товара в Select
   const handleSelectProduct = async (event) => {
     const productId = event.target.value;
-
-    // Если пользователь сбросил выбор:
     if (!productId) {
+      // Сброс
       setSelectedProduct(null);
       setValue(fieldNames.productId, '');
       setValue(fieldNames.title, '');
@@ -68,16 +74,19 @@ function InvoiceItemRow({ index, onRemove, productList }) {
       return;
     }
 
+    const existingItem = watch('items').find((item, i) => i !== index && item.productId === productId);
+    if (existingItem) {
+      alert('Этот товар уже добавлен в счет!');
+      return;
+    }
+
     try {
-      // Фетчим детали
       const productResp = await fetcher(endpoints.product.details(productId));
-      // Ваш бэкенд возвращает { success: true, data: {...} }, значит берем productResp.data
-      const prod = productResp.data;
-      
+      const prod = productResp.data; 
       if (prod) {
         setSelectedProduct(prod);
 
-        // Заполняем поля формы
+        // Заполняем поля
         setValue(fieldNames.productId, productId);
         setValue(fieldNames.title, prod.name || '');
         setValue(
@@ -86,21 +95,18 @@ function InvoiceItemRow({ index, onRemove, productList }) {
         );
         setValue(fieldNames.service, prod.code || '');
         setValue(fieldNames.unit_price, prod.price || 0);
-
-        // Количество по умолчанию = 1
         setValue(fieldNames.quantity, 1);
 
-        // Пересчёт total_price = price * 1
-        const total = (prod.price || 0) * 1;
-        setValue(fieldNames.total_price, total);
+        // total_price = price * 1
+        setValue(fieldNames.total_price, prod.price || 0);
       }
     } catch (error) {
-      console.error('Ошибка при получении деталей товара:', error);
+      console.error('Ошибка при получении деталей:', error);
       setSelectedProduct(null);
     }
   };
 
-  // Автоматический пересчёт «Итого» (total_price) при изменении quantity / unitPrice
+  // Пересчёт total_price при изменениях
   useEffect(() => {
     const total = Number(quantity) * Number(unitPrice);
     setValue(fieldNames.total_price, total);
@@ -108,7 +114,6 @@ function InvoiceItemRow({ index, onRemove, productList }) {
 
   return (
     <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
-      {/* Блок с полями в одну строку (или колонку на мобиле) */}
       <Box
         sx={{
           gap: 2,
@@ -116,7 +121,7 @@ function InvoiceItemRow({ index, onRemove, productList }) {
           flexDirection: { xs: 'column', md: 'row' },
         }}
       >
-        {/* Селект: Выбрать продукт */}
+        {/* Селект продукта */}
         <Field.Select
           name={fieldNames.productId}
           label="Выбрать продукт"
@@ -124,9 +129,7 @@ function InvoiceItemRow({ index, onRemove, productList }) {
           slotProps={{
             select: {
               MenuProps: {
-                slotProps: {
-                  paper: { sx: { maxHeight: 220 } },
-                },
+                slotProps: { paper: { sx: { maxHeight: 100, maxWidth: 200 } } },
               },
             },
           }}
@@ -147,6 +150,8 @@ function InvoiceItemRow({ index, onRemove, productList }) {
           name={fieldNames.service}
           label="Номенклатурный номер"
           disabled
+          sx={{ maxWidth: { md: 150} }}
+
         />
 
         {/* Количество */}
@@ -156,13 +161,11 @@ function InvoiceItemRow({ index, onRemove, productList }) {
             type="number"
             name={fieldNames.quantity}
             label="Кол-во"
-            inputProps={{
-              min: 1,
-            }}
-            sx={{ maxWidth: { md: 80 } }}
+            inputProps={{ min: 1 }}
+            sx={{ maxWidth: { md: 300} }}
           />
 
-          {/* Если есть выбранный товар, показываем «Доступно: ...» + предупреждение */}
+          {/* «Доступно: ...» + проверка на превышение */}
           {selectedProduct && (
             <>
               <Typography variant="caption" sx={{ color: 'text.secondary' }}>
@@ -177,7 +180,7 @@ function InvoiceItemRow({ index, onRemove, productList }) {
           )}
         </Box>
 
-        {/* Цена (read-only) */}
+        {/* Цена */}
         <Field.Text
           size="small"
           name={fieldNames.unit_price}
@@ -189,7 +192,7 @@ function InvoiceItemRow({ index, onRemove, productList }) {
           sx={{ maxWidth: { md: 100 } }}
         />
 
-        {/* Итог (read-only) */}
+        {/* Итого */}
         <Field.Text
           disabled
           size="small"
@@ -199,7 +202,7 @@ function InvoiceItemRow({ index, onRemove, productList }) {
             startAdornment: <InputAdornment position="start">₸</InputAdornment>,
           }}
           sx={{
-            maxWidth: { md: 110 },
+            maxWidth: { md: 150 },
             [`& .${inputBaseClasses.input}`]: {
               textAlign: 'right',
             },
@@ -207,7 +210,7 @@ function InvoiceItemRow({ index, onRemove, productList }) {
         />
       </Box>
 
-      {/* Кнопка "Удалить" строку */}
+      {/* Кнопка Удалить строку */}
       <Button size="small" color="error" onClick={onRemove}>
         Удалить
       </Button>
@@ -215,24 +218,25 @@ function InvoiceItemRow({ index, onRemove, productList }) {
   );
 }
 
-// Основной компонент «InvoiceNewEditDetails»
 export function InvoiceNewEditDetails() {
   const { control, setValue, watch } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
+
+  // 2) Определяем логику «НДС включать или нет» по company_type поставщика
+  const supplierCompanyType = watch('supplier_company_type');
+  const isVatSupplier = shouldApplyVat(supplierCompanyType);
 
   const [productList, setProductList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Фетч списка продуктов (один раз)
+  // 3) Функция загрузки списка продуктов
   const fetchProducts = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      // Запрашиваем список продуктов
       const response = await fetcher(endpoints.product.list);
-      // Предположим формат { products: [ {id, name, price, quantity, ...}, ... ] }
       setProductList(response.products || []);
     } catch (err) {
       console.error('Ошибка загрузки продуктов:', err);
@@ -242,33 +246,46 @@ export function InvoiceNewEditDetails() {
     }
   }, []);
 
+  
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+  
 
-  // Слежение за полями формы
+  // Достаём нужные поля
   const items = watch('items') || [];
-  const shipping = watch('shipping') || 0;
-  const discount = watch('discount') || 0;
-  const tax = watch('tax') || 0;
+  const shipping = Number(watch('shipping') || 0);
+  const discount = Number(watch('discount') || 0);
 
-  // Подытог = сумма total_price по всем строкам
-  const subtotal = items.reduce((acc, it) => acc + (Number(it.total_price) || 0), 0);
-  // Итого = subtotal + shipping + tax - discount
-  const total = subtotal + Number(shipping) + Number(tax) - Number(discount);
+  const total = items.reduce((acc, item) => acc + (Number(item.total_price) || 0), 0) + shipping - discount;
 
-  // Записываем в форму
+
+  // Подытог
+  const subtotal = isVatSupplier ? Math.round(total / 1.12) : total;
+
+  const tax = isVatSupplier ? Math.round(subtotal * 0.12) : 0;
+
+  // Если поставщик платит НДС => tax = 12% от subtotal
   useEffect(() => {
+    if (isVatSupplier) {
+      setValue('tax', tax);
+    } else {
+      setValue('tax', 0);
+    }
+  }, [isVatSupplier, subtotal, setValue]);
+  // Итого
+  const realTax = isVatSupplier ? watch('tax') : 0;
+
+  // Записываем итог в form
+  useEffect(() => {
+    setValue('tax', tax);
     setValue('subtotal', subtotal);
     setValue('total', total);
-  }, [subtotal, total, setValue]);
+  }, [tax, subtotal, total, setValue]);
 
-  // Если идёт загрузка
   if (isLoading) {
     return <Typography>Загрузка списка продуктов...</Typography>;
   }
-
-  // Если ошибка
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
@@ -286,21 +303,14 @@ export function InvoiceNewEditDetails() {
         Детали заказа:
       </Typography>
 
-      {/* Список позиций (InvoiceItemRow) */}
       <Stack divider={<Divider flexItem sx={{ borderStyle: 'dashed' }} />} spacing={3}>
         {fields.map((item, index) => (
-          <InvoiceItemRow
-            key={item.id}
-            index={index}
-            productList={productList}
-            onRemove={() => remove(index)}
-          />
+          <InvoiceItemRow key={item.id} index={index} productList={productList} onRemove={() => remove(index)} />
         ))}
       </Stack>
 
       <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
 
-      {/* Кнопка «Добавить товар» + поля «Доставка, Скидка, Налог» */}
       <Box
         sx={{
           gap: 3,
@@ -312,11 +322,18 @@ export function InvoiceNewEditDetails() {
         <Button
           size="small"
           startIcon={<Iconify icon="mingcute:add-line" />}
-          onClick={() => append(defaultItem)}
+          onClick={() => {
+            const existingProductIds = watch('items').map(item => item.productId);
+            if (existingProductIds.includes('')) {
+              alert('Сначала выберите продукт для текущей строки перед добавлением новой.');
+              return;
+            }
+            append(defaultItem);
+            }}
           sx={{ flexShrink: 0 }}
-        >
+          >
           Добавить товар
-        </Button>
+          </Button>
 
         <Box
           sx={{
@@ -327,6 +344,7 @@ export function InvoiceNewEditDetails() {
             flexDirection: { xs: 'column', md: 'row' },
           }}
         >
+          {/* Доставка */}
           <Field.Text
             size="small"
             label="Доставка"
@@ -335,6 +353,7 @@ export function InvoiceNewEditDetails() {
             sx={{ maxWidth: { md: 120 } }}
           />
 
+          {/* Скидка */}
           <Field.Text
             size="small"
             label="Скидка"
@@ -343,54 +362,54 @@ export function InvoiceNewEditDetails() {
             sx={{ maxWidth: { md: 120 } }}
           />
 
-          <Field.Text
-            size="small"
-            label="Сумма НДС (12%)"
-            name="tax"
-            type="number"
-            sx={{ maxWidth: { md: 150 } }}
-          />
+          {/* Если поставщик с НДС, показываем «Сумма НДС (12%)» (disabled) */}
+          {isVatSupplier && (
+            <Field.Text
+              size="small"
+              label="Сумма НДС (12%)"
+              name="tax"
+              type="number"
+              disabled
+              sx={{ maxWidth: { md: 150 } }}
+            />
+          )}
         </Box>
       </Box>
 
-      {/* Итоговая часть */}
       <Box sx={{ mt: 3 }}>
         <Stack spacing={2}>
           {/* Подытог */}
           <Stack direction="row" justifyContent="space-between">
-            <Typography>Подытог:</Typography>
-            <Typography>{subtotal.toLocaleString()} ₸</Typography>
-          </Stack>
+              <Typography>Сумма без НДС:</Typography>
+              <Typography>{subtotal.toLocaleString()} ₸</Typography>
+            </Stack>
 
-          {/* Доставка */}
-          {shipping > 0 && (
+          {/* {shipping > 0 && (
             <Stack direction="row" justifyContent="space-between">
               <Typography>Доставка:</Typography>
               <Typography>+{shipping} ₸</Typography>
             </Stack>
-          )}
+          )} */}
 
-          {/* Налог */}
-          {tax > 0 && (
+          {isVatSupplier && (
             <Stack direction="row" justifyContent="space-between">
-              <Typography>Налог:</Typography>
-              <Typography>+{tax} ₸</Typography>
+              <Typography>НДС (12%):</Typography>
+              <Typography>{tax.toLocaleString()} ₸</Typography>
             </Stack>
           )}
 
-          {/* Скидка */}
-          {discount > 0 && (
+          {/* {discount > 0 && (
             <Stack direction="row" justifyContent="space-between">
               <Typography>Скидка:</Typography>
               <Typography color="error">-{discount} ₸</Typography>
             </Stack>
-          )}
+          )} */}
 
           <Divider sx={{ borderStyle: 'dashed' }} />
 
           {/* Итого */}
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="h6">Итого:</Typography>
+            <Typography variant="h6">Итого (с НДС):</Typography>
             <Typography variant="h6">{total.toLocaleString()} ₸</Typography>
           </Stack>
         </Stack>
@@ -398,3 +417,4 @@ export function InvoiceNewEditDetails() {
     </Box>
   );
 }
+

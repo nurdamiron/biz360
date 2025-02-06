@@ -10,12 +10,17 @@ import {
   Checkbox,
   FormControlLabel,
   FormControl,
+  ListItemText,
+  ListItemIcon,
+  Avatar,
   Select,
   MenuItem,
   InputLabel,
+  Box
 } from '@mui/material';
 import { toast } from 'src/components/snackbar';
 import axiosInstance, { endpoints } from 'src/lib/axios';
+import { kazakhstanBanks } from './kazakhstanBanks';
 
 export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
   const isEditMode = Boolean(currentCustomer);
@@ -37,6 +42,22 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
     additional_info: '',
   });
 
+  const validateFields = () => {
+      const { company_type, bin_iin, bank_name, bank_bik, iik, kbe } = formData;
+  
+      if (company_type && !bin_iin) {
+        toast.error('Для выбранного типа организации необходимо указать БИН/ИИН.');
+        return false;
+      }
+  
+      if ((bank_name || bank_bik || iik || kbe) && (!bank_name || !bank_bik || !iik || !kbe)) {
+        toast.error('Необходимо заполнить все банковские реквизиты: ИИК, КБЕ, КНП.');
+        return false;
+      }
+  
+      return true;
+    };
+  
   // При открытии / смене currentCustomer заполняем или очищаем форму
   useEffect(() => {
     if (isEditMode && currentCustomer) {
@@ -85,6 +106,22 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleBankChange = (event) => {
+    const selectedBankName = event.target.value;
+    const selectedBank = kazakhstanBanks.find(
+      (bank) => bank.name === selectedBankName
+    );
+    if (selectedBank) {
+      setFormData((prev) => ({
+        ...prev,
+        bank_name: selectedBank.name,
+        bank_bik: selectedBank.bik,
+      }));
+    }
+  };
+
+  
+
   // Сабмитим форму: создаём (POST) или обновляем (PUT)
   const handleSubmit = async () => {
     // Простейшая валидация, обязательны поля: name, email, phone_number, address
@@ -93,6 +130,9 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
       return;
     }
 
+    if (!validateFields()) return;
+
+  
     try {
       // Преобразуем доп. инфу из строки в JSON (если пользователь ввёл что-то)
       let additionalInfoParsed = null;
@@ -112,10 +152,7 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
 
       // Если редактируем
       if (isEditMode) {
-        await axiosInstance.put(
-          `${endpoints.customer.update}/${currentCustomer.id}`,
-          payload
-        );
+        await axiosInstance.put(endpoints.customer.update(currentCustomer.id), payload);
         toast.success('Клиент успешно обновлён!');
       } else {
         // Создаём
@@ -181,15 +218,42 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
             value={formData.bin_iin}
             onChange={(e) => handleChange('bin_iin', e.target.value)}
           />
-          <TextField
-            label="Название банка"
-            value={formData.bank_name}
-            onChange={(e) => handleChange('bank_name', e.target.value)}
-          />
+          <FormControl fullWidth>
+  <InputLabel>Название банка</InputLabel>
+  <Select
+    value={formData.bank_name}
+    onChange={handleBankChange}
+    displayEmpty
+    renderValue={(selected) => {
+      if (!selected) return '';
+
+      const selectedBank = kazakhstanBanks.find((bank) => bank.name === selected);
+      if (!selectedBank) return selected; // На случай ошибки
+
+      return (
+        <Box display="flex" alignItems="center" gap={1}>
+          <Avatar src={selectedBank.logo} alt={selectedBank.name} sx={{ width: 24, height: 24 }} />
+          {selectedBank.name}
+        </Box>
+      );
+    }}
+  >
+    {kazakhstanBanks.map((bank) => (
+      <MenuItem key={bank.bik} value={bank.name}>
+        <ListItemIcon>
+          <Avatar src={bank.logo} alt={bank.name} sx={{ width: 24, height: 24 }} />
+        </ListItemIcon>
+        <ListItemText primary={bank.name} />
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
           <TextField
             label="БИК (банка)"
             value={formData.bank_bik}
             onChange={(e) => handleChange('bank_bik', e.target.value)}
+            disabled
           />
           <TextField
             label="ИИК"
@@ -218,12 +282,11 @@ export function InvoiceCustomer({ open, onClose, onSave, currentCustomer }) {
           />
 
           <TextField
-            label="Доп. информация (JSON)"
+            label="Доп. информация"
             multiline
             rows={3}
             value={formData.additional_info}
             onChange={(e) => handleChange('additional_info', e.target.value)}
-            helperText="Доп. поля в формате JSON"
           />
         </Stack>
       </DialogContent>

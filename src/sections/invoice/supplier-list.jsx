@@ -10,27 +10,26 @@ import {
   DialogActions,
   DialogContent,
   CircularProgress,
+  Avatar,
+  Typography,
 } from '@mui/material';
 import { Iconify } from 'src/components/iconify';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { toast } from 'src/components/snackbar';
 import { InvoiceSupplier } from './invoice-supplier-view';
-import { ConfirmationDialog } from 'src/components/confirmationDialog'; // <-- наш диалог подтверждения
+import { ConfirmationDialog } from 'src/components/confirmationDialog';
+import { kazakhstanBanks } from './kazakhstanBanks';
+
 
 export function SupplierList({ open, onClose, onSelect, selected }) {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [showSupplierForm, setShowSupplierForm] = useState(false);
   const [currentEditingSupplier, setCurrentEditingSupplier] = useState(null);
-
   const [hoveredItem, setHoveredItem] = useState(null);
-
-  // --- Для подтверждения удаления
   const [deleteId, setDeleteId] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Загрузка списка
   const fetchSuppliers = useCallback(async () => {
     setLoading(true);
     try {
@@ -61,7 +60,6 @@ export function SupplierList({ open, onClose, onSelect, selected }) {
     setShowSupplierForm(true);
   };
 
-  // После сохранения обновляем список
   const handleSupplierSaved = async () => {
     setShowSupplierForm(false);
     await fetchSuppliers();
@@ -72,14 +70,12 @@ export function SupplierList({ open, onClose, onSelect, selected }) {
     onClose();
   };
 
-  // Шаг 1: при клике на «Удалить» — показать диалог
   const handleDeleteIconClick = (event, supplierId) => {
     event.stopPropagation();
     setDeleteId(supplierId);
     setShowConfirm(true);
   };
 
-  // Шаг 2: подтвердили удаление => делаем запрос
   const handleConfirmDelete = async () => {
     try {
       if (deleteId) {
@@ -124,81 +120,93 @@ export function SupplierList({ open, onClose, onSelect, selected }) {
             </Box>
           ) : (
             <List sx={{ width: '100%' }}>
-              {suppliers.map((supplier) => (
-                <ListItem
-                                key={supplier.id}
-                                onMouseEnter={() => setHoveredItem(supplier.id)}
-                                onMouseLeave={() => setHoveredItem(null)}
-                                onClick={() => handleSelectSupplier(supplier)}
-                                sx={{
-                                  cursor: 'pointer',
-                                  py: 2,
-                                  px: 3,
-                                  mb: 1, // Добавляем отступы между элементами
-                                  borderRadius: 1, // Закругляем углы
-                                  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)', // Тень для выделения элемента
-                                  transition: 'all 0.2s',
-                                  bgcolor: selected === supplier.id ? 'action.selected' : 'background.paper',
-                                  '&:hover': {
-                                    bgcolor: 'action.hover',
-                                  },
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    width: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column', // Отображаем данные в колонку
-                                    gap: 1, // Расстояние между строками
-                                  }}
-                                >
-                                  <Box sx={{ typography: 'subtitle1', fontWeight: 'bold' }}>{supplier.name}</Box>
-                                  <Box sx={{ typography: 'body2', color: 'text.secondary' }}>
-                                  БИН/ИИН: {supplier.bin_iin}
-                                  </Box>
+              {suppliers.map((supplier) => {
+                const bank = kazakhstanBanks.find((b) => b.name === supplier.bank_name);
 
-                                </Box>
-                              
-                                {/* Блок действий */}
-                                {(hoveredItem === supplier.id || selected === supplier.id) && (
-                                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-                                    <IconButton
-                                      edge="end"
-                                      color="primary"
-                                      onClick={(e) => handleOpenEditSupplier(e, supplier)}
-                                      sx={{ mr: 1 }}
-                                    >
-                                      <Iconify icon="solar:pen-bold" />
-                                    </IconButton>
-                                    <IconButton
-                                      edge="end"
-                                      color="error"
-                                      onClick={(e) => handleDeleteIconClick(e, supplier.id)}
-                                      sx={{ mr: 1 }}
-                                    >
-                                      <Iconify icon="solar:trash-bin-trash-bold" />
-                                    </IconButton>
-                                    {/* <IconButton
-                                      edge="end"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleSelectsupplier(supplier);
-                                      }}
-                                    >
-                                      <Iconify
-                                        icon={
-                                          selected === supplier.id ? 'mingcute:check-fill' : 'mingcute:check-line'
-                                        }
-                                        sx={{
-                                          color: selected === supplier.id ? 'primary.main' : 'text.secondary',
-                                        }}
-                                      />
-                                    </IconButton> */}
-                                  </Box>
-                                )}
-                              </ListItem>
-                              
-              ))}
+                return (
+                  <ListItem
+                    key={supplier.id}
+                    onMouseEnter={() => setHoveredItem(supplier.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                    onClick={() => handleSelectSupplier(supplier)}
+                    sx={{
+                      cursor: 'pointer',
+                      py: 2,
+                      px: 3,
+                      mb: 1,
+                      borderRadius: 1,
+                      boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s',
+                      bgcolor: selected === supplier.id ? 'action.selected' : 'background.paper',
+                      '&:hover': {
+                        bgcolor: 'action.hover',
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                      }}
+                    >
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {supplier.name}
+                      </Typography>
+
+                      {/* Тип организации */}
+                      {supplier.company_type && (
+                        <Typography variant="body2" color="text.secondary">
+                          Тип организации: {supplier.company_type}
+                        </Typography>
+                      )}
+
+                      <Typography variant="body2" color="text.secondary">
+                        БИН/ИИН: {supplier.bin_iin}
+                      </Typography>
+
+                      {supplier.iik && (
+                        <Typography variant="body2" color="text.secondary">
+                          Номер счета: {supplier.iik}
+                        </Typography>
+                      )}
+
+                      {bank && (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Avatar src={bank.logo} alt={bank.name} sx={{ width: 24, height: 24 }} />
+                          <Typography variant="body2">{bank.name}</Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            (БИК: {bank.bik})
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Блок действий */}
+                    {(hoveredItem === supplier.id || selected === supplier.id) && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
+                        <IconButton
+                          edge="end"
+                          color="primary"
+                          onClick={(e) => handleOpenEditSupplier(e, supplier)}
+                          sx={{ mr: 1 }}
+                        >
+                          <Iconify icon="solar:pen-bold" />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          color="error"
+                          onClick={(e) => handleDeleteIconClick(e, supplier.id)}
+                          sx={{ mr: 1 }}
+                        >
+                          <Iconify icon="solar:trash-bin-trash-bold" />
+                        </IconButton>
+                      </Box>
+                    )}
+                  </ListItem>
+                );
+              })}
             </List>
           )}
         </DialogContent>

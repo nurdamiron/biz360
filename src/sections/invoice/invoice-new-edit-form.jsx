@@ -242,7 +242,7 @@ export function InvoiceNewEditForm({ currentInvoice }) {
           loading={loadingSave.value && isSubmitting}
           onClick={handleSaveAsDraft}
         >
-          Save as Draft
+          Сохранить как черновик
         </LoadingButton>
 
         <LoadingButton
@@ -251,7 +251,7 @@ export function InvoiceNewEditForm({ currentInvoice }) {
           loading={loadingSend.value && isSubmitting}
           onClick={handleCreateAndSend}
         >
-          {currentInvoice ? 'Update' : 'Create'} & Send
+          {currentInvoice ? 'Обновить' : 'Создать'} & Send
         </LoadingButton>
       </Box>
     </Form>
