@@ -7,18 +7,33 @@ import { CONFIG } from 'src/global-config';
 const axiosInstance = axios.create({ 
   baseURL: CONFIG.serverUrl || 'https://biz360-backend.onrender.com'
 });
+
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('JWT_ACCESS_KEY');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('API Error:', {
       status: error.response?.status,
-      data: error.response?.data,   
+      data: error.response?.data,
       url: error.config?.url,
     });
 
     throw new Error(error.response?.data?.message || 'Something went wrong!');
   }
 );
+
+
 
 // ----------------------------------------------------------------------
 

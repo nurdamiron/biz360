@@ -286,6 +286,8 @@ export function EmployeeNewEditForm() {
               sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
             />
 
+            
+
             {/* Кнопка удаления (только в режиме редактирования) */}
             {isEdit && (
               <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
@@ -316,6 +318,7 @@ export function EmployeeNewEditForm() {
                 label="Телефон"
                 country={!isEdit ? 'RU' : undefined}
               />
+              
               <Field.Text name="department" label="Отдел" />
               <Field.Text name="role" label="Роль" />
               <Field.Text name="country" label="Страна" />

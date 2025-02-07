@@ -20,7 +20,7 @@ import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CustomPopover } from 'src/components/custom-popover';
 import axiosInstance, { endpoints } from 'src/lib/axios';
-// import { toast } from 'src/components/snackbar';
+import { toast } from 'src/components/snackbar';
 
 import { useAuthContext } from 'src/auth/hooks'; 
 // userRole = 'owner' / 'admin' / 'manager' / 'employee'
@@ -38,19 +38,36 @@ export function EmployeeTableRow({
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
 
-  // Подтверждение (pending -> active)
-  const handleConfirmEmployee = async () => {
+
+  const loadEmployees = async () => {
     try {
-      await axiosInstance.put(endpoints.employee.update(row.id), {
-        status: 'active',
-      });
-      row.status = 'active';
-      // toast.success('Сотрудник подтверждён');
+      const response = await axiosInstance.get(endpoints.employee.list);
+      return response.data; // Всегда возвращаем данные
     } catch (error) {
-      console.error(error);
-      // toast.error('Ошибка при подтверждении');
+      console.error('Ошибка загрузки сотрудников:', error);
+      return []; // Возвращаем пустой массив вместо null, если данные не загружены
     }
   };
+  
+  
+
+  
+
+  // Подтверждение (pending -> active)
+  const handleConfirmEmployee = async (employeeId) => {
+    try {
+      await axiosInstance.put(endpoints.employee.update(employeeId), {
+        status: 'active',
+      });
+      toast.success('Сотрудник переведён в статус Active');
+      // Обновите список сотрудников
+      await loadEmployees();
+    } catch (error) {
+      console.error(error);
+      toast.error('Ошибка при подтверждении сотрудника');
+    }
+  };
+  
 
   // Забанить (active -> banned)
   const handleBanEmployee = async () => {
@@ -84,17 +101,22 @@ export function EmployeeTableRow({
         return 'success';
       case 'pending':
         return 'warning';
-      case 'banned':
+      case 'blocked': // ← меняем с 'banned'
         return 'error';
       default:
         return 'default';
     }
   };
+  
 
   // Проверяем права
   const canConfirm = (userRole === 'owner' || userRole === 'admin') && row.status === 'pending';
   const canBan = (userRole === 'owner' || userRole === 'admin') && row.status === 'active';
-  const canUnban = (userRole === 'owner' || userRole === 'admin') && row.status === 'banned';
+  const canUnblock = (userRole === 'owner' || userRole === 'admin') && row.status === 'blocked';
+
+  const handleBlockEmployee = async () => {
+    await axiosInstance.put(endpoints.employee.update(row.id), { status: 'blocked' });
+  };
 
   // Меню (троеточие) «Редактировать / Удалить»
   const MenuActions = () => (
@@ -231,7 +253,7 @@ export function EmployeeTableRow({
             )}
 
             {/* Разблокировать (banned -> active) */}
-            {canUnban && (
+            {canUnblock && (
               <Tooltip title="Разблокировать сотрудника">
                 <Button
                   size="small"

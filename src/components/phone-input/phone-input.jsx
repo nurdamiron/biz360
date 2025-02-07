@@ -35,8 +35,10 @@ export const PhoneInput = forwardRef((props, ref) => {
   const [selectedCountry, setSelectedCountry] = useState(defaultCountryCode);
 
   const hasLabel = !!label;
+  const digits = (value ?? '').replace(/\D/g, '');
 
-  const cleanValue = value.replace(/[\s-]+/g, '');
+  const cleanValue = digits;
+
 
   const handleClear = useCallback(() => {
     onChange('');

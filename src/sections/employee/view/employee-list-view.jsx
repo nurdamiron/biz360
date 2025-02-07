@@ -61,9 +61,9 @@ export function EmployeeListView() {
     { value: 'all', label: 'Все' },
     { value: 'active', label: 'Активен' },
     { value: 'pending', label: 'Ожидает' },
-    { value: 'banned', label: 'Заблокирован' },
+    { value: 'blocked', label: 'Заблокирован' },
   ];
-
+  
   // Загрузка сотрудников
   const loadEmployees = useCallback(async () => {
     try {
@@ -255,7 +255,7 @@ export function EmployeeListView() {
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
-                headLabel={TABLE_HEAD}
+                headCells={TABLE_HEAD}
                 rowCount={employees.length}
                 numSelected={table.selected.length}
                 onSort={table.onSort}
@@ -279,8 +279,8 @@ export function EmployeeListView() {
                     selected={table.selected.includes(row.id)}
                     onSelectRow={() => table.onSelectRow(row.id)}
                     onDeleteRow={() => handleDeleteRow(row.id)}
-                    editHref={`/dashboard/employee/edit/${row.id}`}
-                  />
+                    editHref={`/dashboard/employee/${row.id}/edit`}
+                    />
                 ))}
 
                 {/* Пустые строки внизу (для визуального заполнения) */}
