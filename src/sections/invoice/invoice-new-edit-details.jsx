@@ -1,7 +1,7 @@
 // invoice-new-edit-details.jsx
 
-import { useEffect, useState, useCallback } from 'react';
-import { useFormContext, useFieldArray } from 'react-hook-form';
+import { useState, useEffect, useCallback } from 'react';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import {
   Box,
   Stack,
@@ -261,9 +261,8 @@ export function InvoiceNewEditDetails() {
 
 
   // Подытог
-  const subtotal = isVatSupplier ? Math.round(total / 1.12) : total;
-
-  const tax = isVatSupplier ? Math.round(subtotal * 0.12) : 0;
+  const subtotal = isVatSupplier ? Number((total / 1.12).toFixed(2)) : total;
+  const tax = isVatSupplier ? Number((subtotal * 0.12).toFixed(2)) : 0;
 
   // Если поставщик платит НДС => tax = 12% от subtotal
   useEffect(() => {
@@ -278,10 +277,14 @@ export function InvoiceNewEditDetails() {
 
   // Записываем итог в form
   useEffect(() => {
-    setValue('tax', tax);
     setValue('subtotal', subtotal);
+    setValue('tax', tax);
     setValue('total', total);
-  }, [tax, subtotal, total, setValue]);
+  
+    console.log('🔹 subtotal:', subtotal);
+    console.log('🔹 tax:', tax);
+    console.log('🔹 total:', total);
+  }, [subtotal, tax, total, setValue]);
 
   if (isLoading) {
     return <Typography>Загрузка списка продуктов...</Typography>;

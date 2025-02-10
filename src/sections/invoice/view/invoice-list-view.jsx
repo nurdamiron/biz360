@@ -227,7 +227,7 @@ export function InvoiceListView() {
               sx={{ py: 2, flexDirection: 'row' }}
             >
               <InvoiceAnalytic
-                title="Total"
+                title="Общее"
                 total={tableData.length}
                 percent={100}
                 price={sumBy(tableData, (invoice) => invoice.totalAmount)}
@@ -254,7 +254,7 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title="Overdue"
+                title="Просроченный"
                 total={getInvoiceLength('overdue')}
                 percent={getPercentByStatus('overdue')}
                 price={getTotalAmount('overdue')}
@@ -263,7 +263,7 @@ export function InvoiceListView() {
               />
 
               <InvoiceAnalytic
-                title="Draft"
+                title="Черновик"
                 total={getInvoiceLength('draft')}
                 percent={getPercentByStatus('draft')}
                 price={getTotalAmount('draft')}

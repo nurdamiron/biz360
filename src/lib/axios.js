@@ -4,21 +4,25 @@ import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
-const axiosInstance = axios.create({ 
-  baseURL: CONFIG.serverUrl || 'https://biz360-backend.onrender.com'
-});
+const BASE_API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000'  // <-- Локальный бэкенд
+  : CONFIG.serverUrl || 'https://biz360-backend.onrender.com';
 
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('JWT_ACCESS_KEY');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+  const axiosInstance = axios.create({ 
+    baseURL: BASE_API_URL
+  });
+
+  axiosInstance.interceptors.request.use(
+    (config) => {
+      const token = localStorage.getItem('JWT_ACCESS_KEY');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -33,8 +37,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-
-
 // ----------------------------------------------------------------------
 
 export default axiosInstance;
@@ -47,8 +49,6 @@ export const fetcher = async (args) => {
 };
 
 // ----------------------------------------------------------------------
-
-const BASE_API_URL = 'https://biz360-backend.onrender.com';
 
 export const endpoints = {
   chat: '/api/chat',

@@ -57,23 +57,30 @@ export function InvoiceNewEditAddress() {
   };
 
   // Выбор клиента
-  const handleSelectCustomer = (customer) => {
-    if (!customer) return;
-    const bankDetails = findBank(customer.bank_name);
-    setValue('invoiceTo', {
-      id: customer.id || '',
-      name: customer.name || '',
-      email: customer.email || '',
-      phoneNumber: customer.phone_number || '',
-      fullAddress: customer.address || '',
-      companyType: customer.company_type || '',
-      bankName: customer.bank_name || '',
-      bankBik: customer.bank_bik || '',
-      iik: customer.iik || '',
-      bankLogo: bankDetails.logo || '',
-    });
-    setShowToDialog(false); // Закрываем окно после выбора
-  };
+const handleSelectCustomer = (customer) => {
+  if (!customer) return;
+  const bankDetails = findBank(customer.bank_name);
+  
+  // Устанавливаем объект для отображения информации о клиенте
+  setValue('invoiceTo', {
+    id: customer.id || '',
+    name: customer.name || '',
+    email: customer.email || '',
+    phoneNumber: customer.phone_number || '',
+    fullAddress: customer.address || '',
+    companyType: customer.company_type || '',
+    bankName: customer.bank_name || '',
+    bankBik: customer.bank_bik || '',
+    iik: customer.iik || '',
+    bankLogo: bankDetails.logo || '',
+  });
+  
+  // **Добавляем установку поля billing_to**
+  setValue('billing_to', customer.id);
+  
+  setShowToDialog(false); // Закрываем окно после выбора
+};
+
 
   const handleSupplierDeleted = (deletedId) => {
     if (!deletedId) return;

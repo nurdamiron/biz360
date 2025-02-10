@@ -32,9 +32,13 @@ const NewInvoiceSchema = zod.object({
   // Дата окончания (например, "срок оплаты")
   due_date: zod.date().nullable().optional(),
   // Поставщик
-  billing_from: zod.number().or(zod.string()).default(''),
+  billing_from: zod.number().optional().default(0),
   // Клиент
-  billing_to: zod.number().or(zod.string()).default(''),
+  billing_to: zod.preprocess(val => {
+    // Преобразуем входное значение в число, если оно не пустое
+    if (val === '' || val === null || val === undefined) return undefined;
+    return Number(val);
+  }, zod.number({ required_error: 'Billing_to (ID клиента) обязательно для заполнения' })),
 
   // Массив товаров
   items: zod.array(
@@ -136,22 +140,24 @@ export function InvoiceNewEditForm({ currentInvoice }) {
   const items = watch('items');
   const shipping = watch('shipping');
   const discount = watch('discount');
-  const tax = watch('tax');
+  const tax = watch('tax'); // Теперь UI обновляется
+  const subtotal = watch('subtotal');
+  const total = watch('total');
 
   useEffect(() => {
-    // Подсчёт subtotal = сумма total_price по всем строкам
     let calcSubtotal = 0;
     items.forEach((it) => {
       calcSubtotal += it.quantity * it.unit_price;
     });
 
-    // total = subtotal + shipping + tax - discount
     const calcTotal = calcSubtotal + Number(shipping) + Number(tax) - Number(discount);
 
-    // Обновляем поля
     setValue('subtotal', calcSubtotal);
     setValue('total', calcTotal);
-  }, [items, shipping, discount, tax, setValue]);
+    setValue('tax', Number((calcSubtotal * 0.12).toFixed(2))); // Правильный расчет НДС
+
+    console.log('🔹 Обновлено:', { calcSubtotal, calcTotal, tax: (calcSubtotal * 0.12).toFixed(2) });
+  }, [items, shipping, discount, setValue]);
 
   // Функция "Сохранить как черновик"
   const handleSaveAsDraft = handleSubmit(async (formData) => {
@@ -182,7 +188,7 @@ export function InvoiceNewEditForm({ currentInvoice }) {
       }
 
       reset();
-      router.push('/dashboard/invoices'); // либо paths.dashboard.invoice.root
+      router.push('/dashboard/invoice'); // либо paths.dashboard.invoice.root
     } catch (error) {
       console.error('handleSaveAsDraft error:', error);
       toast.error(error?.message || 'Failed to save draft');
@@ -195,6 +201,7 @@ export function InvoiceNewEditForm({ currentInvoice }) {
   const handleCreateAndSend = handleSubmit(async (formData) => {
     loadingSend.onTrue();
     try {
+      // Рассчитываем total_price для каждого элемента
       const payload = {
         ...formData,
         status: 'pending',
@@ -204,26 +211,40 @@ export function InvoiceNewEditForm({ currentInvoice }) {
           total_price: i.quantity * i.unit_price,
         })),
       };
-
+  
+      console.log('Отправляем payload:', payload);
+  
+      let response;
       if (currentInvoice?.id) {
-        // Обновляем счёт
-        await axiosInstance.put(endpoints.invoice.update(currentInvoice.id), payload);
+        response = await axiosInstance.put(
+          endpoints.invoice.update(currentInvoice.id),
+          payload
+        );
+        console.log('Ответ обновления:', response.data);
         toast.success('Invoice updated and sent!');
       } else {
-        // Создаём новый счёт
-        await axiosInstance.post(endpoints.invoice.create, payload);
+        response = await axiosInstance.post(
+          endpoints.invoice.create,
+          payload
+        );
+        console.log('Ответ создания:', response.data);
         toast.success('Invoice created and sent!');
       }
-
+  
+      // Сброс формы и переход на список счетов
       reset();
-      router.push('/dashboard/invoices');
+      router.push('/dashboard/invoice');
     } catch (error) {
       console.error('handleCreateAndSend error:', error);
-      toast.error(error?.message || 'Failed to create and send');
+      // Попробуйте выводить более подробную ошибку, если есть response.data.error
+      const errorMessage =
+        error?.response?.data?.error || error.message || 'Failed to create and send';
+      toast.error(errorMessage);
     } finally {
       loadingSend.onFalse();
     }
   });
+  
 
 
   return (
@@ -251,7 +272,7 @@ export function InvoiceNewEditForm({ currentInvoice }) {
           loading={loadingSend.value && isSubmitting}
           onClick={handleCreateAndSend}
         >
-          {currentInvoice ? 'Обновить' : 'Создать'} & Send
+          {currentInvoice ? 'Обновить' : 'Создать'} & Отправить
         </LoadingButton>
       </Box>
     </Form>
