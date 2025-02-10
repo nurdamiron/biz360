@@ -42,10 +42,6 @@ export function AnalyticsTrafficBySite({
               border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)}`,
             })}
           >
-            {site.value === 'store' && <StoreIcon sx={{ width: 32 }} />}
-            {site.value === 'corporate' && <CorporateIcon sx={{ width: 32 }} />}
-            {site.value === 'retail' && <RetailIcon sx={{ width: 32 }} />}
-            {site.value === 'marketplace' && <MarketplaceIcon sx={{ width: 32 }} />}
 
             <Typography variant="h6" sx={{ mt: 1 }}>
               {fShortenNumber(site.total)}
