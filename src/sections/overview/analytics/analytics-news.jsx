@@ -13,7 +13,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 
-export function AnalyticsNews({ title, subheader, list, sx, ...other }) {
+export function AnalyticsNews({ title = "销售动态", subheader = "最新销售趋势和市场洞察", list, sx, ...other }) {
   return (
     <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 1 }} />
@@ -32,7 +32,7 @@ export function AnalyticsNews({ title, subheader, list, sx, ...other }) {
           color="inherit"
           endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
         >
-          View all
+          查看所有
         </Button>
       </Box>
     </Card>

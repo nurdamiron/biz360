@@ -8,7 +8,13 @@ import { Chart, useChart } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export function AnalyticsConversionRates({ title, subheader, chart, sx, ...other }) {
+export function AnalyticsConversionRates({ 
+  title = "产品表现",
+  subheader = "各类别销售增长趋势",
+  chart, 
+  sx, 
+  ...other 
+}) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [

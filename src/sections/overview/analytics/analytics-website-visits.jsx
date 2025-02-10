@@ -6,7 +6,13 @@ import { Chart, useChart } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export function AnalyticsWebsiteVisits({ title, subheader, chart, sx, ...other }) {
+export function AnalyticsWebsiteVisits({ 
+  title = "月度销售趋势",
+  subheader = "较去年同期增长 (+43%)",
+  chart, 
+  sx, 
+  ...other 
+}) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [
@@ -19,7 +25,7 @@ export function AnalyticsWebsiteVisits({ title, subheader, chart, sx, ...other }
     stroke: { width: 2, colors: ['transparent'] },
     xaxis: { categories: chart.categories },
     legend: { show: true },
-    tooltip: { y: { formatter: (value) => `${value} visits` } },
+    tooltip: { y: { formatter: (value) => `${value} 件` } },
     ...chart.options,
   });
 
