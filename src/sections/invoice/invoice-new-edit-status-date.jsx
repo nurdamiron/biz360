@@ -46,8 +46,8 @@ export function InvoiceNewEditStatusDate() {
         name="document_type"
         label="Тип документа"
       >
-        <MenuItem value="invoice">Счет на оплату</MenuItem>
         <MenuItem value="nakladnaya">Накладная</MenuItem>
+        <MenuItem value="invoice">Счет на оплату</MenuItem>
         <MenuItem value="sf">Счет-фактура</MenuItem>
       </Field.Select>
 

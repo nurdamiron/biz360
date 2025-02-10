@@ -1,5 +1,4 @@
-import { useBoolean, usePopover } from 'minimal-shared/hooks';
-
+import React from 'react';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
@@ -12,10 +11,11 @@ import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import { RouterLink } from 'src/routes/components';
 import { fCurrency } from 'src/utils/format-number';
-import { fDate } from 'src/utils/format-time';
+import { fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -33,7 +33,6 @@ export function InvoiceTableRow({
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
 
-  // Get client information from row.invoiceTo which comes from the formatInvoiceResponse
   const clientName = row.invoiceTo?.name;
   const clientBin = row.invoiceTo?.bin;
 
@@ -57,12 +56,19 @@ export function InvoiceTableRow({
     return colors[status] || 'default';
   };
 
+  
+  const getDownloadUrl = (fileId, sheetId) => {
+    if (!fileId) return '';
+    // Добавляем параметры для скачивания в PDF
+    return `https://docs.google.com/spreadsheets/d/${fileId}/export?format=pdf&id=${fileId}&gid=${sheetId}`;
+  };
+
   const getDocumentTypeLabel = (type) => {
     const types = {
+      nakladnaya: 'Накладная',
       invoice: 'Счет на оплату',
-      act: 'Акт выполненных работ',
-      sf: 'Счет-фактура',
-      kp: 'Коммерческое предложение'
+      schet_faktura: 'Счет-фактура',
+      bank_transfer: 'Переводы'
     };
     return types[type] || type;
   };
@@ -76,10 +82,7 @@ export function InvoiceTableRow({
 
         <TableCell>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar 
-              alt={clientName} 
-              sx={{ mr: 2, bgcolor: 'primary.main' }}
-            >
+            <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
               {clientName?.charAt(0)?.toUpperCase()}
             </Avatar>
 
@@ -93,17 +96,8 @@ export function InvoiceTableRow({
         </TableCell>
 
         <TableCell>
-          <Label
-            variant="soft"
-            color="info"
-          >
-            {getDocumentTypeLabel(row.documentType)}
-          </Label>
-        </TableCell>
-
-        <TableCell>
           <Typography variant="body2">
-            {fDate(row.createDate)}
+            {fDateTime(row.createDate)}
           </Typography>
         </TableCell>
 
@@ -114,15 +108,24 @@ export function InvoiceTableRow({
         </TableCell>
 
         <TableCell>
-          <Label
-            variant="soft"
-            color={getStatusColor(row.status)}
-          >
+          <Label variant="soft" color={getStatusColor(row.status)}>
             {getStatusLabel(row.status)}
           </Label>
         </TableCell>
 
-        <TableCell align="right">
+        <TableCell align="right" sx={{ pr: 1 }}>
+          {row.fileId && (
+            <IconButton 
+              component="a"
+              href={getDownloadUrl(row.fileId, row.sheetId)}
+              target="_blank"
+              sx={{ mr: 1 }}
+              download={`document_${row.documentType}_${row.invoiceNumber}.pdf`}
+              >
+              <Iconify icon="eva:download-outline" />
+            </IconButton>
+          )}
+          
           <IconButton onClick={menuActions.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>

@@ -55,10 +55,8 @@ import { InvoiceTableFiltersResult } from '../invoice-table-filters-result';
 const TABLE_HEAD = [
   { id: 'invoiceNumber', label: 'Клиент' },
   { id: 'createDate', label: 'Создан' },
-  { id: 'dueDate', label: 'До' },
   { id: 'price', label: 'Тотал' },
-  { id: 'sent', label: 'Отправить', align: 'center' },
-  { id: 'status', label: 'Тип документа' },
+  { id: 'status', label: 'Статус' },
   { id: '' },
 ];
 
@@ -84,10 +82,10 @@ export function InvoiceListView() {
 
   const DOCUMENT_TYPES = [
     { value: 'all', label: 'Все', color: 'default' },
-    { value: 'kp', label: 'Коммерческое предложение', color: 'info' },
-    { value: 'invoice', label: 'Счёт на оплату', color: 'success' },
-    { value: 'act', label: 'Акт выполненных работ', color: 'warning' },
-    { value: 'sf', label: 'Счёт-фактура', color: 'primary' },
+    { value: 'nakladnaya', label: 'Накладная', color: 'info' },
+    { value: 'schet-fakture', label: 'Счёт-фактура', color: 'success' },
+    { value: 'invoice', label: 'Счет на оплату', color: 'warning' },
+    { value: 'bank_transfer', label: 'Перевод', color: 'primary' },
   ];
 
 

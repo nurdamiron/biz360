@@ -22,7 +22,7 @@ import axiosInstance, { endpoints } from 'src/lib/axios';
 // Шаг 1. Схема валидации через Zod
 
 // Пример: можно расширять по ситуации (kp, act, nakladnaya)
-const DocTypeEnum = zod.enum(['invoice', 'kp', 'act', 'sf', 'nakladnaya']);
+const DocTypeEnum = zod.enum(['invoice', 'nakladnaya', 'schet_faktura', 'bank_transfer']);
 
 const NewInvoiceSchema = zod.object({
   // Тип документа
