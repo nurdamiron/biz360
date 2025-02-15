@@ -1,6 +1,6 @@
+// Tasks Component - 任务组件
 import { useState } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
-
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -11,12 +11,9 @@ import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { CustomPopover } from 'src/components/custom-popover';
-
-// ----------------------------------------------------------------------
 
 export function AnalyticsTasks({ title, subheader, list, sx, ...other }) {
   const [selected, setSelected] = useState(['2']);
@@ -25,14 +22,12 @@ export function AnalyticsTasks({ title, subheader, list, sx, ...other }) {
     const tasksCompleted = selected.includes(taskId)
       ? selected.filter((value) => value !== taskId)
       : [...selected, taskId];
-
     setSelected(tasksCompleted);
   };
 
   return (
     <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 1 }} />
-
       <Scrollbar sx={{ minHeight: 304 }}>
         <Stack divider={<Divider sx={{ borderStyle: 'dashed' }} />} sx={{ minWidth: 560 }}>
           {list.map((item) => (
@@ -49,36 +44,33 @@ export function AnalyticsTasks({ title, subheader, list, sx, ...other }) {
   );
 }
 
-// ----------------------------------------------------------------------
-
 function TaskItem({ item, selected, onChange, sx, ...other }) {
   const menuActions = usePopover();
 
-  const handleMarkComplete = () => {
-    menuActions.onClose();
-    console.info('MARK COMPLETE', item.id);
-  };
-
-  const handleShare = () => {
-    menuActions.onClose();
-    console.info('SHARE', item.id);
-  };
-
-  const handleEdit = () => {
-    menuActions.onClose();
-    console.info('EDIT', item.id);
-  };
-
-  const handleDelete = () => {
-    menuActions.onClose();
-    console.info('DELETE', item.id);
+  const actions = {
+    complete: () => {
+      menuActions.onClose();
+      console.info('完成任务', item.id);
+    },
+    share: () => {
+      menuActions.onClose();
+      console.info('分享', item.id);
+    },
+    edit: () => {
+      menuActions.onClose();
+      console.info('编辑', item.id);
+    },
+    delete: () => {
+      menuActions.onClose();
+      console.info('删除', item.id);
+    },
   };
 
   return (
     <>
       <Box
         sx={[
-          () => ({
+          {
             pl: 2,
             pr: 1,
             py: 1.5,
@@ -87,7 +79,7 @@ function TaskItem({ item, selected, onChange, sx, ...other }) {
               color: 'text.disabled',
               textDecoration: 'line-through',
             }),
-          }),
+          },
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
         {...other}
@@ -117,26 +109,26 @@ function TaskItem({ item, selected, onChange, sx, ...other }) {
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
-          <MenuItem onClick={handleMarkComplete}>
+          <MenuItem onClick={actions.complete}>
             <Iconify icon="eva:checkmark-circle-2-fill" />
-            Mark complete
+            标记完成
           </MenuItem>
 
-          <MenuItem onClick={handleEdit}>
+          <MenuItem onClick={actions.edit}>
             <Iconify icon="solar:pen-bold" />
-            Edit
+            编辑
           </MenuItem>
 
-          <MenuItem onClick={handleShare}>
+          <MenuItem onClick={actions.share}>
             <Iconify icon="solar:share-bold" />
-            Share
+            分享
           </MenuItem>
 
           <Divider sx={{ borderStyle: 'dashed' }} />
 
-          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+          <MenuItem onClick={actions.delete} sx={{ color: 'error.main' }}>
             <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
+            删除
           </MenuItem>
         </MenuList>
       </CustomPopover>

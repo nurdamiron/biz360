@@ -8,53 +8,56 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const _appRelated = [
-  'Microsoft office 365',
-  'Opera',
-  'Adobe acrobat reader DC',
-  'Joplin',
-  'Topaz photo AI',
+  '一次性防护服', // Одноразовые защитные костюмы
+  '防护手套', // Защитные перчатки
+  '安全鞋', // Защитная обувь
+  '头部防护', // Каски и защитные очки
+  '防护口罩', // Медицинские маски и респираторы
 ].map((name, index) => ({
   id: _mock.id(index),
   name,
-  downloaded: _mock.number.nativeL(index),
+  downloaded: _mock.number.nativeL(index) * 50, // Продано штук
   ratingNumber: _mock.number.rating(index),
-  size: _mock.number.nativeL(index) * 1024,
+  size: _mock.number.nativeL(index) * 10, // Запас на складе
   totalReviews: _mock.number.nativeL(index),
-  shortcut: `${CONFIG.assetsDir}/assets/icons/apps/ic-app-${index + 1}.webp`,
+  shortcut: `${CONFIG.assetsDir}/assets/icons/products/ic-product-${index + 1}.webp`,
   price: [2, 4].includes(index) ? _mock.number.price(index) : 0,
 }));
 
-export const _appInstalled = ['Germany', 'England', 'France', 'Korean', 'USA'].map(
+export const _appInstalled = ['中国', '美国', '德国', '英国', '法国'].map(
   (country, index) => ({
     id: _mock.id(index),
     countryName: country,
-    android: _mock.number.nativeL(index),
-    windows: _mock.number.nativeL(index + 1),
-    apple: _mock.number.nativeL(index + 2),
-    countryCode: ['de', 'gb', 'fr', 'kr', 'us'][index],
+    android: _mock.number.nativeL(index) * 500, // Продажи через онлайн-магазины
+    windows: _mock.number.nativeL(index + 1) * 300, // Оптовые продажи
+    apple: _mock.number.nativeL(index + 2) * 100, // Розничные продажи
+    countryCode: ['cn', 'us', 'de', 'gb', 'fr'][index],
   })
 );
+
 
 export const _appAuthors = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
-  totalFavorites: _mock.number.nativeL(index),
+  totalFavorites: _mock.number.nativeL(index) * 20, // Количество сделанных поставок
 }));
 
-export const _appInvoices = Array.from({ length: 5 }, (_, index) => {
-  const category = ['Android', 'Mac', 'Windows', 'Android', 'Mac'][index];
 
-  const status = ['paid', 'out of date', 'progress', 'paid', 'paid'][index];
+export const _appInvoices = Array.from({ length: 5 }, (_, index) => {
+  const category = ['工作服', '安全鞋', '防护手套', '头部防护', '防护口罩'][index];
+
+  const status = ['已支付', '过期', '进行中', '已支付', '已支付'][index];
 
   return {
     id: _mock.id(index),
-    invoiceNumber: `INV-199${index}`,
-    price: _mock.number.price(index),
+    invoiceNumber: `INV-20${index}45`,
+    price: _mock.number.price(index) * 10, // Сумма заказа
     category,
     status,
   };
 });
+
 
 export const _appFeatured = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index + 3),
@@ -63,29 +66,30 @@ export const _appFeatured = Array.from({ length: 3 }, (_, index) => ({
   coverUrl: _mock.image.cover(index + 3),
 }));
 
+
 // ANALYTIC
 // ----------------------------------------------------------------------
-
 export const _analyticTasks = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
-  name: _mock.taskNames(index),
+  name: `库存管理任务 ${index + 1}`, // Управление запасами
 }));
 
 export const _analyticPosts = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
   postedAt: _mock.time(index),
-  title: _mock.postTitle(index),
+  title: `最新行业动态 ${index + 1}`,
   coverUrl: _mock.image.cover(index),
   description: _mock.sentence(index),
 }));
 
+
 export const _analyticOrderTimeline = Array.from({ length: 5 }, (_, index) => {
   const title = [
-    '1983, orders, $4220',
-    '12 Invoices have been paid',
-    'Order #37745 from September',
-    'New order placed #XF-2356',
-    'New order placed #XF-2346',
+    '1,245 订单已完成',
+    '客户付款 45 笔',
+    '9 月订单 #37745',
+    '新订单 #XF-2356',
+    '新订单 #XF-2346',
   ][index];
 
   return {
@@ -96,26 +100,27 @@ export const _analyticOrderTimeline = Array.from({ length: 5 }, (_, index) => {
   };
 });
 
+
 export const _analyticTraffic = [
   {
-    value: 'facebook',
-    label: 'Facebook',
-    total: _mock.number.nativeL(1),
+    value: 'online',
+    label: '线上商店',
+    total: _mock.number.nativeL(1) * 1000, // Продажи через онлайн-магазин
   },
   {
-    value: 'google',
-    label: 'Google',
-    total: _mock.number.nativeL(2),
+    value: 'wholesale',
+    label: '批发市场',
+    total: _mock.number.nativeL(2) * 500, // Оптовые продажи
   },
   {
-    value: 'linkedin',
-    label: 'Linkedin',
-    total: _mock.number.nativeL(3),
+    value: 'retail',
+    label: '零售店',
+    total: _mock.number.nativeL(3) * 300, // Розничные продажи
   },
   {
-    value: 'twitter',
-    label: 'Twitter',
-    total: _mock.number.nativeL(4),
+    value: 'corporate',
+    label: '企业客户',
+    total: _mock.number.nativeL(4) * 800, // Корпоративные клиенты
   },
 ];
 

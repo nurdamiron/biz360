@@ -7,7 +7,13 @@ import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export function AnalyticsCurrentSubject({ title, subheader, chart, sx, ...other }) {
+export function AnalyticsCurrentSubject({ 
+  title = "产品类别销售",
+  subheader = "各类产品销量及目标分析",
+  chart, 
+  sx, 
+  ...other 
+}) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [
