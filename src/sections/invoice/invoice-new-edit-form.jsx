@@ -1,6 +1,7 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, Field } from 'src/components/hook-form';
 
 import { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
@@ -8,7 +9,6 @@ import Card from '@mui/material/Card';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { useRouter } from 'src/routes/hooks';
-import { Form } from 'src/components/hook-form';
 import { toast } from 'src/components/snackbar';
 import { useBoolean } from 'minimal-shared/hooks';
 
@@ -84,7 +84,6 @@ export function InvoiceNewEditForm({ currentInvoice }) {
 
   const [vatPerUnit, setVatPerUnit] = useState(0);
 
-
   // Значения по умолчанию для новой формы
   const defaultValues = {
     document_type: 'invoice',
@@ -101,6 +100,7 @@ export function InvoiceNewEditForm({ currentInvoice }) {
     notes: '',
   };
 
+  
   // Инициализируем React Hook Form
   const methods = useForm({
     mode: 'onChange',
@@ -127,7 +127,6 @@ export function InvoiceNewEditForm({ currentInvoice }) {
       : undefined,
   });
 
-  // Деструктурируем удобства
   const {
     watch,
     setValue,
@@ -135,7 +134,8 @@ export function InvoiceNewEditForm({ currentInvoice }) {
     reset,
     formState: { isSubmitting },
   } = methods;
-
+  
+  
   // Следим за items, shipping, discount, tax, чтобы пересчитать subtotal / total
   const items = watch('items');
   const shipping = watch('shipping');
@@ -143,6 +143,42 @@ export function InvoiceNewEditForm({ currentInvoice }) {
   const tax = watch('tax'); // Теперь UI обновляется
   const subtotal = watch('subtotal');
   const total = watch('total');
+
+  // Деструктурируем удобства
+
+  const handleUpdateInvoice = handleSubmit(async (formData) => {
+    loadingSave.onTrue();
+    try {
+      const response = await axiosInstance.put(
+        endpoints.invoice.update(currentInvoice.id), 
+        {
+          ...formData,
+          items: formData.items.map((item) => ({
+            ...item,
+            total_price: item.quantity * item.unit_price
+          })),
+          // Add document update fields
+          document_type: formData.document_type,
+          bank_details: formData.bank_details,
+          notes: formData.notes
+        }
+      );
+  
+      if (response.data.fileId) {
+        router.refresh();
+      }
+      toast.success('Invoice updated successfully!');
+      
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error(error?.message || 'Failed to update invoice');
+    } finally {
+      loadingSave.onFalse();
+    }
+  });
+
+
+
 
   useEffect(() => {
     let calcSubtotal = 0;
@@ -163,28 +199,37 @@ export function InvoiceNewEditForm({ currentInvoice }) {
   const handleSaveAsDraft = handleSubmit(async (formData) => {
     loadingSave.onTrue();
     try {
+      let response;
+
+      const payload = {
+        ...formData,
+        status: 'draft',
+        items: formData.items.map((i) => ({
+          ...i,
+          total_price: i.quantity * i.unit_price,
+        })),
+        document_type: formData.document_type || 'invoice', // default to invoice if not set
+        notes: formData.notes || '',
+        bank_details: formData.bank_details || ''
+      };
+
       // Если редактируем уже существующий
       if (currentInvoice?.id) {
-        await axiosInstance.put(endpoints.invoice.update(currentInvoice.id), {
-          ...formData,
-          status: 'draft',
-          items: formData.items.map((i) => ({
-            ...i,
-            total_price: i.quantity * i.unit_price,
-          })),
-        });
+        response = await axiosInstance.put(
+          endpoints.invoice.update(currentInvoice.id), 
+          payload
+        );
         toast.success('Draft updated successfully!');
       } else {
-        // Создаём новый
-        await axiosInstance.post(endpoints.invoice.create, {
-          ...formData,
-          status: 'draft',
-          items: formData.items.map((i) => ({
-            ...i,
-            total_price: i.quantity * i.unit_price,
-          })),
-        });
+        response = await axiosInstance.post(
+          endpoints.invoice.create,
+          payload
+        );
         toast.success('Draft created successfully!');
+      }
+
+      if (response.data?.fileId) {
+        router.refresh(); // This will refresh the current page
       }
 
       reset();
@@ -205,11 +250,14 @@ export function InvoiceNewEditForm({ currentInvoice }) {
       const payload = {
         ...formData,
         status: 'pending',
-        sent: 1, // признак отправки
+        sent: 1,
         items: formData.items.map((i) => ({
           ...i,
           total_price: i.quantity * i.unit_price,
         })),
+        document_type: formData.document_type || 'invoice',
+        notes: formData.notes || '',
+        bank_details: formData.bank_details || ''
       };
   
       console.log('Отправляем payload:', payload);
@@ -231,6 +279,10 @@ export function InvoiceNewEditForm({ currentInvoice }) {
         toast.success('Invoice created and sent!');
       }
   
+      if (response.data?.fileId) {
+        router.refresh();
+      }
+
       // Сброс формы и переход на список счетов
       reset();
       router.push('/dashboard/invoice');
@@ -253,6 +305,17 @@ export function InvoiceNewEditForm({ currentInvoice }) {
         <InvoiceNewEditAddress />
         <InvoiceNewEditStatusDate />
         <InvoiceNewEditDetails />
+
+        <Box sx={{ p: 3 }}>
+          <Field.Text
+            name="notes"
+            label="Примечания к документу"
+            multiline
+            rows={4}
+            fullWidth
+          />
+        </Box>
+
       </Card>
 
      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>

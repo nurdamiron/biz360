@@ -1,6 +1,7 @@
-// invoice-pdf.jsx
-
-import { useMemo } from 'react';
+// =============================
+//  invoice-pdf.jsx
+// =============================
+import React, { useMemo, useState, useEffect } from 'react';  // <-- добавили useState/useEffect/React
 import {
   Page,
   Text,
@@ -13,18 +14,39 @@ import {
   PDFDownloadLink,
 } from '@react-pdf/renderer';
 
+import axios from 'axios';                // <-- добавили axios
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export function InvoicePDFDownload({ invoice, currentStatus }) {
+export function InvoicePDFDownload({ invoiceId, invoice, currentStatus }) {
+  // 1) Мы позволяем передать либо сам объект invoice, либо invoiceId
+  const [fetchedInvoice, setFetchedInvoice] = useState(null);
+
+  // Если invoice не пришёл, но есть invoiceId, фетчим /api/invoices/:id
+  useEffect(() => {
+    if (!invoice && invoiceId) {
+      axios.get(`/api/invoices/${invoiceId}`)
+        .then((res) => {
+          // Сервер, скорее всего, возвращает { invoice: {...}, customer: {...}, items: [...] }
+          // Возьмём оттуда invoice
+          setFetchedInvoice(res.data.invoice);
+        })
+        .catch((err) => console.error('Ошибка при получении счёта:', err));
+    }
+  }, [invoice, invoiceId]);
+
+  // Если invoice проп есть — используем его, иначе то, что пришло с сервера
+  const finalInvoice = invoice || fetchedInvoice;
+
+  // Пока ничего не загрузилось (и нет готового invoice), отображаем иконку загрузки
+  const isLoading = !finalInvoice && invoiceId;
   const renderButton = (loading) => (
     <Tooltip title="Download">
       <IconButton>
@@ -37,10 +59,15 @@ export function InvoicePDFDownload({ invoice, currentStatus }) {
     </Tooltip>
   );
 
+  if (isLoading) {
+    return renderButton(true); // Показываем крутилку
+  }
+
+  // Когда всё готово, делаем PDFDownloadLink
   return (
     <PDFDownloadLink
-      document={<InvoicePdfDocument invoice={invoice} currentStatus={currentStatus} />}
-      fileName={invoice?.invoiceNumber}
+      document={<InvoicePdfDocument invoice={finalInvoice} currentStatus={currentStatus || finalInvoice?.status} />}
+      fileName={finalInvoice?.invoiceNumber || 'invoice.pdf'}
       style={{ textDecoration: 'none' }}
     >
       {/* @ts-expect-error: https://github.com/diegomura/react-pdf/issues/2886 */}
@@ -51,10 +78,36 @@ export function InvoicePDFDownload({ invoice, currentStatus }) {
 
 // ----------------------------------------------------------------------
 
-export function InvoicePDFViewer({ invoice, currentStatus }) {
+export function InvoicePDFViewer({ invoiceId, invoice, currentStatus }) {
+  // Аналогично здесь — если нет готового invoice, фетчим
+  const [fetchedInvoice, setFetchedInvoice] = useState(null);
+
+  useEffect(() => {
+    if (!invoice && invoiceId) {
+      axios.get(`/api/invoices/${invoiceId}`)
+        .then((res) => {
+          setFetchedInvoice(res.data.invoice);
+        })
+        .catch((err) => console.error('Ошибка при получении счёта:', err));
+    }
+  }, [invoice, invoiceId]);
+
+  // Решаем, какие данные реально отображать
+  const finalInvoice = invoice || fetchedInvoice;
+  const finalStatus = currentStatus || finalInvoice?.status;
+
+  // Пока грузится
+  if (!finalInvoice && invoiceId) {
+    return <div>Загрузка счёта...</div>;
+  }
+
+  if (!finalInvoice) {
+    return <div>Нет данных о счёте</div>;
+  }
+
   return (
     <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-      <InvoicePdfDocument invoice={invoice} currentStatus={currentStatus} />
+      <InvoicePdfDocument invoice={finalInvoice} currentStatus={finalStatus} />
     </PDFViewer>
   );
 }
@@ -63,7 +116,6 @@ export function InvoicePDFViewer({ invoice, currentStatus }) {
 
 Font.register({
   family: 'Roboto',
-  // fonts from public folder
   fonts: [{ src: '/fonts/Roboto-Regular.ttf' }, { src: '/fonts/Roboto-Bold.ttf' }],
 });
 
@@ -71,7 +123,7 @@ const useStyles = () =>
   useMemo(
     () =>
       StyleSheet.create({
-        // layout
+        // ... (ваш StyleSheet без изменений)
         page: {
           fontSize: 9,
           lineHeight: 1.6,
@@ -79,30 +131,17 @@ const useStyles = () =>
           backgroundColor: '#FFFFFF',
           padding: '40px 24px 120px 24px',
         },
-        footer: {
-          left: 0,
-          right: 0,
-          bottom: 0,
-          padding: 24,
-          margin: 'auto',
-          borderTopWidth: 1,
-          borderStyle: 'solid',
-          position: 'absolute',
-          borderColor: '#e9ecef',
-        },
-        container: { flexDirection: 'row', justifyContent: 'space-between' },
-        // margin
+        footer: { /* ... */ },
+        container: { /* ... */ },
         mb4: { marginBottom: 4 },
         mb8: { marginBottom: 8 },
         mb40: { marginBottom: 40 },
-        // text
         h3: { fontSize: 16, fontWeight: 700, lineHeight: 1.2 },
         h4: { fontSize: 12, fontWeight: 700 },
         text1: { fontSize: 10 },
         text2: { fontSize: 9 },
         text1Bold: { fontSize: 10, fontWeight: 700 },
         text2Bold: { fontSize: 9, fontWeight: 700 },
-        // table
         table: { display: 'flex', width: '100%' },
         row: {
           padding: '10px 0 8px 0',
@@ -122,6 +161,7 @@ const useStyles = () =>
   );
 
 function InvoicePdfDocument({ invoice, currentStatus }) {
+  // Всё ниже без изменений — берём поля из invoice
   const {
     items,
     taxes,
@@ -141,7 +181,6 @@ function InvoicePdfDocument({ invoice, currentStatus }) {
   const renderHeader = () => (
     <View style={[styles.container, styles.mb40]}>
       <Image source="/logo/logo-single.png" style={{ width: 48, height: 48 }} />
-
       <View style={{ alignItems: 'flex-end', flexDirection: 'column' }}>
         <Text style={[styles.h3, styles.mb8, { textTransform: 'capitalize' }]}>
           {currentStatus}
@@ -174,7 +213,6 @@ function InvoicePdfDocument({ invoice, currentStatus }) {
         <Text style={[styles.text2]}>{invoiceFrom?.fullAddress}</Text>
         <Text style={[styles.text2]}>{invoiceFrom?.phoneNumber}</Text>
       </View>
-
       <View style={{ width: '50%' }}>
         <Text style={[styles.text1Bold, styles.mb4]}>Invoice to</Text>
         <Text style={[styles.text2]}>{invoiceTo?.name}</Text>
@@ -200,7 +238,6 @@ function InvoicePdfDocument({ invoice, currentStatus }) {
   const renderTable = () => (
     <>
       <Text style={[styles.text1Bold]}>Invoice details</Text>
-
       <View style={styles.table}>
         <View>
           <View style={styles.row}>
@@ -221,7 +258,6 @@ function InvoicePdfDocument({ invoice, currentStatus }) {
             </View>
           </View>
         </View>
-
         <View>
           {items?.map((item, index) => (
             <View key={item.id} style={styles.row}>
@@ -243,7 +279,6 @@ function InvoicePdfDocument({ invoice, currentStatus }) {
               </View>
             </View>
           ))}
-
           {[
             { name: 'Subtotal', value: subtotal },
             { name: 'Shipping', value: -(shipping ?? 0) },

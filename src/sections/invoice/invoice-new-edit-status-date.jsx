@@ -8,10 +8,17 @@ import { Field } from 'src/components/hook-form';
 // ----------------------------------------------------------------------
 
 export function InvoiceNewEditStatusDate() {
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const values = watch();
+  
+  const documentTypes = [
+    { value: 'invoice', label: 'Счет на оплату' },
+    { value: 'nakladnaya', label: 'Накладная' },
+    { value: 'schet-faktura', label: 'Счет-фактура' }
+  ];
 
   return (
+    
     <Box
       sx={{
         p: 3,
@@ -45,22 +52,31 @@ export function InvoiceNewEditStatusDate() {
       <Field.Select
         name="document_type"
         label="Тип документа"
+        onChange={(e) => {
+          setValue('document_type', e.target.value);
+          // Trigger document recreation if needed
+        }}
       >
-        <MenuItem value="nakladnaya">Накладная</MenuItem>
-        <MenuItem value="invoice">Счет на оплату</MenuItem>
-        <MenuItem value="sf">Счет-фактура</MenuItem>
+        {documentTypes.map((type) => (
+          <MenuItem key={type.value} value={type.value}>
+            {type.label}
+          </MenuItem>
+        ))}
       </Field.Select>
 
       {/* Дата создания */}
       <Field.DatePicker
         name="createDate"
         label="Дата создания"
+        value={watch('createDate')}
+
       />
 
       {/* Дата окончания */}
       <Field.DatePicker
         name="due_date"
         label="Дата окончания"
+        value={watch('dueDate')}
       />
     </Box>
   );

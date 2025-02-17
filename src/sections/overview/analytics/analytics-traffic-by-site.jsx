@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
-import { StoreIcon, CorporateIcon, RetailIcon, MarketplaceIcon } from 'src/assets/icons';
+// import { StoreIcon, RetailIcon, MarketplaceIcon } from 'src/assets/icons';
 
 // ----------------------------------------------------------------------
 

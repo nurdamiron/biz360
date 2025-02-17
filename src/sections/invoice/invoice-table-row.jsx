@@ -13,6 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
+import axiosInstance, { endpoints } from 'src/lib/axios';
 
 import { RouterLink } from 'src/routes/components';
 import { fCurrency } from 'src/utils/format-number';
@@ -32,6 +33,9 @@ export function InvoiceTableRow({
   onDeleteRow,
   detailsHref,
 }) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const menuActions = usePopover();
   const confirmDialog = useBoolean();
   const [downloading, setDownloading] = useState(false);
@@ -89,6 +93,30 @@ export function InvoiceTableRow({
       toast.error('Ошибка при скачивании документа');
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      
+      // Call the delete API endpoint
+      await axiosInstance.delete(endpoints.invoice.delete(row.id));
+      
+      // Call the parent's onDeleteRow callback to update the UI
+      onDeleteRow();
+      
+      // Show success message
+      toast.success('Документ успешно удален');
+      
+      // Close the confirmation dialog
+      confirmDialog.onFalse();
+      
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      toast.error(error.response?.data?.error || 'Ошибка при удалении документа');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -190,15 +218,20 @@ export function InvoiceTableRow({
           <Divider sx={{ borderStyle: 'dashed' }} />
 
           <MenuItem
-            onClick={() => {
-              confirmDialog.onTrue();
-              menuActions.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Удалить
-          </MenuItem>
+  onClick={() => {
+    confirmDialog.onTrue();
+    menuActions.onClose();
+  }}
+  sx={{ color: 'error.main' }}
+  disabled={deletingId === row.id}
+>
+  {deletingId === row.id ? (
+    <CircularProgress size={20} color="inherit" />
+  ) : (
+    <Iconify icon="solar:trash-bin-trash-bold" />
+  )}
+  {deletingId === row.id ? 'Удаление...' : 'Удалить'}
+</MenuItem>
         </MenuList>
       </CustomPopover>
 
@@ -208,8 +241,13 @@ export function InvoiceTableRow({
         title="Удаление"
         content="Вы уверены, что хотите удалить этот документ?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Удалить
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? 'Удаление...' : 'Удалить'}
           </Button>
         }
       />

@@ -5,6 +5,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { varAlpha } from 'minimal-shared/utils';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
 import axiosInstance, { endpoints } from 'src/lib/axios';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -71,6 +72,11 @@ export function InvoiceListView() {
 
   const [tableData, setTableData] = useState([]);
 
+  const [deletingId, setDeletingId] = useState(null);
+
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+
   const filters = useSetState({
     name: '',
     service: [],
@@ -127,27 +133,67 @@ export function InvoiceListView() {
   }));
 
   const handleDeleteRow = useCallback(
-    (id) => {
+  async (id) => {
+    try {
+      setDeletingId(id);
+      
+      // Вызываем API для удаления
+      await axiosInstance.delete(endpoints.invoice.delete(id));
+      
+      // После успешного удаления обновляем локальное состояние
       const deleteRow = tableData.filter((row) => row.id !== id);
-
-      toast.success('Delete success!');
-
       setTableData(deleteRow);
-
+      
+      // Показываем сообщение об успехе
+      toast.success('Документ успешно удален');
+      
+      // Обновляем пагинацию
       table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
+      
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      toast.error(error.message || 'Ошибка при удалении документа');
+    } finally {
+      setDeletingId(null);
+    }
+  },
+  [dataInPage.length, table, tableData]
+);
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-
-    toast.success('Delete success!');
-
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+const handleDeleteRows = useCallback(
+  async () => {
+    try {
+      setBulkDeleting(true);
+      
+      // Удаляем все выбранные элементы
+      await Promise.all(
+        table.selected.map((id) => 
+          axiosInstance.delete(endpoints.invoice.delete(id))
+        )
+      );
+      
+      // После успешного удаления обновляем локальное состояние
+      const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+      setTableData(deleteRows);
+      
+      // Показываем сообщение об успехе
+      toast.success('Выбранные документы успешно удалены');
+      
+      // Обновляем пагинацию
+      table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
+      
+      // Закрываем диалог подтверждения
+      confirmDialog.onFalse();
+      
+    } catch (error) {
+      console.error('Error deleting invoices:', error);
+      toast.error(error.message || 'Ошибка при удалении документов');
+    } finally {
+      setBulkDeleting(false);
+    }
+  },
+  [dataFiltered.length, dataInPage.length, table, tableData, confirmDialog]
+);
 
   const handleFilterStatus = useCallback(
     (event, newValue) => {
@@ -161,22 +207,21 @@ export function InvoiceListView() {
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
+      title="Удаление"
       content={
         <>
-          Вы уверены, что хотите удалить <strong> {table.selected.length} </strong> элемента?
+          Вы уверены, что хотите удалить <strong>{table.selected.length}</strong> элемента?
         </>
       }
       action={
         <Button
           variant="contained"
           color="error"
-          onClick={() => {
-            handleDeleteRows();
-            confirmDialog.onFalse();
-          }}
+          onClick={handleDeleteRows}
+          disabled={bulkDeleting}
+          startIcon={bulkDeleting ? <CircularProgress size={20} color="inherit" /> : null}
         >
-          Удалить
+          {bulkDeleting ? 'Удаление...' : 'Удалить'}
         </Button>
       }
     />
@@ -350,10 +395,18 @@ export function InvoiceListView() {
                   </Tooltip>
 
                   <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirmDialog.onTrue}>
-                      <Iconify icon="solar:trash-bin-trash-bold" />
-                    </IconButton>
-                  </Tooltip>
+  <IconButton 
+    color="primary" 
+    onClick={confirmDialog.onTrue}
+    disabled={bulkDeleting}
+  >
+    {bulkDeleting ? (
+      <CircularProgress size={24} color="inherit" />
+    ) : (
+      <Iconify icon="solar:trash-bin-trash-bold" />
+    )}
+  </IconButton>
+</Tooltip>
                 </Box>
               }
             />

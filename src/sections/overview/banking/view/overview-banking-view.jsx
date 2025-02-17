@@ -113,13 +113,6 @@ export function OverviewBankingView() {
               subheader="You have 122 contacts"
               list={_bankingContacts.slice(-5)}
             />
-
-            <BankingInviteFriends
-              price="$50"
-              title={`Invite friends \n and earn`}
-              description="Praesent egestas tristique nibh. Duis lobortis massa imperdiet quam."
-              imgUrl={`${CONFIG.assetsDir}/assets/illustrations/illustration-receipt.webp`}
-            />
           </Box>
         </Grid>
       </Grid>
