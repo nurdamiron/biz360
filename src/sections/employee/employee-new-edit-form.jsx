@@ -22,11 +22,13 @@ import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Field, Form, schemaHelper } from 'src/components/hook-form';
 import axiosInstance, { endpoints } from 'src/lib/axios';
+import MenuItem from '@mui/material/MenuItem';
 
 // Базовая схема валидации для обоих режимов
 const baseSchema = {
   fio: zod.string().min(1, { message: 'ФИО обязательно!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }).optional(),
+  // phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }).optional(),
+  phoneNumber: zod.string().optional(),
   department: zod.string().optional(),
   role: zod.string().optional(),
   avatarUrl: schemaHelper.file().or(zod.null()).optional(),
@@ -53,57 +55,8 @@ export function EmployeeNewEditForm() {
   const [error, setError] = useState(null);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const router = useRouter();
-
-  const roleOptions = [
-    { value: 'owner', label: 'Владелец' },
-    { value: 'admin', label: 'Администратор' },
-    { value: 'manager', label: 'Менеджер' },
-    { value: 'employee', label: 'Сотрудник' }
-  ];
-
-  const departmentOptions = [
-    { value: 'sales', label: 'Отдел продаж' },
-    { value: 'development', label: 'Отдел разработки' },
-    { value: 'marketing', label: 'Отдел маркетинга' },
-    { value: 'hr', label: 'Отдел кадров' }
-  ];
-
-  // Загрузка данных сотрудника при редактировании
-  useEffect(() => {
-    const fetchEmployee = async () => {
-      if (!isEdit) return;
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await axiosInstance.get(endpoints.employee.details(id));
-        const data = response.data?.data;
-        
-        if (!data) {
-          setError('Сотрудник не найден');
-          return;
-        }
-
-        // Форматируем даты для input type="date"
-        const formattedData = {
-          ...data,
-          hireDate: data.hireDate ? format(new Date(data.hireDate), 'yyyy-MM-dd') : '',
-          birthday: data.birthday ? format(new Date(data.birthday), 'yyyy-MM-dd') : ''
-        };
-        
-        setCurrentEmployee(formattedData);
-      } catch (err) {
-        console.error('Ошибка при загрузке сотрудника:', {
-          error: err,
-          employeeId: id,
-          context: 'EmployeeNewEditForm.fetchEmployee'
-        });
-        setError('Не удалось загрузить данные сотрудника');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEmployee();
-  }, [id, isEdit]);
+  const [roleOptions, setRoleOptions] = useState([]);
+  const [departmentOptions, setDepartmentOptions] = useState([]);
 
   const defaultValues = {
     fio: '',
@@ -116,8 +69,10 @@ export function EmployeeNewEditForm() {
     birthday: ''
   };
 
+
   const schema = isEdit ? EmployeeUpdateSchema : NewEmployeeSchema;
-  
+
+    
   const methods = useForm({
     mode: 'onSubmit',
     resolver: zodResolver(schema),
@@ -133,21 +88,197 @@ export function EmployeeNewEditForm() {
     formState: { isSubmitting }
   } = methods;
 
+  const handleVerifyEmployee = async () => {
+    try {
+      const confirmData = { ...currentEmployee, isVerified: true, status: 'active' };
+      const response = await axiosInstance.put(endpoints.employee.update(id), confirmData);
+      toast.success('Сотрудник успешно подтверждён!');
+      setCurrentEmployee(response.data.data);
+      reset(response.data.data);
+    } catch (err) {
+      console.error('Ошибка при подтверждении сотрудника:', err);
+      toast.error('Ошибка при подтверждении сотрудника');
+    }
+  };
+
+
+  const handleDeleteEmployee = async () => {
+    try {
+      await axiosInstance.delete(endpoints.employee.delete(id));
+      toast.success('Сотрудник удалён!');
+      router.push(paths.dashboard.employee.list);
+    } catch (err) {
+      console.error('Ошибка при удалении сотрудника:', err);
+      toast.error('Ошибка при удалении сотрудника');
+    }
+  };
+
+  
+  const handleVerifyEmail = async () => {
+    try {
+      const response = await axiosInstance.post(endpoints.employee.verify(id));
+      
+      if (response.data?.success) {
+        toast.success('Email подтвержден');
+        setCurrentEmployee(prev => ({
+          ...prev,
+          isVerified: true
+        }));
+      }
+    } catch (err) {
+      console.error('Error verifying email:', error);
+      toast.error(error.message || 'Ошибка при подтверждении email');
+    }
+  };
+
+  const handleStatusChange = async (isBlocked) => {
+    try {
+      const response = await axiosInstance.patch(
+        endpoints.employee.updateStatus(id),
+        {
+          status: isBlocked ? 'blocked' : 'active',
+          isBlocked
+        }
+      );
+
+      if (response.data?.success) {
+        toast.success('Статус обновлен');
+        // Обновляем данные в форме
+        setCurrentEmployee(prev => ({
+          ...prev,
+          status: isBlocked ? 'blocked' : 'active'
+        }));
+      }
+    } catch (err) {
+      console.error('Error updating status:', error);
+      toast.error(error.message || 'Ошибка при обновлении статуса');
+    }
+  };
+
+  // Загрузка данных сотрудника при редактировании
+  // В useEffect для загрузки данных
+  useEffect(() => {
+  const fetchEmployee = async () => {
+    if (!isEdit) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosInstance.get(endpoints.employee.details(id));
+      console.log('API Response:', response);
+
+      // Проверяем успешность ответа
+      if (!response.data?.success) {
+        throw new Error(response.data?.error || 'Failed to load employee data');
+      }
+
+      // Получаем данные
+      const data = response.data.data;
+
+      // Проверяем наличие данных
+      if (!data) {
+        throw new Error('No employee data received');
+      }
+
+      // Форматируем данные
+      const formattedData = {
+        id: data.id,
+        fio: data.fio || '',
+        email: data.email || '',
+        phoneNumber: data.phoneNumber || '',
+        department: data.department || '',
+        role: data.role || '',
+        status: data.status || 'active',
+        isVerified: Boolean(data.isVerified),
+        hireDate: data.hireDate ? format(new Date(data.hireDate), 'yyyy-MM-dd') : '',
+        birthday: data.birthday ? format(new Date(data.birthday), 'yyyy-MM-dd') : '',
+        metrics: data.metrics || {
+          overall_performance: 0,
+          kpi: 0,
+          work_volume: 0,
+          activity: 0,
+          quality: 0
+        }
+      };
+
+      setCurrentEmployee(formattedData);
+      reset(formattedData);
+
+    } catch (err) {
+      console.error('Error fetching employee:', err);
+      setError(err.message || 'Failed to load employee data');
+      toast.error(err.message || 'Failed to load employee data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchEmployee();
+}, [id, isEdit, reset]);
+
+useEffect(() => {
+  axiosInstance.get('/api/roles')
+    .then(res => setRoleOptions(res.data)) // [{ value, label }, ...]
+    .catch(err => console.error('Failed to load roles', err));
+
+  axiosInstance.get('/api/departments')
+    .then(res => setDepartmentOptions(res.data))
+    .catch(err => console.error('Failed to load departments', err));
+}, []);
+  
+
   const values = watch();
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
+      // Format the data before sending
+      const preparedData = {
+        fio: formData.fio?.trim() || '',
+        email: formData.email?.trim()?.toLowerCase() || '',
+        phoneNumber: formData.phoneNumber || '',
+        department: formData.department || '',
+        role: formData.role || 'employee', // Default role if none selected
+        status: formData.status || 'active', // Default status
+        hireDate: formData.hireDate || null,
+        birthday: formData.birthday || null
+      };
+  
+      // Remove any undefined or null values
+      const cleanedData = Object.fromEntries(
+        Object.entries(preparedData).filter(([_, value]) => value != null)
+      );
+  
       if (isEdit) {
-        // Для обновления запрещаем изменение email
-        const dataToUpdate = { ...formData, email: currentEmployee.email };
-        const response = await axiosInstance.put(endpoints.employee.update(id), dataToUpdate);
+        const response = await axiosInstance.put(
+          endpoints.employee.update(id),
+          cleanedData
+        );
+  
+        if (!response.data?.success) {
+          throw new Error(response.data?.error || 'Ошибка при обновлении');
+        }
+  
         toast.success('Изменения сохранены!');
         
         const updatedEmployee = response.data.data;
         setCurrentEmployee(updatedEmployee);
         reset(updatedEmployee);
       } else {
-        const response = await axiosInstance.post(endpoints.employee.create, formData);
+        // For new employee, email is required
+        if (!cleanedData.email) {
+          throw new Error('Email обязателен при создании сотрудника');
+        }
+  
+        const response = await axiosInstance.post(
+          endpoints.employee.create,
+          cleanedData
+        );
+  
+        if (!response.data?.success) {
+          throw new Error(response.data?.error || 'Ошибка при создании');
+        }
+  
         toast.success('Сотрудник создан!');
         reset();
         router.push(paths.dashboard.employee.list);
@@ -159,7 +290,10 @@ export function EmployeeNewEditForm() {
         mode: isEdit ? 'update' : 'create',
         context: 'EmployeeNewEditForm.onSubmit'
       });
-      toast.error('Ошибка при сохранении сотрудника');
+      
+      // Более информативное сообщение об ошибке
+      const errorMessage = err.response?.data?.error || err.message || 'Ошибка при сохранении сотрудника';
+      toast.error(errorMessage);
     }
   });
 
@@ -178,6 +312,8 @@ export function EmployeeNewEditForm() {
       </Box>
     );
   }
+
+  console.log(roleOptions);
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
@@ -224,18 +360,9 @@ export function EmployeeNewEditForm() {
               <FormControlLabel
                 labelPlacement="start"
                 control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value !== 'active'}
-                        onChange={(event) =>
-                          field.onChange(event.target.checked ? 'banned' : 'active')
-                        }
-                      />
-                    )}
+                  <Switch
+                    checked={values.status === 'blocked'}
+                    onChange={(e) => handleStatusChange(e.target.checked)}
                   />
                 }
                 label={
@@ -252,46 +379,9 @@ export function EmployeeNewEditForm() {
               />
             )}
 
-            <Field.Switch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Подтверждён ли email
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    При отключении потребуется повторная верификация
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
-
             {isEdit && !values.isVerified && (
               <Stack sx={{ mt: 3, alignItems: 'center' }}>
-                <Button
-                  variant="contained"
-                  onClick={async () => {
-                    try {
-                      const confirmData = { ...currentEmployee, isVerified: true };
-                      const response = await axiosInstance.put(
-                        endpoints.employee.update(id),
-                        confirmData
-                      );
-                      toast.success('Сотрудник успешно подтверждён!');
-                      setCurrentEmployee(response.data.data);
-                      reset(response.data.data);
-                    } catch (err) {
-                      console.error('Ошибка при подтверждении сотрудника:', {
-                        error: err,
-                        employeeId: id,
-                        context: 'EmployeeNewEditForm.confirmEmployee'
-                      });
-                      toast.error('Ошибка при подтверждении сотрудника');
-                    }
-                  }}
-                >
+                <Button variant="contained" onClick={handleVerifyEmployee}>
                   Подтвердить сотрудника
                 </Button>
               </Stack>
@@ -299,24 +389,7 @@ export function EmployeeNewEditForm() {
 
             {isEdit && (
               <Stack sx={{ mt: 3, alignItems: 'center' }}>
-                <Button
-                  variant="soft"
-                  color="error"
-                  onClick={async () => {
-                    try {
-                      await axiosInstance.delete(endpoints.employee.delete(id));
-                      toast.success('Сотрудник удалён!');
-                      router.push(paths.dashboard.employee.list);
-                    } catch (err) {
-                      console.error('Ошибка при удалении сотрудника:', {
-                        error: err,
-                        employeeId: id,
-                        context: 'EmployeeNewEditForm.deleteEmployee'
-                      });
-                      toast.error('Ошибка при удалении сотрудника');
-                    }
-                  }}
-                >
+                <Button variant="soft" color="error" onClick={handleDeleteEmployee}>
                   Удалить сотрудника
                 </Button>
               </Stack>
@@ -347,25 +420,33 @@ export function EmployeeNewEditForm() {
                 disabled={isEdit}
                 required={!isEdit}
               />
-
+{/* 
               <Field.Phone
                 name="phoneNumber"
                 label="Телефон"
-                country={!isEdit ? 'RU' : undefined}
-              />
+                // country={!isEdit ? 'RU' : undefined}
+              /> */}
 
               <Field.Select
                 name="department"
                 label="Отдел"
-                options={departmentOptions}
-              />
+              >
+                 {departmentOptions.map((item) => (
+                  <MenuItem key={item.value} value={item.value}>
+                    {item.label}
+                  </MenuItem>
+                  ))}
 
-              <Field.Select
-                name="role"
-                label="Роль"
-                options={roleOptions}
-              />
+              </Field.Select>
 
+              <Field.Select name="role" label="Роль">
+                {roleOptions?.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+              </Field.Select>
+              
               <Field.Text
                 name="country"
                 label="Страна"

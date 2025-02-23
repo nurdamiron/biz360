@@ -28,25 +28,37 @@ export function AnalyticsWidgetSummary({
 
   const chartColors = [theme.palette[color].dark];
 
+  const defaultChart = {
+    series: [45, 52, 38, 45, 42], // Выполненные задачи за период
+    categories: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт'],
+    options: {
+      chart: {
+        type: 'line',
+        sparkline: {
+          enabled: true
+        }
+      }
+    }
+  };
+
+  const chartData = chart || defaultChart;
+
+
   const chartOptions = useChart({
-    chart: { sparkline: { enabled: true } },
-    colors: chartColors,
-    xaxis: { categories: chart.categories },
-    grid: {
-      padding: {
-        top: 6,
-        left: 6,
-        right: 6,
-        bottom: 6,
-      },
+    chart: { 
+      sparkline: { enabled: true }
+    },
+    colors: [theme.palette[color].dark],
+    xaxis: { 
+      categories: chartData.categories 
     },
     tooltip: {
-      y: { formatter: (value) => fNumber(value), title: { formatter: () => '' } },
+      y: {
+        formatter: (value) => `${value} шт.`,
+        title: { formatter: () => 'Выполнено: ' }
+      }
     },
-    markers: {
-      strokeWidth: 0,
-    },
-    ...chart.options,
+    ...chartData.options
   });
 
   const renderTrending = () => (

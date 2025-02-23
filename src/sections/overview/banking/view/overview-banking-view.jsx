@@ -18,7 +18,7 @@ import { BankingExpensesCategories } from '../banking-expenses-categories';
 
 // ----------------------------------------------------------------------
 
-export function OverviewBankingView() {
+export function AccountingDashboard() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>

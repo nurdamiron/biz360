@@ -38,22 +38,22 @@ export function AuthSplitLayout({ sx, cssVars, children, slotProps, layoutQuery 
           <Logo />
         </>
       ),
-      rightArea: (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
-          {/** @slot Help link */}
-          <Link
-            href={paths.faqs}
-            component={RouterLink}
-            color="inherit"
-            sx={{ typography: 'subtitle2' }}
-          >
-            Need help?
-          </Link>
+      // rightArea: (
+      //   <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+      //     {/** @slot Help link */}
+      //     <Link
+      //       href={paths.faqs}
+      //       component={RouterLink}
+      //       color="inherit"
+      //       sx={{ typography: 'subtitle2' }}
+      //     >
+      //       Need help?
+      //     </Link>
 
-          {/** @slot Settings button */}
-          {/* <SettingsButton /> */}
-        </Box>
-      ),
+      //     {/** @slot Settings button */}
+      //     {/* <SettingsButton /> */}
+      //   </Box>
+      // ),
     };
 
     return (

@@ -29,15 +29,11 @@ import {
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'fio', label: 'ФИО', width: 240 },
+  { id: 'fio', label: 'ФИО', width: 280 },
   { id: 'department', label: 'Отдел', width: 180 },
-  { id: 'overall_performance', label: 'Эффективность', width: 140 },
-  { id: 'kpi', label: 'KPI', width: 80 },
-  { id: 'work_volume', label: 'Объём работ', width: 120 },
-  { id: 'activity', label: 'Активность', width: 100 },
-  { id: 'quality', label: 'Качество', width: 100 },
-  { id: 'status', label: 'Доступ', width: 100 },
-  { id: '', width: 88 }, // для кнопок
+  { id: 'metrics', label: 'Метрики', width: 400 },
+  { id: 'status', label: 'Статус', width: 120 },
+  { id: 'actions', label: '', width: 60 },
 ];
 
 // ----------------------------------------------------------------------
@@ -54,6 +50,7 @@ export function EmployeeListView() {
     role: [],
     status: 'all',
   });
+  const [roleOptions, setRoleOptions] = useState([]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -73,11 +70,11 @@ export function EmployeeListView() {
       const params = {
         page: table.page + 1,
         limit: table.rowsPerPage,
-        search: filters.fio,
+        search: filters.fio, // изменено с name на fio
         role: filters.role.join(','),
         status: filters.status !== 'all' ? filters.status : undefined,
-        sort: table.orderBy,
-        order: table.order,
+        sort: table.orderBy === 'name' ? 'fio' : table.orderBy, // добавлено преобразование
+        order: table.order
       };
 
       const response = await axiosInstance.get(endpoints.employee.list, { params });
@@ -149,6 +146,15 @@ export function EmployeeListView() {
     });
   };
 
+  useEffect(() => {
+    axiosInstance.get('/api/roles')
+      .then((res) => {
+        // допустим, сервер вернул [{value: 'admin', label: 'Администратор'}, ...]
+        setRoleOptions(res.data || []);
+      })
+      .catch(err => console.error('Error fetching roles', err));
+  }, []);
+
   if (error) {
     return (
       <DashboardContent>
@@ -215,7 +221,7 @@ export function EmployeeListView() {
         <EmployeeTableToolbar
           filters={{ state: filters, setState: setFilters }}
           onResetPage={table.onResetPage}
-          roleOptions={['admin', 'owner', 'manager', 'employee']}
+        roleOptions={roleOptions.map(r => r.value)}
         />
 
         {/* Плашка вывода текущих фильтров */}

@@ -19,7 +19,7 @@ import { CourseWidgetSummary } from '../course-widget-summary';
 
 // ----------------------------------------------------------------------
 
-export function OverviewCourseView() {
+export function LogisticsDashboard() {
   return (
     <DashboardContent
       maxWidth={false}
@@ -129,7 +129,7 @@ export function OverviewCourseView() {
             <CourseContinue title="Continue course" list={_coursesContinue} />
           </Box>
 
-          <CourseFeatured title="Featured course" list={_coursesFeatured} />
+          {/* <CourseFeatured title="Featured course" list={_coursesFeatured} /> */}
         </Box>
 
         <Box

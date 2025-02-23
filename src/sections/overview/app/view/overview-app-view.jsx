@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
 
+
 import { DashboardContent } from 'src/layouts/dashboard';
 import { SeoIllustration } from 'src/assets/illustrations';
 import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } from 'src/_mock';
@@ -21,18 +22,61 @@ import { AppAreaInstalled } from '../app-area-installed';
 import { AppWidgetSummary } from '../app-widget-summary';
 import { AppCurrentDownload } from '../app-current-download';
 import { AppTopInstalledCountries } from '../app-top-installed-countries';
+import { useState, useEffect } from 'react';
 
+import { SalesDashboard } from '../../../../sections/overview/e-commerce/view';
+import { LogisticsDashboard } from '../../../../sections/overview/course/view';
+import { AccountingDashboard } from '../../../../sections/overview/banking/view'; 
+// import { ManufactureDashboard } from '../../../../sections/overview/course/view';
 // ----------------------------------------------------------------------
 
 export function OverviewAppView() {
   const { employee } = useMockedEmployee();
-
   const theme = useTheme();
+
+  // Состояние для хранения данных заказов
+  const [invoices, setInvoices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Получение заказов с бэкенда
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/orders'); // Используем ваш API endpoint
+        const data = await response.json();
+        
+        // Форматируем данные для отображения
+        const formattedInvoices = data.map(order => ({
+          id: order.order_number,
+          category: order.status,
+          price: order.total,
+          status: order.status === 'pending' ? 'В обработке' : 
+                 order.status === 'completed' ? 'Завершен' : 
+                 order.status === 'cancelled' ? 'Отменен' : 'В работе',
+          customer: {
+            name: order.customer_name,
+            email: order.customer_email
+          }
+        }));
+
+        setInvoices(formattedInvoices);
+      } catch (err) {
+        console.error('Error fetching invoices:', err);
+        setError('Ошибка при загрузке заказов');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInvoices();
+  }, []); // Пустой массив зависимостей для однократной загрузки
 
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 8 }}>
+        {/* <Grid size={{ xs: 12, md: 8 }}>
           <AppWelcome
             title={`Добро пожаловать в BIZ360👋 \n ${employee?.displayName}`}
             description=""
@@ -43,11 +87,11 @@ export function OverviewAppView() {
               </Button>
             }
           />
-        </Grid>
+        </Grid> */}
 
-        <Grid size={{ xs: 12, md: 4 }}>
+        {/* <Grid size={{ xs: 12, md: 4 }}>
           <AppFeatured list={_appFeatured} />
-        </Grid>
+        </Grid> */}
 
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
@@ -152,15 +196,17 @@ export function OverviewAppView() {
         </Grid>
 
         <Grid size={{ xs: 12, lg: 8 }}>
-          <AppNewInvoice
-            title="Создать новый счет"
-            tableData={_appInvoices}
+        <AppNewInvoice
+            title="Новые заказы"
+            tableData={invoices}
+            isLoading={isLoading}
+            error={error}
             headCells={[
-              { id: 'id', label: 'Invoice ID' },
-              { id: 'category', label: 'Category' },
-              { id: 'price', label: 'Price' },
-              { id: 'status', label: 'Status' },
-              { id: '' },
+              { id: 'id', label: 'Номер заказа' },
+              { id: 'category', label: 'Категория' },
+              { id: 'price', label: 'Сумма' },
+              { id: 'status', label: 'Статус' },
+              { id: '', label: 'Действия' }
             ]}
           />
         </Grid>

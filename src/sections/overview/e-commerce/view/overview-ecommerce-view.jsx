@@ -25,7 +25,7 @@ import { EcommerceCurrentBalance } from '../ecommerce-current-balance';
 
 // ----------------------------------------------------------------------
 
-export function OverviewEcommerceView() {
+export function SalesDashboard() {
   const { employee } = useMockedEmployee();
 
   const theme = useTheme();
@@ -33,7 +33,7 @@ export function OverviewEcommerceView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 8 }}>
+        {/* <Grid size={{ xs: 12, md: 8 }}>
           <EcommerceWelcome
             title={`Congratulations 🎉  \n ${employee?.displayName}`}
             description="Best seller of the month you have done 57.6% more sales today."
@@ -44,11 +44,11 @@ export function OverviewEcommerceView() {
               </Button>
             }
           />
-        </Grid>
+        </Grid> */}
 
-        <Grid size={{ xs: 12, md: 4 }}>
+        {/* <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceNewProducts list={_ecommerceNewProducts} />
-        </Grid>
+        </Grid> */}
 
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary

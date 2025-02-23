@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/global-config';
 
-import { OverviewEcommerceView } from 'src/sections/overview/e-commerce/view';
+import { SalesDashboard } from 'src/sections/overview/e-commerce/view';
 
 // ----------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ export default function Page() {
         <title> {metadata.title}</title>
       </Helmet>
 
-      <OverviewEcommerceView />
+      <SalesDashboard />
     </>
   );
 }
