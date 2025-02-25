@@ -305,11 +305,11 @@ export function WalktourView() {
           <Grid size={{ xs: 12, md: 6, lg: 8 }}>
             <EcommerceYearlySales
               id="demo__4"
-              title="Yearly sales"
-              subheader="(+43%) than last year"
+              title="Динамика продаж"
+              subheader="Сравнение с прошлым годом"
               chart={{
                 categories: [
-                  'Jan',
+                  'Янв',
                   'Feb',
                   'Mar',
                   'Apr',
@@ -324,27 +324,27 @@ export function WalktourView() {
                 ],
                 series: [
                   {
-                    name: '2022',
+                    name: '2024',
                     data: [
                       {
-                        name: 'Total income',
+                        name: 'Выручка',
                         data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
                       },
                       {
-                        name: 'Total expenses',
+                        name: 'Себестоимость',
                         data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
                       },
                     ],
                   },
                   {
-                    name: '2023',
+                    name: '2025',
                     data: [
                       {
-                        name: 'Total income',
+                        name: 'Выручка',
                         data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
                       },
                       {
-                        name: 'Total expenses',
+                        name: 'Себестоимость',
                         data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
                       },
                     ],
@@ -360,11 +360,11 @@ export function WalktourView() {
 
           <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <EcommerceCurrentBalance
-              title="Current balance"
-              earning={25500}
-              refunded={1600}
-              orderTotal={287650}
-              currentBalance={187650}
+              title="Текущий баланс"
+              earning={0}
+              refunded={0}
+              orderTotal={0}
+              currentBalance={0}
             />
           </Grid>
 

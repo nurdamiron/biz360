@@ -31,7 +31,7 @@ export function FileWidget({
   showAsPercent = true,
   ...other
 }) {
-  const progressValue = total > 0 ? (value / total) * 100 : 0;
+  const progressValue = 0;
 
   return (
     <Card sx={[{ p: 3, position: 'relative' }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>

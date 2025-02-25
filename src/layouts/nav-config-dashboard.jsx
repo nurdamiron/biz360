@@ -143,10 +143,10 @@ export const navData = [
       // { title: 'Дашборд', path: paths.dashboard.root, icon: ICONS.dashboard },
       { title: 'Продажи', path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
       // { title: 'Продажи', path: paths.dashboard.general.analytics, icon: ICONS.analytics },
-      { title: 'Логистика', path: paths.dashboard.general.course, icon: ICONS.course },
+      // { title: 'Логистика', path: paths.dashboard.general.course, icon: ICONS.course },
       { title: 'Бухгалтерия', path: paths.dashboard.general.banking, icon: ICONS.banking },
-      { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
-      { title: 'Booking', path: paths.dashboard.general.file, icon: ICONS.file },
+      // { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
+      // { title: 'Booking', path: paths.dashboard.general.file, icon: ICONS.file },
 
       // { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
     ],

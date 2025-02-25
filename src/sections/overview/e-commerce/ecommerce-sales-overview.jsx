@@ -60,8 +60,8 @@ function Item({ progress }) {
         variant="determinate"
         value={progress.value}
         color={
-          (progress.label === 'Total income' && 'info') ||
-          (progress.label === 'Total expenses' && 'warning') ||
+          (progress.label === 'Выручка' && 'info') ||
+          (progress.label === 'Себестоимость' && 'warning') ||
           'primary'
         }
         sx={[

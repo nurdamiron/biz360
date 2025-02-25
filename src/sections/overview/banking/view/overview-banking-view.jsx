@@ -15,10 +15,19 @@ import { BankingCurrentBalance } from '../banking-current-balance';
 import { BankingBalanceStatistics } from '../banking-balance-statistics';
 import { BankingRecentTransitions } from '../banking-recent-transitions';
 import { BankingExpensesCategories } from '../banking-expenses-categories';
+import { useAuthContext } from 'src/auth/hooks';
+import { useTheme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
 export function AccountingDashboard() {
+  const theme = useTheme();
+  const { user } = useAuthContext();
+
+   // Примеры «нулевых» значений
+   const ZERO_SERIES = [0, 0, 0, 0, 0, 0, 0];
+   const ZERO_ARRAY_12 = Array(12).fill(0);
+
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
@@ -27,49 +36,49 @@ export function AccountingDashboard() {
             <BankingOverview />
 
             <BankingBalanceStatistics
-              title="Balance statistics"
-              subheader="Statistics on balance over time"
+              title="Статистика баланса"
+              subheader="Статистика баланса по времени"
               chart={{
                 series: [
                   {
-                    name: 'Weekly',
-                    categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                    name: 'Неделя',
+                    categories: ['Неделя 1', 'Неделя 2', 'Неделя 3', 'Неделя 4', 'Неделя 5'],
                     data: [
-                      { name: 'Income', data: [24, 41, 35, 151, 49] },
-                      { name: 'Savings', data: [24, 56, 77, 88, 99] },
-                      { name: 'Investment', data: [40, 34, 77, 88, 99] },
+                      { name: 'Выручка', data: ZERO_SERIES },
+                      { name: 'Сбережения', data: ZERO_SERIES },
+                      { name: 'Инвестиции', data: ZERO_SERIES },
                     ],
                   },
                   {
-                    name: 'Monthly',
-                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    name: 'Месяц',
+                    categories: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен'],
                     data: [
-                      { name: 'Income', data: [83, 112, 119, 88, 103, 112, 114, 108, 93] },
-                      { name: 'Savings', data: [46, 46, 43, 58, 40, 59, 54, 42, 51] },
-                      { name: 'Investment', data: [25, 40, 38, 35, 20, 32, 27, 40, 21] },
+                      { name: 'Выручка', data: ZERO_SERIES },
+                      { name: 'Сбережения', data: ZERO_SERIES },
+                      { name: 'Инвестиции', data: ZERO_SERIES },
                     ],
                   },
                   {
-                    name: 'Yearly',
-                    categories: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    name: 'Год',
+                    categories: ['2020', '2021', '2022', '2023', '2024', '2025'],
                     data: [
-                      { name: 'Income', data: [76, 42, 29, 41, 27, 96] },
-                      { name: 'Savings', data: [46, 44, 24, 43, 44, 43] },
-                      { name: 'Investment', data: [23, 22, 37, 38, 32, 25] },
+                      { name: 'Выручка', data: ZERO_SERIES },
+                      { name: 'Сбережения', data: ZERO_SERIES },
+                      { name: 'Инвестиции', data: ZERO_SERIES },
                     ],
                   },
                 ],
               }}
             />
 
-            <BankingExpensesCategories
-              title="Expenses categories"
+            {/* <BankingExpensesCategories
+              title="Категории расходов"
               chart={{
                 series: [
-                  { label: 'Entertainment', value: 22 },
-                  { label: 'Fuel', value: 18 },
-                  { label: 'Fast food', value: 16 },
-                  { label: 'Cafe', value: 17 },
+                  { label: 'Развлечения',  value: 22 },
+                  { label: 'Топливо', value: 18 },
+                  { label: 'Быстрые продукты', value: 16 },
+                  { label: 'Кафе', value: 17 },
                   { label: 'Сonnection', value: 14 },
                   { label: 'Healthcare', value: 22 },
                   { label: 'Fitness', value: 10 },
@@ -98,7 +107,7 @@ export function AccountingDashboard() {
                 { id: 'status', label: 'Status' },
                 { id: '' },
               ]}
-            />
+            /> */}
           </Box>
         </Grid>
 
@@ -106,7 +115,7 @@ export function AccountingDashboard() {
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
             <BankingCurrentBalance list={_bankingCreditCard} />
 
-            <BankingQuickTransfer title="Quick transfer" list={_bankingContacts} />
+            <BankingQuickTransfer title="Быстрый перевод" list={_bankingContacts} />
 
             <BankingContacts
               title="Contacts"

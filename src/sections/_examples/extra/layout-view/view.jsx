@@ -63,7 +63,7 @@ const DEMO_COMPONENTS = [
   },
   {
     value: 'dashboard',
-    label: 'Dashboard',
+    label: 'Главная страница',
     component: (
       <DashboardLayout
         sx={{

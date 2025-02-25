@@ -6,7 +6,7 @@ import { AccountBillingView } from 'src/sections/account/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Account billing settings | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Настройки учета - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

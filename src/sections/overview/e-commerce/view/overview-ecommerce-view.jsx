@@ -35,6 +35,8 @@ export function SalesDashboard() {
   console.log('SalesDashboard user data:', user);
   const theme = useTheme();
 
+  const ZERO_CHART_SERIES = [0, 0, 0, 0, 0, 0, 0, 0];
+  const ZERO_ARRAY_12 = Array(12).fill(0);
   const getWelcomeDescription = () => {
     if (!user?.employee?.id) {
       return 'Завершите регистрацию сотрудника';
@@ -87,10 +89,10 @@ export function SalesDashboard() {
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
             title="Продажи"
-            percent={2.6}
-            total={765}
+            percent={0}
+            total={0}
             chart={{
-              series: [22, 8, 35, 50, 82, 84, 77, 12],
+              series: [20, 10, 20, 10, 20, 10, 20, 10],
             }}
           />
         </Grid>
@@ -98,11 +100,11 @@ export function SalesDashboard() {
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
             title="Общий баланс"
-            percent={-0.1}
+            percent={0}
             total={user?.company?.total_balance || 0}
             chart={{
               colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: user?.company?.balance_chart || [56, 47, 40, 62, 73, 30, 23, 54],
+              series: user?.company?.balance_chart || [10, 10, 10, 10, 10, 10, 10, 10],
             }}
           />
         </Grid>
@@ -110,24 +112,24 @@ export function SalesDashboard() {
         <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
             title="Прибыль"
-            percent={0.6}
+            percent={0}
             total={user?.company?.total_profit || 0}
             chart={{
               colors: [theme.palette.error.light, theme.palette.error.main],
-              series: user?.company?.profit_chart || [40, 70, 75, 70, 50, 28, 7, 64],
+              series: user?.company?.profit_chart || [10, 10, 10, 10, 10, 10, 10, 10],
             }}
           />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <EcommerceSaleByGender
-            title="Sale by gender"
-            total={2324}
+            title="Распределение продаж"
+            total={0}
             chart={{
               series: [
-                { label: 'Mens', value: 25 },
-                { label: 'Womens', value: 50 },
-                { label: 'Kids', value: 75 },
+                { label: 'Категория A', value: 0 },
+                { label: 'Категория B', value: 0 },
+                { label: 'Категория C', value: 0 },
               ],
             }}
           />
@@ -135,17 +137,17 @@ export function SalesDashboard() {
 
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <EcommerceYearlySales
-            title="Yearly sales"
-            subheader="(+43%) than last year"
+            title="Динамика продаж"
+            subheader="Сравнение с                                                                                                                                                                                                                                                                                                                                                                                                                                                     прошлым годом"
             chart={{
               categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
+                'Янв',
+                'Фев',
+                'Мар',
+                'Апр',
+                'Май',
+                'Июн',
+                'Июль',
                 'Aug',
                 'Sep',
                 'Oct',
@@ -154,28 +156,28 @@ export function SalesDashboard() {
               ],
               series: [
                 {
-                  name: '2022',
+                  name: '2024',
                   data: [
                     {
-                      name: 'Total income',
-                      data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
+                      name: 'Выручка',
+                      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     },
                     {
-                      name: 'Total expenses',
-                      data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
+                      name: 'Себестоимость',
+                      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     },
                   ],
                 },
                 {
-                  name: '2023',
+                  name: '2025',
                   data: [
                     {
-                      name: 'Total income',
-                      data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
+                      name: 'Выручка',
+                      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     },
                     {
-                      name: 'Total expenses',
-                      data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
+                      name: 'Себестоимость',
+                      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     },
                   ],
                 },
@@ -185,7 +187,7 @@ export function SalesDashboard() {
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <EcommerceSalesOverview title="Sales overview" data={_ecommerceSalesOverview} />
+          <EcommerceSalesOverview title="Обзор продаж" data={_ecommerceSalesOverview} />
         </Grid>
 
         {user?.employee?.role === 'owner' && (
@@ -207,16 +209,16 @@ export function SalesDashboard() {
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <EcommerceCurrentBalance
             title="Текущий баланс"
-            earning={user?.company?.current_earning || 25500}
-            refunded={user?.company?.refunded || 1600}
-            orderTotal={user?.company?.order_total || 287650}
-            currentBalance={user?.company?.current_balance || 187650}
+            earning={user?.company?.current_earning || 0}
+            refunded={user?.company?.refunded || 0}
+            orderTotal={user?.company?.order_total || 0}
+            currentBalance={user?.company?.current_balance || 0}
           />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <EcommerceLatestProducts title="Latest products" list={_ecommerceLatestProducts} />
-        </Grid>
+        {/* <Grid size={{ xs: 12, md: 6, lg: 8 }}>
+          <EcommerceLatestProducts title="Последние продукты" list={_ecommerceLatestProducts} />
+        </Grid> */}
       </Grid>
     </DashboardContent>
   );

@@ -24,7 +24,7 @@ export function BankingContacts({ title, subheader, list, sx, ...other }) {
             color="inherit"
             endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
           >
-            View all
+            Показать все
           </Button>
         }
       />
@@ -60,7 +60,7 @@ function Item({ item, sx, ...other }) {
 
       <ListItemText primary={item.name} secondary={item.email} />
 
-      <Tooltip title="Quick transfer">
+      <Tooltip title="Быстрый перевод">
         <IconButton>
           <Iconify icon="solar:transfer-horizontal-bold-duotone" />
         </IconButton>

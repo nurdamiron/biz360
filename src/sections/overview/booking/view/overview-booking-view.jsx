@@ -125,7 +125,7 @@ export function OverviewBookingView() {
                   },
                   {
                     name: 'Yearly',
-                    categories: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                    categories: ['2020', '2021', '2022', '2023', '2024', '2025'],
                     data: [
                       { name: 'Sold', data: [76, 42, 29, 41, 27, 96] },
                       { name: 'Canceled', data: [46, 44, 24, 43, 44, 43] },

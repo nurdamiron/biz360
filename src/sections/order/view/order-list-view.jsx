@@ -162,9 +162,9 @@ export function OrderListView() {
         <CustomBreadcrumbs
           heading="List"
           links={[
-            { name: 'Dashboard', href: paths.dashboard.general.file },
-            { name: 'Order', href: paths.dashboard.order.root },
-            { name: 'List' },
+            { name: 'Главная страница', href: paths.dashboard.root },
+            { name: 'Заказы', href: paths.dashboard.order.root },
+            { name: 'Список' },
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
         />

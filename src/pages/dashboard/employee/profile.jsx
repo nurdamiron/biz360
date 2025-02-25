@@ -6,7 +6,7 @@ import { EmployeeProfileView } from 'src/sections/employee/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Employee profile | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Профиль сотрудника - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

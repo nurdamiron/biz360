@@ -6,7 +6,7 @@ import { AccountingDashboard } from 'src/sections/overview/banking/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Banking | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Бухгалтерский учет - ${CONFIG.appName}` };
 
 export default function Page() {
   // ... логика проверки доступа для бухгалтерии

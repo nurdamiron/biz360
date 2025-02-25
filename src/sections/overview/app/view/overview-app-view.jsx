@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid2';
 import { useTheme } from '@mui/material/styles';
 import axiosInstance from 'src/lib/axios';
 import { useNavigate } from 'react-router-dom';
+import { Iconify } from 'src/components/iconify';
 
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -20,6 +21,7 @@ import { AppWidgetSummary } from '../app-widget-summary';
 import { AppCurrentDownload } from '../app-current-download';
 import { useState, useEffect } from 'react';
 import { FileWidget } from '../../../file-manager/file-widget';
+import { FileStorageOverview } from '../../../file-manager/file-storage-overview';
 
 // import { ManufactureDashboard } from '../../../../sections/overview/course/view';
 // ----------------------------------------------------------------------
@@ -68,166 +70,45 @@ export function OverviewAppView() {
     );
   }
 
+  const renderStorageOverview = () => (
+    <FileStorageOverview
+  sx={{ maxWidth: 400 }}
+  chart={{
+    series: 0, // 76% общая эффективность
+  }}
+  data={[
+    {
+      name: 'Продажи',
+      icon: <Iconify icon="eva:shopping-cart-fill" />,
+      value: 24, // 24% вклада
+      subtitle: 'Средний чек: 0', // Доп. инфо
+    },
+    {
+      name: 'Продукт',
+      icon: <Iconify icon="eva:briefcase-fill" />,
+      value: 32,
+      subtitle: 'Качество: 0%',
+    },
+    {
+      name: 'Учёт',
+      icon: <Iconify icon="eva:file-text-fill" />,
+      value: 20,
+      subtitle: 'Ошибок: 0%',
+    },
+  ]}
+/>
+
+  );
+
   return (
     <DashboardContent maxWidth="xl">
+      
       <Grid container spacing={3}>
-        {/* 1) Общая выручка */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <AppWidgetSummary
-            title="Общая выручка" // Было: "Total active employees"
-            percent={2.6}
-            total={4200123}
-            isCurrency
-            // 4.2 млн, например
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [3.5, 3.7, 3.9, 4.0, 4.1, 4.0, 4.1, 4.2],
-            }}
-          />
-        </Grid>
+      <Grid sx={{ display: { xs: '12', sm: '6' } }} size={18} >
+            {renderStorageOverview()}
+          </Grid>
 
-        {/* 2) Количество заказов */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <AppWidgetSummary
-            title="Количество заказов" // Было: "Total installed"
-            percent={1.1}
-            total={876} // Пример: 876 заказов
-            chart={{
-              colors: [theme.palette.info.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [700, 720, 750, 780, 800, 820, 850, 876],
-            }}
-          />
-        </Grid>
 
-        {/* 3) Чистая прибыль */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <AppWidgetSummary
-            title="Чистая прибыль"
-            percent={-0.1}
-            total={978902} // числовое значение, например 678000
-            isCurrency // <--- добавляем этот проп
-            chart={{
-              colors: [theme.palette.error.main],
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [600, 620, 640, 660, 680, 700, 690, 678],
-            }}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AppCurrentDownload
-            title="Распределение продаж"
-            subheader="по каналам"
-            chart={{
-              series: [
-                { label: 'Опт', value: 40 },
-                { label: 'Розница', value: 35 },
-                { label: 'Онлайн', value: 20 },
-                { label: 'Прочее', value: 5 },
-              ],
-            }}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AppAreaInstalled
-            title="Динамика продаж" // заголовок на русском
-            subheader="Сравнение с прошлым годом" // подзаголовок
-            chart={{
-              // Месяцы на русском
-              categories: [
-                'Янв',
-                'Фев',
-                'Мар',
-                'Апр',
-                'Май',
-                'Июн',
-                'Июль',
-                'Авг',
-                'Сен',
-                'Окт',
-                'Ноя',
-                'Дек',
-              ],
-              // Данные представлены в виде двух серий: 2022 и 2023 год
-              series: [
-                {
-                  name: '2022',
-                  data: [
-                    {
-                      name: 'Выручка (млн ₸)',
-                      data: [3.1, 3.2, 3.4, 3.6, 3.8, 4.0, 4.1, 4.2, 4.0, 4.3, 4.5, 4.6],
-                    },
-                    {
-                      name: 'Заказы',
-                      data: [120, 125, 130, 135, 140, 145, 150, 155, 150, 160, 165, 170],
-                    },
-                    {
-                      name: 'Прибыль (тыс ₸)',
-                      data: [0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.1, 1.2, 1.25, 1.3],
-                    },
-                  ],
-                },
-                {
-                  name: '2023',
-                  data: [
-                    {
-                      name: 'Выручка (млн ₸)',
-                      data: [3.2, 3.3, 3.5, 3.7, 3.9, 4.1, 4.2, 4.3, 4.2, 4.4, 4.5, 4.7],
-                    },
-                    {
-                      name: 'Заказы',
-                      data: [125, 130, 135, 140, 145, 150, 155, 160, 155, 165, 170, 175],
-                    },
-                    {
-                      name: 'Прибыль (тыс ₸)',
-                      data: [0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.15, 1.25, 1.3, 1.35],
-                    },
-                  ],
-                },
-              ],
-            }}
-          />
-        </Grid>
-
-        {/* 
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AppTopRelated title="Related applications" list={_appRelated} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AppTopInstalledCountries title="Top installed countries" list={_appInstalled} />
-        </Grid> */}
-
-        {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AppTopAuthors title="Top authors" list={_appAuthors} />
-        </Grid> */}
-
-        {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
-            <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:employee-rounded-bold"
-              chart={{ series: 48 }}
-            />
-
-            <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              chart={{
-                series: 75,
-                colors: [theme.vars.palette.info.light, theme.vars.palette.info.main],
-              }}
-              sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
-            />
-          </Box>
-        </Grid> */}
-      </Grid>
-
-      <Box sx={{ mt: 3 }}>
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
@@ -269,7 +150,164 @@ export function OverviewAppView() {
             />
           </Grid>                                                                                 
         </Grid>
-      </Box>
+        {/* 1) Общая выручка */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <AppWidgetSummary
+            title="Общая выручка" // Было: "Total active employees"
+            percent={0}
+            total={0}
+            isCurrency
+            // 4.2 млн, например
+            chart={{
+              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+              series: [3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5],
+            }}
+          />
+        </Grid>
+
+        {/* 2) Количество заказов */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <AppWidgetSummary
+            title="Количество заказов" // Было: "Total installed"
+            percent={0}
+            total={0} // Пример: 876 заказов
+            chart={{
+              colors: [theme.palette.info.main],
+              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+              series: [700, 700, 700, 700, 700, 700, 700, 700],
+            }}
+          />
+        </Grid>
+
+        {/* 3) Чистая прибыль */}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <AppWidgetSummary
+            title="Чистая прибыль"
+            percent={0}
+            total={0} // числовое значение, например 678000
+            isCurrency // <--- добавляем этот проп
+            chart={{
+              colors: [theme.palette.error.main],
+              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+              series: [600, 600, 600, 600, 600, 600, 600, 600],
+            }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={6} lg={4}>
+  <AppCurrentDownload
+    title="Распределение по категориям"
+    subheader="Процентное соотношение"
+    chart={{
+      series: [
+        { label: 'Комбинезоны', value: 40 },
+        { label: 'Одноразовые костюмы', value: 25 },
+        { label: 'Спецодежда', value: 20 },
+        { label: 'Перчатки', value: 15 },
+      ],
+    }}
+  />
+</Grid>
+
+
+        {/* <Grid size={{ xs: 12, md: 6, lg: 8 }}>
+          <AppAreaInstalled
+            title="Динамика продаж" // заголовок на русском
+            subheader="Сравнение с прошлым годом" // подзаголовок
+            chart={{
+              // Месяцы на русском
+              categories: [
+                'Янв',
+                'Фев',
+                'Мар',
+                'Апр',
+                'Май',
+                'Июн',
+                'Июль',
+                'Авг',
+                'Сен',
+                'Окт',
+                'Ноя',
+                'Дек',
+              ],
+              // Данные представлены в виде двух серий: 2022 и 2023 год
+              series: [
+                {
+                  name: '2024',
+                  data: [
+                    {
+                      name: 'Выручка (млн ₸)',
+                      data: [3.1, 3.2, 3.4, 3.6, 3.8, 4.0, 4.1, 4.2, 4.0, 4.3, 4.5, 4.6],
+                    },
+                    {
+                      name: 'Заказы',
+                      data: [120, 125, 130, 135, 140, 145, 150, 155, 150, 160, 165, 170],
+                    },
+                    {
+                      name: 'Прибыль (тыс ₸)',
+                      data: [0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.1, 1.2, 1.25, 1.3],
+                    },
+                  ],
+                },
+                {
+                  name: '2025',
+                  data: [
+                    {
+                      name: 'Выручка (млн ₸)',
+                      data: [3.2, 3.3, 3.5, 3.7, 3.9, 4.1, 4.2, 4.3, 4.2, 4.4, 4.5, 4.7],
+                    },
+                    {
+                      name: 'Заказы',
+                      data: [125, 130, 135, 140, 145, 150, 155, 160, 155, 165, 170, 175],
+                    },
+                    {
+                      name: 'Прибыль (тыс ₸)',
+                      data: [0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.15, 1.25, 1.3, 1.35],
+                    },
+                  ],
+                },
+              ],
+            }}
+          />
+        </Grid> */}
+
+        {/* 
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+          <AppTopRelated title="Related applications" list={_appRelated} />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+          <AppTopInstalledCountries title="Top installed countries" list={_appInstalled} />
+        </Grid> */}
+
+        {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+          <AppTopAuthors title="Top authors" list={_appAuthors} />
+        </Grid> */}
+
+        {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+          <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+            <AppWidget
+              title="Conversion"
+              total={38566}
+              icon="solar:employee-rounded-bold"
+              chart={{ series: 48 }}
+            />
+
+            <AppWidget
+              title="Applications"
+              total={55566}
+              icon="fluent:mail-24-filled"
+              chart={{
+                series: 75,
+                colors: [theme.vars.palette.info.light, theme.vars.palette.info.main],
+              }}
+              sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
+            />
+          </Box>
+        </Grid> */}
+      </Grid>
+
+      
 
       <Box sx={{ mt: 3 }}>
         <Grid size={{ xs: 12, lg: 8 }}>

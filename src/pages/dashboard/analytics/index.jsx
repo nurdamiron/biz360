@@ -7,7 +7,7 @@ import { SalesDashboard } from 'src/sections/overview/e-commerce/view/overview-e
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Analytics | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Аналитика - ${CONFIG.appName}` };
 
 export default function Page() {
   const navigate = useNavigate();

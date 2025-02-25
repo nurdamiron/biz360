@@ -6,7 +6,7 @@ import { CalendarView } from 'src/sections/calendar/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Calendar | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Календарь - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

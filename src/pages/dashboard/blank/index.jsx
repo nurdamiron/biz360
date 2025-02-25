@@ -6,7 +6,7 @@ import { BlankView } from 'src/sections/blank/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Blank | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Пустая страница - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

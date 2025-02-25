@@ -4,7 +4,7 @@ import { CONFIG } from 'src/global-config';
 import { useGetProduct } from 'src/actions/product';
 import { ProductDetailsView } from 'src/sections/product/view';
 
-const metadata = { title: `Product details | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Детали продукта - ${CONFIG.appName}` };
 
 export default function Page() {
   const { id } = useParams();

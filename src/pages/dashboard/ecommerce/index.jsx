@@ -9,7 +9,7 @@ import { SalesDashboard } from 'src/sections/overview/e-commerce/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `E-commerce | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Продажи - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

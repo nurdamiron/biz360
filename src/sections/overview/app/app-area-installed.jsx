@@ -13,7 +13,7 @@ import { Chart, useChart, ChartSelect, ChartLegends } from 'src/components/chart
 export function AppAreaInstalled({ title, subheader, chart, sx, ...other }) {
   const theme = useTheme();
 
-  const [selectedSeries, setSelectedSeries] = useState('2023');
+  const [selectedSeries, setSelectedSeries] = useState('2025');
 
   const chartColors = chart.colors ?? [
     theme.palette.primary.dark,

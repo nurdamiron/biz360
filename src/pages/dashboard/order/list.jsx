@@ -6,7 +6,7 @@ import { OrderListView } from 'src/sections/order/view';
 
 // ----------------------------------------------------------------------
 
-const metadata = { title: `Order list | Dashboard - ${CONFIG.appName}` };
+const metadata = { title: `Список заказов - ${CONFIG.appName}` };
 
 export default function Page() {
   return (

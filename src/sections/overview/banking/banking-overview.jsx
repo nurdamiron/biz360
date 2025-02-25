@@ -19,16 +19,16 @@ import { CustomTabs } from 'src/components/custom-tabs';
 const TABS = [
   {
     value: 'income',
-    label: 'Income',
-    percent: 8.2,
-    total: 9990,
+    label: 'Прибыль',
+    percent: 0,
+    total: 0,
     chart: { series: [{ data: [5, 31, 33, 50, 99, 76, 72, 76, 89] }] },
   },
   {
     value: 'expenses',
-    label: 'Expenses',
-    percent: -6.6,
-    total: 1989,
+    label: 'Расходы',
+    percent: 0,
+    total: 0,
     chart: { series: [{ data: [10, 41, 35, 51, 49, 62, 69, 91, 148] }] },
   },
 ];
@@ -43,7 +43,7 @@ export function BankingOverview({ sx, ...other }) {
 
   const chartOptions = useChart({
     colors: chartColors,
-    xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'] },
+    xaxis: { categories: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен'] },
     stroke: { width: 3 },
     tooltip: {
       y: { formatter: (value) => fCurrency(value), title: { formatter: () => '' } },
@@ -62,13 +62,13 @@ export function BankingOverview({ sx, ...other }) {
           typography: 'subtitle2',
         }}
       >
-        Total balance
+        Общий баланс
         <Tooltip title="Vestibulum ullamcorper mauris">
           <Iconify width={16} icon="eva:info-outline" sx={{ color: 'text.disabled' }} />
         </Tooltip>
       </Box>
 
-      <Box sx={{ typography: 'h3' }}>{fCurrency(49990)}</Box>
+      <Box sx={{ typography: 'h3' }}>{fCurrency(0)}</Box>
     </Box>
   );
 
@@ -79,21 +79,21 @@ export function BankingOverview({ sx, ...other }) {
         size="small"
         startIcon={<Iconify width={16} icon="eva:arrow-upward-fill" />}
       >
-        Send
+        Отправить
       </Button>
       <Button
         variant="soft"
         size="small"
         startIcon={<Iconify width={16} icon="mingcute:add-line" />}
       >
-        Add card
+        Добавить карту
       </Button>
       <Button
         variant="soft"
         size="small"
         startIcon={<Iconify width={16} icon="eva:arrow-downward-fill" />}
       >
-        Request
+        Запросить
       </Button>
     </Box>
   );

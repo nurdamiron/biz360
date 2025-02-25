@@ -39,7 +39,7 @@ export default function Page() {
   return (
     <>
       <Helmet>
-        <title>{`Dashboard - ${CONFIG.appName}`}</title>
+        <title>{`Главная страница - ${CONFIG.appName}`}</title>
       </Helmet>
       <OverviewAppView />
     </>

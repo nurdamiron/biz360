@@ -15,8 +15,8 @@ export function PostEditView({ post }) {
         heading="Edit"
         backHref={paths.dashboard.post.root}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'Blog', href: paths.dashboard.post.root },
+          { name: 'Главная страница', href: paths.dashboard.root },
+          { name: 'Блог', href: paths.dashboard.post.root },
           { name: post?.title },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}

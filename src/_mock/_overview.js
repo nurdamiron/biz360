@@ -127,7 +127,7 @@ export const _analyticTraffic = [
 // ECOMMERCE
 // ----------------------------------------------------------------------
 
-export const _ecommerceSalesOverview = ['Total profit', 'Total income', 'Total expenses'].map(
+export const _ecommerceSalesOverview = ['Прибыль', 'Выручка', 'Себестоимость'].map(
   (label, index) => ({
     label,
     totalAmount: _mock.number.price(index) * 100,

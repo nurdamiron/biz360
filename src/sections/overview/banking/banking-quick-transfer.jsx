@@ -140,7 +140,7 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }) {
 
       <Box sx={{ my: 4, display: 'flex', alignItems: 'center', typography: 'subtitle1' }}>
         <Box component="span" sx={{ flexGrow: 1 }}>
-          Your balance
+          Ваш баланс
         </Box>
         {fCurrency(34212)}
       </Box>
@@ -153,7 +153,7 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }) {
         disabled={amount === 0}
         onClick={confirmDialog.onTrue}
       >
-        Transfer now
+        Перевести сейчас
       </Button>
     </>
   );
@@ -191,7 +191,7 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }) {
         <Box sx={{ p: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="overline" sx={{ color: 'text.secondary', flexGrow: 1 }}>
-              Recent
+              Последние
             </Typography>
 
             <Button
@@ -200,7 +200,7 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }) {
               endIcon={<Iconify icon="eva:arrow-ios-forward-fill" width={18} sx={{ ml: -0.5 }} />}
               sx={{ mr: -1 }}
             >
-              View all
+              Показать все
             </Button>
           </Box>
 
@@ -219,7 +219,7 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }) {
 function ConfirmTransferDialog({ open, value, onBlur, onClose, onChange, contactInfo }) {
   return (
     <Dialog open={open} fullWidth maxWidth="xs" onClose={onClose}>
-      <DialogTitle>Transfer to</DialogTitle>
+      <DialogTitle>Перевести на</DialogTitle>
 
       <Box
         sx={{
@@ -247,10 +247,10 @@ function ConfirmTransferDialog({ open, value, onBlur, onClose, onChange, contact
       </Box>
 
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose}>Отменить</Button>
 
         <Button variant="contained" disabled={value === '0'} onClick={onClose}>
-          Transfer
+          Перевести
         </Button>
       </DialogActions>
     </Dialog>
