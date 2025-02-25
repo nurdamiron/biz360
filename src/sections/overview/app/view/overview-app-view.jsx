@@ -1,146 +1,130 @@
+// src/sections/overview/app/view/overview-app-view.jsx
+
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
+import axiosInstance from 'src/lib/axios';
+import { useNavigate } from 'react-router-dom';
 
-
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardContent from '@mui/material/CardContent';
 import { DashboardContent } from 'src/layouts/dashboard';
-import { SeoIllustration } from 'src/assets/illustrations';
-import { _appAuthors, _appRelated, _appFeatured, _appInvoices, _appInstalled } from 'src/_mock';
-
-import { svgColorClasses } from 'src/components/svg-color';
+import { CONFIG } from 'src/global-config';
 
 import { useMockedEmployee } from 'src/auth/hooks';
 
-import { AppWidget } from '../app-widget';
-import { AppWelcome } from '../app-welcome';
-import { AppFeatured } from '../app-featured';
 import { AppNewInvoice } from '../app-new-invoice';
-import { AppTopAuthors } from '../app-top-authors';
-import { AppTopRelated } from '../app-top-related';
 import { AppAreaInstalled } from '../app-area-installed';
 import { AppWidgetSummary } from '../app-widget-summary';
 import { AppCurrentDownload } from '../app-current-download';
-import { AppTopInstalledCountries } from '../app-top-installed-countries';
 import { useState, useEffect } from 'react';
+import { FileWidget } from '../../../file-manager/file-widget';
 
-import { SalesDashboard } from '../../../../sections/overview/e-commerce/view';
-import { LogisticsDashboard } from '../../../../sections/overview/course/view';
-import { AccountingDashboard } from '../../../../sections/overview/banking/view'; 
 // import { ManufactureDashboard } from '../../../../sections/overview/course/view';
 // ----------------------------------------------------------------------
 
 export function OverviewAppView() {
   const { employee } = useMockedEmployee();
   const theme = useTheme();
+  const [departmentsMetrics, setDepartmentsMetrics] = useState({});
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Состояние для хранения данных заказов
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Получение заказов с бэкенда
   useEffect(() => {
-    const fetchInvoices = async () => {
+    const fetchAllDepts = async () => {
       try {
-        setIsLoading(true);
-        const response = await fetch('/api/orders'); // Используем ваш API endpoint
-        const data = await response.json();
-        
-        // Форматируем данные для отображения
-        const formattedInvoices = data.map(order => ({
-          id: order.order_number,
-          category: order.status,
-          price: order.total,
-          status: order.status === 'pending' ? 'В обработке' : 
-                 order.status === 'completed' ? 'Завершен' : 
-                 order.status === 'cancelled' ? 'Отменен' : 'В работе',
-          customer: {
-            name: order.customer_name,
-            email: order.customer_email
-          }
-        }));
-
-        setInvoices(formattedInvoices);
+        setLoading(true);
+        const res = await axiosInstance.get('/api/departments/metrics/all');
+        // res.data.data => { sales: {...}, logistics: {...}, accounting: {...}, manufacture: {...} }
+        setDepartmentsMetrics(res.data.data);
       } catch (err) {
-        console.error('Error fetching invoices:', err);
-        setError('Ошибка при загрузке заказов');
+        console.error(err);
+        setError('Ошибка при загрузке метрик');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
+    fetchAllDepts();
+  }, []);
 
-    fetchInvoices();
-  }, []); // Пустой массив зависимостей для однократной загрузки
+  if (error) {
+    return (
+      <DashboardContent>
+        <div>{error}</div>
+      </DashboardContent>
+    );
+  }
+  if (loading) {
+    return (
+      <DashboardContent>
+        <div>Загрузка...</div>
+      </DashboardContent>
+    );
+  }
 
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        {/* <Grid size={{ xs: 12, md: 8 }}>
-          <AppWelcome
-            title={`Добро пожаловать в BIZ360👋 \n ${employee?.displayName}`}
-            description=""
-            img={<SeoIllustration hideBackground />}
-            action={
-              <Button variant="contained" color="primary">
-                Go now
-              </Button>
-            }
-          />
-        </Grid> */}
-
-        {/* <Grid size={{ xs: 12, md: 4 }}>
-          <AppFeatured list={_appFeatured} />
-        </Grid> */}
-
+        {/* 1) Общая выручка */}
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total active employees"
+            title="Общая выручка" // Было: "Total active employees"
             percent={2.6}
-            total={18765}
+            total={4200123}
+            isCurrency
+            // 4.2 млн, например
             chart={{
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [15, 18, 12, 51, 68, 11, 39, 37],
+              series: [3.5, 3.7, 3.9, 4.0, 4.1, 4.0, 4.1, 4.2],
             }}
           />
         </Grid>
 
+        {/* 2) Количество заказов */}
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total installed"
-            percent={0.2}
-            total={4876}
+            title="Количество заказов" // Было: "Total installed"
+            percent={1.1}
+            total={876} // Пример: 876 заказов
             chart={{
               colors: [theme.palette.info.main],
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [20, 41, 63, 33, 28, 35, 50, 46],
+              series: [700, 720, 750, 780, 800, 820, 850, 876],
             }}
           />
         </Grid>
 
+        {/* 3) Чистая прибыль */}
         <Grid size={{ xs: 12, md: 4 }}>
           <AppWidgetSummary
-            title="Total downloads"
+            title="Чистая прибыль"
             percent={-0.1}
-            total={678}
+            total={978902} // числовое значение, например 678000
+            isCurrency // <--- добавляем этот проп
             chart={{
               colors: [theme.palette.error.main],
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [18, 19, 31, 8, 16, 37, 12, 33],
+              series: [600, 620, 640, 660, 680, 700, 690, 678],
             }}
           />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AppCurrentDownload
-            title="Current download"
-            subheader="Downloaded by operating system"
+            title="Распределение продаж"
+            subheader="по каналам"
             chart={{
               series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
+                { label: 'Опт', value: 40 },
+                { label: 'Розница', value: 35 },
+                { label: 'Онлайн', value: 20 },
+                { label: 'Прочее', value: 5 },
               ],
             }}
           />
@@ -148,46 +132,58 @@ export function OverviewAppView() {
 
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <AppAreaInstalled
-            title="Area installed"
-            subheader="(+43%) than last year"
+            title="Динамика продаж" // заголовок на русском
+            subheader="Сравнение с прошлым годом" // подзаголовок
             chart={{
+              // Месяцы на русском
               categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
+                'Янв',
+                'Фев',
+                'Мар',
+                'Апр',
+                'Май',
+                'Июн',
+                'Июль',
+                'Авг',
+                'Сен',
+                'Окт',
+                'Ноя',
+                'Дек',
               ],
+              // Данные представлены в виде двух серий: 2022 и 2023 год
               series: [
                 {
                   name: '2022',
                   data: [
-                    { name: 'Asia', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Europe', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
-                    { name: 'Americas', data: [12, 10, 18, 22, 20, 12, 8, 21, 20, 14, 15, 16] },
+                    {
+                      name: 'Выручка (млн ₸)',
+                      data: [3.1, 3.2, 3.4, 3.6, 3.8, 4.0, 4.1, 4.2, 4.0, 4.3, 4.5, 4.6],
+                    },
+                    {
+                      name: 'Заказы',
+                      data: [120, 125, 130, 135, 140, 145, 150, 155, 150, 160, 165, 170],
+                    },
+                    {
+                      name: 'Прибыль (тыс ₸)',
+                      data: [0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.1, 1.2, 1.25, 1.3],
+                    },
                   ],
                 },
                 {
                   name: '2023',
                   data: [
-                    { name: 'Asia', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Europe', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                    { name: 'Americas', data: [6, 18, 14, 9, 20, 6, 22, 19, 8, 22, 8, 17] },
-                  ],
-                },
-                {
-                  name: '2024',
-                  data: [
-                    { name: 'Asia', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Europe', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
-                    { name: 'Americas', data: [6, 20, 15, 18, 7, 24, 6, 10, 12, 17, 18, 10] },
+                    {
+                      name: 'Выручка (млн ₸)',
+                      data: [3.2, 3.3, 3.5, 3.7, 3.9, 4.1, 4.2, 4.3, 4.2, 4.4, 4.5, 4.7],
+                    },
+                    {
+                      name: 'Заказы',
+                      data: [125, 130, 135, 140, 145, 150, 155, 160, 155, 165, 170, 175],
+                    },
+                    {
+                      name: 'Прибыль (тыс ₸)',
+                      data: [0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2, 1.15, 1.25, 1.3, 1.35],
+                    },
                   ],
                 },
               ],
@@ -195,35 +191,20 @@ export function OverviewAppView() {
           />
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 8 }}>
-        <AppNewInvoice
-            title="Новые заказы"
-            tableData={invoices}
-            isLoading={isLoading}
-            error={error}
-            headCells={[
-              { id: 'id', label: 'Номер заказа' },
-              { id: 'category', label: 'Категория' },
-              { id: 'price', label: 'Сумма' },
-              { id: 'status', label: 'Статус' },
-              { id: '', label: 'Действия' }
-            ]}
-          />
-        </Grid>
-
+        {/* 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AppTopRelated title="Related applications" list={_appRelated} />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AppTopInstalledCountries title="Top installed countries" list={_appInstalled} />
-        </Grid>
+        </Grid> */}
 
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <AppTopAuthors title="Top authors" list={_appAuthors} />
-        </Grid>
+        </Grid> */}
 
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+        {/* <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
             <AppWidget
               title="Conversion"
@@ -243,8 +224,98 @@ export function OverviewAppView() {
               sx={{ bgcolor: 'info.dark', [`& .${svgColorClasses.root}`]: { color: 'info.light' } }}
             />
           </Box>
-        </Grid>
+        </Grid> */}
       </Grid>
+
+      <Box sx={{ mt: 3 }}>
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <FileWidget
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-analytics.svg`}
+              title="Продажи"
+              manager="Жанат Кульбаева"
+              managerIcon="eva:person-fill"
+              value={93}
+              total={100}
+              showAsPercent
+              onClick={() => navigate('/dashboard/ecommerce')} // <-- пример
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <FileWidget
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`}
+              title="Продукт"
+              manager="Амантаева Ляззат"
+              managerIcon="eva:person-fill"
+              value={92}
+              total={100}
+              showAsPercent
+              onClick={() => navigate('/dashboard/ecommerce')} // <-- пример
+
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <FileWidget
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-invoice.svg`}
+              title="Учет"
+              manager="Әлемгер"
+              managerIcon="eva:person-fill"
+              value={90}
+              total={100}
+              showAsPercent
+              onClick={() => navigate('/dashboard/banking')} // <-- пример
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mt: 3 }}>
+        <Grid size={{ xs: 12, lg: 8 }}>
+          <AppNewInvoice
+            title="Новые заказы"
+            tableData={invoices}
+            isLoading={isLoading}
+            error={error}
+            headCells={[
+              { id: 'id', label: 'Номер заказа' },
+              { id: 'category', label: 'Категория' },
+              { id: 'price', label: 'Сумма' },
+              { id: 'status', label: 'Статус' },
+              { id: '', label: 'Действия' },
+            ]}
+          />
+        </Grid>
+      </Box>
     </DashboardContent>
+  );
+}
+
+function DepartmentCard({ departmentCode, metrics }) {
+  // Для перевода кода отдела в человеко-понятное название
+  const departmentName =
+    departmentCode === 'sales'
+      ? 'Отдел продаж'
+      : departmentCode === 'logistics'
+        ? 'Отдел логистики'
+        : departmentCode === 'accounting'
+          ? 'Бухгалтерия'
+          : departmentCode === 'manufacture'
+            ? 'Производство'
+            : departmentCode;
+
+  // В metrics.averages, metrics.trends и т. д. хранится информация
+  return (
+    <Card>
+      <CardHeader title={departmentName} />
+      <CardContent>
+        {/* Выводим нужные поля */}
+        <div>Производительность: {metrics.averages?.overall_performance ?? 0}%</div>
+        <div>KPI: {metrics.averages?.kpi ?? 0}%</div>
+        <div>Тренд производительности: {metrics.trends?.performance_trend}</div>
+        {/* ... и т. д. */}
+      </CardContent>
+    </Card>
   );
 }

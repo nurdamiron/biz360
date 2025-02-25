@@ -104,9 +104,9 @@ export function OverviewFileView() {
     <>
       <DashboardContent maxWidth="xl">
         <Grid container spacing={3}>
-          <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }} >
+          {/* <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }} >
             Добро пожаловать в BIZ360 👋
-          </Typography>
+          </Typography> */}
           <Grid sx={{ display: { xs: '12', sm: '6' } }} size={18} >
             {renderStorageOverview()}
           </Grid>

@@ -103,12 +103,6 @@ export const endpoints = {
     create: `${BASE_API_URL}/api/employees`,
     update: (id) => `${BASE_API_URL}/api/employees/${id}`,
     delete: (id) => `${BASE_API_URL}/api/employees/${id}`,
-    // Новые эндпоинты
-    updateStatus: (id) => `${BASE_API_URL}/api/employees/${id}/status`,
-    verify: (id) => `${BASE_API_URL}/api/employees/${id}/verify`,
-    uploadAvatar: (id) => `${BASE_API_URL}/api/employees/${id}/avatar`,
-    metrics: (id) => `${BASE_API_URL}/api/employees/${id}/metrics`,
-    history: (id) => `${BASE_API_URL}/api/employees/${id}/history`,
   },
 
   order: {
@@ -146,25 +140,6 @@ export const endpoints = {
     update:`${BASE_API_URL}/api/suppliers/`,  // PUT /api/customers/:id
     delete: `${BASE_API_URL}/api/suppliers/`,  // DELETE /api/customers/:id
   },
-
-  roles: {
-    list: `${BASE_API_URL}/api/roles`,
-    create: `${BASE_API_URL}/api/roles`,
-    update: (id) => `${BASE_API_URL}/api/roles/${id}`,
-    delete: (id) => `${BASE_API_URL}/api/roles/${id}`,
-    permissions: {
-      get: (roleId) => `${BASE_API_URL}/api/roles/${roleId}/permissions`,
-      update: (roleId) => `${BASE_API_URL}/api/roles/${roleId}/permissions`
-    }
-  },
-
-  departments: {
-    list: `${BASE_API_URL}/api/departments`,
-    create: `${BASE_API_URL}/api/departments`,
-    update: (id) => `${BASE_API_URL}/api/departments/${id}`,
-    delete: (id) => `${BASE_API_URL}/api/departments/${id}`,
-    employees: (id) => `${BASE_API_URL}/api/departments/${id}/employees`
-  }
 
 
 };

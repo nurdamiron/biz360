@@ -1,4 +1,3 @@
-// routes/paths.js
 import { kebabCase } from 'es-toolkit';
 
 import { _id, _postTitles } from 'src/_mock/assets';
@@ -85,12 +84,6 @@ export const paths = {
       booking: `${ROOTS.DASHBOARD}/booking`,
       file: `${ROOTS.DASHBOARD}/file`,
       course: `${ROOTS.DASHBOARD}/course`,
-    },
-    departments: {
-      sales: `${ROOTS.DASHBOARD}/sales`,
-      accounting: `${ROOTS.DASHBOARD}/accounting`,
-      manufacture: `${ROOTS.DASHBOARD}/manufacture`,
-      logistics: `${ROOTS.DASHBOARD}/logistics`
     },
     employee: {
       root: `${ROOTS.DASHBOARD}/employee`,

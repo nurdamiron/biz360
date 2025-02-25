@@ -43,6 +43,20 @@ export function fCurrency(inputValue, options) {
   return fm;
 }
 
+// Форматирование числа в формат "4 200 123 ₸"
+export function fTenge(number) {
+  if (!number && number !== 0) return '';
+
+  const rounded = Math.round(number);
+
+  // Разбиваем на группы по 3 цифры
+  const formatted = String(rounded).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  // Добавляем символ "₸"
+  return `${formatted} ₸`;
+}
+
+
 // ----------------------------------------------------------------------
 
 export function fPercent(inputValue, options) {

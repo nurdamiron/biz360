@@ -17,6 +17,11 @@ import { CourseHoursSpent } from '../course-hours-spent';
 import { CourseMyStrength } from '../course-my-strength';
 import { CourseWidgetSummary } from '../course-widget-summary';
 
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from 'src/auth/hooks';
+import { paths } from 'src/routes/paths';
+
 // ----------------------------------------------------------------------
 
 export function LogisticsDashboard() {
@@ -47,14 +52,14 @@ export function LogisticsDashboard() {
             }),
           ]}
         >
-          <Box sx={{ mb: 2 }}>
+          {/* <Box sx={{ mb: 2 }}>
             <Typography variant="h4" sx={{ mb: 1 }}>
             Добро пожаловать в BIZ360 👋
             </Typography>
             <Typography
               sx={{ color: 'text.secondary' }}
             >{`Let's learn something new today!`}</Typography>
-          </Box>
+          </Box> */}
 
           <Box
             sx={{

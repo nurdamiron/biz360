@@ -1,3 +1,4 @@
+// src/layouts/dashboard/content.jsx
 import { mergeClasses } from 'minimal-shared/utils';
 
 import { styled } from '@mui/material/styles';

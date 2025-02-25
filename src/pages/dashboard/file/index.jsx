@@ -19,3 +19,8 @@ export default function Page() {
     </>
   );
 }
+
+// Для корпоративного дашборда
+export function CorporateDashboardPage() {
+  // Проверка на owner/admin роли
+}

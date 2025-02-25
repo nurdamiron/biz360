@@ -16,7 +16,7 @@ export function EmployeeCreateView() {
       <CustomBreadcrumbs
         heading="Создать профиль сотрудника"
         links={[
-          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Дашборд', href: paths.dashboard.root  },
           { name: 'Сотрудники', href: paths.dashboard.employee.root },
           { name: 'Новый сотрудник' },
         ]}

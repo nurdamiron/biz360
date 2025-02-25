@@ -1,6 +1,5 @@
 import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
-
 import { CONFIG } from 'src/global-config';
 import { DashboardContent } from 'src/layouts/dashboard';
 import {
@@ -19,8 +18,22 @@ import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
 import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
 import { AnalyticsCurrentSubject } from '../analytics-current-subject';
 import { AnalyticsConversionRates } from '../analytics-conversion-rates';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from 'src/auth/hooks';
+import { paths } from 'src/routes/paths';
 
-export function OverviewAnalyticsView() {
+export default function OverviewAnalyticsView() {
+  const navigate = useNavigate();
+  const { user } = useAuthContext();
+
+  useEffect(() => {
+    // Проверяем, имеет ли пользователь доступ к этому View
+    if (user?.employee?.department !== 'sales') {
+      navigate(paths.dashboard.root, { replace: true });
+    }
+  }, [user, navigate]);
+  
   return (
     <DashboardContent maxWidth="xl">
       <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>

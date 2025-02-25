@@ -45,7 +45,7 @@ export function PostListView() {
       <CustomBreadcrumbs
         heading="Список"
         links={[
-          { name: 'Дэшборд', href: paths.dashboard.general.file },
+          { name: 'Дэшборд', href: paths.dashboard.root },
           { name: 'Блог', href: paths.dashboard.post.root },
           { name: 'Список' },
         ]}

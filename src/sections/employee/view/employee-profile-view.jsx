@@ -77,7 +77,7 @@ export function EmployeeProfileView() {
       <CustomBreadcrumbs
         heading="Profile"
         links={[
-          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Дашборд', href: paths.dashboard.root  },
           { name: 'Сотрудник', href: paths.dashboard.employee.root },
           { name: employee?.displayName },
         ]}

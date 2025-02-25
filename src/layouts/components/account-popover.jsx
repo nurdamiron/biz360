@@ -14,7 +14,7 @@ import { RouterLink } from 'src/routes/components';
 import { Label } from 'src/components/label';
 import { CustomPopover } from 'src/components/custom-popover';
 
-import { useMockedEmployee } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks/use-auth-context';
 
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
@@ -26,7 +26,8 @@ export function AccountPopover({ data = [], sx, ...other }) {
 
   const { open, anchorEl, onClose, onOpen } = usePopover();
 
-  const { employee } = useMockedEmployee();
+  const { user } = useAuthContext();
+  console.log('AccountPopover user data:', user);
 
   const renderMenuActions = () => (
     <CustomPopover
@@ -37,11 +38,11 @@ export function AccountPopover({ data = [], sx, ...other }) {
     >
       <Box sx={{ p: 2, pb: 1.5 }}>
         <Typography variant="subtitle2" noWrap>
-          {employee?.displayName}
+          {`${user?.first_name || ''} ${user?.last_name || ''}`}
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-          {employee?.email}
+          {user?.email}
         </Typography>
       </Box>
 
@@ -49,14 +50,14 @@ export function AccountPopover({ data = [], sx, ...other }) {
 
       <MenuList sx={{ p: 1, my: 1, '& li': { p: 0 } }}>
         {data.map((option) => {
-          const rootLabel = pathname.includes('/dashboard') ? 'Home' : 'Dashboard';
-          const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.general.file;
+          const rootLabel = pathname.includes('/dashboard') ? 'Главная' : 'Дашборд';
+          const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
 
           return (
             <MenuItem key={option.label}>
               <Link
                 component={RouterLink}
-                href={option.label === 'Home' ? rootHref : option.href}
+                href={option.label === 'Главная' ? rootHref : option.href}
                 color="inherit"
                 underline="none"
                 onClick={onClose}
@@ -106,8 +107,7 @@ export function AccountPopover({ data = [], sx, ...other }) {
     <>
       <AccountButton
         onClick={onOpen}
-        photoURL={employee?.photoURL}
-        displayName={employee?.displayName}
+        displayName={`${user?.first_name || ''} ${user?.last_name || ''}`}
         sx={sx}
         {...other}
       />

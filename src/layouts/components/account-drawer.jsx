@@ -22,7 +22,7 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateBorder } from 'src/components/animate';
 
-import { useMockedEmployee } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { UpgradeBlock } from './nav-upgrade';
 import { AccountButton } from './account-button';
@@ -32,9 +32,12 @@ import { SignOutButton } from './sign-out-button';
 
 export function AccountDrawer({ data = [], sx, ...other }) {
   const pathname = usePathname();
+  const authContext = useAuthContext();
 
-  const { employee } = useMockedEmployee();
+  const user = authContext.user;
 
+  console.log('AccountDrawer full authContext:', authContext);
+  console.log('AccountDrawer user data:', user);
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
   const renderAvatar = () => (
@@ -44,12 +47,16 @@ export function AccountDrawer({ data = [], sx, ...other }) {
         primaryBorder: { size: 120, sx: { color: 'primary.main' } },
       }}
     >
-      <Avatar src={employee?.photoURL} alt={employee?.displayName} sx={{ width: 1, height: 1 }}>
-        {employee?.displayName?.charAt(0).toUpperCase()}
+      <Avatar 
+        alt={`${user?.first_name} ${user?.last_name}`} 
+        sx={{ width: 1, height: 1 }}
+      >
+        {user?.first_name?.charAt(0).toUpperCase()}
       </Avatar>
     </AnimateBorder>
   );
 
+  
   const renderList = () => (
     <MenuList
       disablePadding
@@ -64,14 +71,14 @@ export function AccountDrawer({ data = [], sx, ...other }) {
       ]}
     >
       {data.map((option) => {
-        const rootLabel = pathname.includes('/dashboard') ? 'Home' : 'Dashboard';
-        const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.general.file;
+        const rootLabel = pathname.includes('/dashboard') ? 'Главная' : 'Дашборд';
+        const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
 
         return (
           <MenuItem key={option.label}>
             <Link
               component={RouterLink}
-              href={option.label === 'Home' ? rootHref : option.href}
+              href={option.label === 'Главная' ? rootHref : option.href}
               color="inherit"
               underline="none"
               onClick={onClose}
@@ -108,8 +115,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
     <>
       <AccountButton
         onClick={onOpen}
-        photoURL={employee?.photoURL}
-        displayName={employee?.displayName}
+        displayName={`${user?.first_name || ''} ${user?.last_name || ''}`}
         sx={sx}
         {...other}
       />
@@ -144,56 +150,26 @@ export function AccountDrawer({ data = [], sx, ...other }) {
           >
             {renderAvatar()}
 
-            <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              {employee?.displayName}
-            </Typography>
+            <Typography variant="subtitle1" noWrap>
+            {authContext.user ? 
+    `${authContext.user.first_name || ''} ${authContext.user.last_name || ''}`.trim() || 'Пользователь' 
+    : 'Пользователь'}
+</Typography>
 
-            <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {employee?.email}
-            </Typography>
-          </Box>
+<Typography variant="body2" color="text.secondary" noWrap>
+{authContext.user && (
+    <>
+      {authContext.user.employee?.role}
+      {authContext.user.employee?.department ? ` • ${authContext.user.employee.department}` : ''}
+      {authContext.user.company?.name ? ` • ${authContext.user.company.name}` : ''}
+    </>
+  )}
+</Typography>
 
-          <Box
-            sx={{
-              p: 3,
-              gap: 1,
-              flexWrap: 'wrap',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            {Array.from({ length: 3 }, (_, index) => (
-              <Tooltip
-                key={_mock.fullName(index + 1)}
-                title={`Switch to: ${_mock.fullName(index + 1)}`}
-              >
-                <Avatar
-                  alt={_mock.fullName(index + 1)}
-                  src={_mock.image.avatar(index + 1)}
-                  onClick={() => {}}
-                />
-              </Tooltip>
-            ))}
-
-            <Tooltip title="Add account">
-              <IconButton
-                sx={[
-                  (theme) => ({
-                    bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                    border: `dashed 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
-                  }),
-                ]}
-              >
-                <Iconify icon="mingcute:add-line" />
-              </IconButton>
-            </Tooltip>
           </Box>
 
           {renderList()}
 
-          {/* <Box sx={{ px: 2.5, py: 3 }}>
-            <UpgradeBlock />
-          </Box> */}
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>

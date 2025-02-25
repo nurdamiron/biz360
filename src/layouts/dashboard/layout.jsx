@@ -11,6 +11,7 @@ import { _contacts, _notifications } from 'src/_mock';
 
 import { Logo } from 'src/components/logo';
 import { useSettingsContext } from 'src/components/settings';
+import { useAuthContext } from 'src/auth/hooks';
 
 import { NavMobile } from './nav-mobile';
 import { VerticalDivider } from './content';
@@ -32,11 +33,13 @@ import { WorkspacesPopover } from '../components/workspaces-popover';
 import { navData as dashboardNavData } from '../nav-config-dashboard';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 import { NotificationsDrawer } from '../components/notifications-drawer';
+import { navData as getFilteredNavData } from '../nav-config-dashboard';
 
 // ----------------------------------------------------------------------
 
 export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery = 'lg' }) {
   const theme = useTheme();
+  const { user } = useAuthContext();
 
   const settings = useSettingsContext();
 
@@ -139,10 +142,13 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
       />
     );
   };
+  
+  console.log('User:', user);
+  console.log('Nav data available:', dashboardNavData && dashboardNavData.length > 0);
 
   const renderSidebar = () => (
     <NavVertical
-      data={navData}
+      data={dashboardNavData} // Explicitly pass the dashboard nav data
       isNavMini={isNavMini}
       layoutQuery={layoutQuery}
       cssVars={navVars.section}

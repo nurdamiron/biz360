@@ -1,3 +1,6 @@
+
+// src/pages/dashboard/ecommerce/index.jsx
+
 import { Helmet } from 'react-helmet-async';
 
 import { CONFIG } from 'src/global-config';

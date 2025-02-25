@@ -150,7 +150,7 @@ export function EmployeeListView() {
     axiosInstance.get('/api/roles')
       .then((res) => {
         // допустим, сервер вернул [{value: 'admin', label: 'Администратор'}, ...]
-        setRoleOptions(res.data || []);
+        setRoleOptions(Array.isArray(res.data.roles) ? res.data.roles : []);
       })
       .catch(err => console.error('Error fetching roles', err));
   }, []);
@@ -221,8 +221,8 @@ export function EmployeeListView() {
         <EmployeeTableToolbar
           filters={{ state: filters, setState: setFilters }}
           onResetPage={table.onResetPage}
-        roleOptions={roleOptions.map(r => r.value)}
-        />
+          roleOptions={roleOptions.map(r => r.code)}
+          />
 
         {/* Плашка вывода текущих фильтров */}
         {(filters.fio || filters.role.length > 0 || filters.status !== 'all') && (
@@ -281,7 +281,11 @@ export function EmployeeListView() {
                 {!loading && employees.map((row) => (
                   <EmployeeTableRow
                     key={row.id}
-                    row={row}
+                    row={{
+                      ...row,
+                      department: row.department_label,
+                      role: row.role_label,
+                    }}
                     selected={table.selected.includes(row.id)}
                     onSelectRow={() => table.onSelectRow(row.id)}
                     onDeleteRow={() => handleDeleteRow(row.id)}

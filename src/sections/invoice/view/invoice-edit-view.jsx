@@ -17,7 +17,7 @@ export function InvoiceEditView({ invoice }) {
         heading="Edit"
         backHref={paths.dashboard.invoice.root}
         links={[
-          { name: 'Дашборд', href: paths.dashboard.general.file },
+          { name: 'Дашборд', href: paths.dashboard.root  },
           { name: 'Бухгалтерия', href: paths.dashboard.invoice.root },
           { name: invoice?.invoiceNumber },
         ]}

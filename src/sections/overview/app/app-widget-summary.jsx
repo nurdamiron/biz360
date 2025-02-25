@@ -2,14 +2,12 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import { useTheme } from '@mui/material/styles';
 
-import { fNumber, fPercent } from 'src/utils/format-number';
+import { fNumber, fTenge, fPercent } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart } from 'src/components/chart';
 
-// ----------------------------------------------------------------------
-
-export function AppWidgetSummary({ title, percent, total, chart, sx, ...other }) {
+export function AppWidgetSummary({ title, percent, total, chart, isCurrency = false, sx, ...other }) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [theme.palette.primary.main];
@@ -26,6 +24,13 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other })
     ...chart.options,
   });
 
+  const renderTotal = () => {
+    if (isCurrency) {
+      return fTenge(total); // <-- вместо fNumber(total)
+    }
+    return fNumber(total);
+  };
+
   const renderTrending = () => (
     <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
       <Iconify
@@ -35,7 +40,7 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other })
             ? 'solar:double-alt-arrow-down-bold-duotone'
             : 'solar:double-alt-arrow-up-bold-duotone'
         }
-        sx={{ flexShrink: 0, color: 'success.main', ...(percent < 0 && { color: 'error.main' }) }}
+        sx={{ flexShrink: 0, color: percent < 0 ? 'error.main' : 'success.main' }}
       />
 
       <Box component="span" sx={{ typography: 'subtitle2' }}>
@@ -44,7 +49,7 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other })
       </Box>
 
       <Box component="span" sx={{ typography: 'body2', color: 'text.secondary' }}>
-        last 7 days
+        за последние 7 дней
       </Box>
     </Box>
   );
@@ -65,12 +70,9 @@ export function AppWidgetSummary({ title, percent, total, chart, sx, ...other })
     >
       <Box sx={{ flexGrow: 1 }}>
         <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
-
-        <Box sx={{ mt: 1.5, mb: 1, typography: 'h3' }}>{fNumber(total)}</Box>
-
+        <Box sx={{ mt: 1.5, mb: 1, typography: 'h3' }}>{renderTotal()}</Box>
         {renderTrending()}
       </Box>
-
       <Chart
         type="bar"
         series={[{ data: chart.series }]}

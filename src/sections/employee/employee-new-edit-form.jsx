@@ -218,15 +218,15 @@ export function EmployeeNewEditForm() {
 }, [id, isEdit, reset]);
 
 useEffect(() => {
-  axiosInstance.get('/api/roles')
-    .then(res => setRoleOptions(res.data)) // [{ value, label }, ...]
-    .catch(err => console.error('Failed to load roles', err));
-
-  axiosInstance.get('/api/departments')
-    .then(res => setDepartmentOptions(res.data))
-    .catch(err => console.error('Failed to load departments', err));
+  axiosInstance.get('/api/employees/dictionaries')
+    .then(res => {
+      setRoleOptions(res.data.data.roles || []);
+      setDepartmentOptions(res.data.data.departments || []);
+      // ...
+    })
+    .catch(err => console.error('Failed to load dictionaries', err));
 }, []);
-  
+
 
   const values = watch();
 

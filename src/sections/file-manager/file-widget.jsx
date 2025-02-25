@@ -1,3 +1,4 @@
+// src/sections/file-manager/file-widget.jsx
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';

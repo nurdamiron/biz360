@@ -1,3 +1,4 @@
+// src/layouts/dashboard/css-vars.js
 import { varAlpha } from 'minimal-shared/utils';
 
 import { bulletColor } from 'src/components/nav-section';
