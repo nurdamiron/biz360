@@ -10,8 +10,9 @@ export function SignInButton({ sx, ...other }) {
   return (
     <Button
       component={RouterLink}
+      
       href={CONFIG.auth.redirectPath}
-      variant="outlined"
+      variant="contained"
       sx={sx}
       {...other}
     >

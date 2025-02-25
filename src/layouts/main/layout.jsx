@@ -71,10 +71,10 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
             {/* <SettingsButton /> */}
 
             {/** @slot Sign in button */}
-            {/* <SignInButton /> */}
+            <SignInButton />
 
             {/** @slot Purchase button */}
-            <Button
+            {/* <Button
               variant="contained"
               rel="noopener"
               target="_blank"
@@ -85,7 +85,7 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
               })}
             >
               Войти
-            </Button>
+            </Button> */}
           </Box>
         </>
       ),
