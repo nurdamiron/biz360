@@ -27,7 +27,7 @@ const JWT_REFRESH_KEY = 'refresh_token';
 // Token utilities
 const tokenUtils = {
   getAccessToken() {
-    return sessionStorage.getItem(JWT_ACCESS_KEY);
+    return localStorage.getItem(JWT_ACCESS_KEY);
   },
 
   getRefreshToken() {
@@ -36,7 +36,7 @@ const tokenUtils = {
 
   setAccessToken(token) {
     if (token) {
-      sessionStorage.setItem(JWT_ACCESS_KEY, token);
+      localStorage.setItem(JWT_ACCESS_KEY, token);
       axios.defaults.headers.common.Authorization = `Bearer ${token}`;
     }
   },
@@ -48,7 +48,7 @@ const tokenUtils = {
   },
 
   clearTokens() {
-    sessionStorage.removeItem(JWT_ACCESS_KEY);
+    localStorage.removeItem(JWT_ACCESS_KEY);
     localStorage.removeItem(JWT_REFRESH_KEY);
     delete axios.defaults.headers.common.Authorization;
   },

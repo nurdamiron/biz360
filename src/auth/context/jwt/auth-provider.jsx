@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
 
   const checkEmployeeSession = useCallback(async () => {
     try {
-      const accessToken = sessionStorage.getItem(JWT_STORAGE_KEY);
+      const accessToken = localStorage.getItem(JWT_STORAGE_KEY);
 
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);

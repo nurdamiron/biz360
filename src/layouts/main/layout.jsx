@@ -70,6 +70,9 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
             {/** @slot Settings button */}
             {/* <SettingsButton /> */}
 
+            {/** @slot Sign in button */}
+            <SignInButton />
+
             {/** @slot Purchase button */}
             <Button
               variant="contained"
@@ -77,7 +80,7 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
               target="_blank"
               href={paths.auth.jwt.signIn}
               sx={(theme) => ({
-                display: 'inline-flex',
+                display: 'none',
                 [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
               })}
             >
