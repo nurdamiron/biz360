@@ -70,22 +70,19 @@ export function MainLayout({ sx, cssVars, children, slotProps, layoutQuery = 'md
             {/** @slot Settings button */}
             {/* <SettingsButton /> */}
 
-            {/** @slot Sign in button */}
-            <SignInButton />
-
             {/** @slot Purchase button */}
-            {/* <Button
+            <Button
               variant="contained"
               rel="noopener"
               target="_blank"
               href={paths.auth.jwt.signIn}
               sx={(theme) => ({
-                display: 'none',
+                display: 'inline-flex',
                 [theme.breakpoints.up(layoutQuery)]: { display: 'inline-flex' },
               })}
             >
               Войти
-            </Button> */}
+            </Button>
           </Box>
         </>
       ),

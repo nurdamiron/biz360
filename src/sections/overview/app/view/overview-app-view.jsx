@@ -267,7 +267,7 @@ export function OverviewAppView() {
               showAsPercent
               onClick={() => navigate('/dashboard/banking')} // <-- пример
             />
-          </Grid>
+          </Grid>                                                                                 
         </Grid>
       </Box>
 
