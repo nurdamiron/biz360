@@ -15,13 +15,18 @@ const BASE_API_URL = window.location.hostname === 'localhost'
 
   axiosInstance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem('JWT_ACCESS_KEY');
+      console.log('Making request to:', config.url);
+      const token = localStorage.getItem('jwt_access_token');
+      console.log('Token exists:', !!token);
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+      console.error('Request error:', error);
+      return Promise.reject(error);
+    }
   );
 
 axiosInstance.interceptors.response.use(
