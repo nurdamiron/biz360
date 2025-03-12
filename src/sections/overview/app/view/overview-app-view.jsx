@@ -78,16 +78,16 @@ export function OverviewAppView() {
   }}
   data={[
     {
-      name: 'Продажи',
-      icon: <Iconify icon="eva:shopping-cart-fill" />,
-      value: 24, // 24% вклада
-      subtitle: 'Средний чек: 0', // Доп. инфо
-    },
-    {
       name: 'Продукт',
       icon: <Iconify icon="eva:briefcase-fill" />,
       value: 32,
       subtitle: 'Качество: 0%',
+    },
+    {
+      name: 'Продажи',
+      icon: <Iconify icon="eva:shopping-cart-fill" />,
+      value: 24, // 24% вклада
+      subtitle: 'Средний чек: 0', // Доп. инфо
     },
     {
       name: 'Учёт',
@@ -107,7 +107,19 @@ export function OverviewAppView() {
       <Grid sx={{ display: { xs: '12', sm: '6' } }} size={18} >
             {renderStorageOverview()}
           </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <FileWidget
+              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`}
+              title="Продукт"
+              manager="Амантаева Ляззат"
+              managerIcon="eva:person-fill"
+              value={92}
+              total={100}
+              showAsPercent
+              onClick={() => navigate('/dashboard/ecommerce')} // <-- пример
 
+            />
+          </Grid>
 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
@@ -123,19 +135,7 @@ export function OverviewAppView() {
             />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <FileWidget
-              icon={`${CONFIG.assetsDir}/assets/icons/navbar/ic-product.svg`}
-              title="Продукт"
-              manager="Амантаева Ляззат"
-              managerIcon="eva:person-fill"
-              value={92}
-              total={100}
-              showAsPercent
-              onClick={() => navigate('/dashboard/ecommerce')} // <-- пример
-
-            />
-          </Grid>
+       
 
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
