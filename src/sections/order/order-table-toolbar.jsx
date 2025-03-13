@@ -1,4 +1,4 @@
-// order-table-toolbar.jsx
+// src/sections/orders/order-table-toolbar.jsx
 
 import { useCallback } from 'react';
 import { usePopover } from 'minimal-shared/hooks';
@@ -88,7 +88,14 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
           label="Дата начала"
           value={currentFilters.startDate}
           onChange={handleFilterStartDate}
-          slotProps={{ textField: { fullWidth: true } }}
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              InputLabelProps: {
+                shrink: true
+              }
+            }
+          }}
           sx={{ maxWidth: { md: 200 } }}
         />
 
@@ -101,6 +108,9 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
               fullWidth: true,
               error: dateError,
               helperText: dateError ? 'Дата окончания должна быть позже даты начала' : null,
+              InputLabelProps: {
+                shrink: true
+              }
             },
           }}
           sx={{
@@ -125,15 +135,13 @@ export function OrderTableToolbar({ filters, onResetPage, dateError }) {
             fullWidth
             value={currentFilters.name}
             onChange={handleFilterName}
-            placeholder="Найдите клиента или номер заказа..."
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                  </InputAdornment>
-                ),
-              },
+            placeholder="Поиск клиента или номера заказа..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
             }}
           />
 

@@ -7,7 +7,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { Iconify } from 'src/components/iconify';
 import { SupplierList } from './supplier-list';
 import { CustomerList } from './customer-list';
-import { kazakhstanBanks } from './kazakhstanBanks';
+import { kazakhstanBanks } from '../../utils/kazakhstanBanks';
 
 
 

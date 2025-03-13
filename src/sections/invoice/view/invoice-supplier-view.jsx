@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { toast } from 'src/components/snackbar';
 import axiosInstance, { endpoints } from 'src/lib/axios';
-import { kazakhstanBanks } from './kazakhstanBanks';
+import { kazakhstanBanks } from 'src/utils/kazakhstanBanks';
 
 /*
 Пропсы:

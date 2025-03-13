@@ -1,3 +1,4 @@
+// src/lib/axios.js
 import axios from 'axios';
 
 import { CONFIG } from 'src/global-config';
@@ -77,6 +78,18 @@ export const endpoints = {
     create: `${BASE_API_URL}/api/companies`,
     checkBin: (bin) => `${BASE_API_URL}/api/companies/check-bin/${bin}`,
     search: `${BASE_API_URL}/api/companies/search`
+  },
+
+  // В объект endpoints добавьте:
+  metrics: {
+    employee: (id) => `${BASE_API_URL}/api/metrics/employee/${id}`,
+    department: (department) => `${BASE_API_URL}/api/metrics/department/${department}`,
+    order: (id) => `${BASE_API_URL}/api/orders/${id}/metrics`,
+  },
+
+  notifications: {
+    list: `${BASE_API_URL}/api/notifications`,
+    markAsRead: (id) => `${BASE_API_URL}/api/notifications/${id}/read`,
   },
 
   // Почта

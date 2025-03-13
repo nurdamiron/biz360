@@ -1,4 +1,4 @@
-// order-details-delivery.jsx
+// src/sections/order/order-details-delivery.jsx
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';

@@ -1,4 +1,4 @@
-// order-details-toolbar.jsx
+// src/sections/order/order-details-toolbar.jsx
 
 import { usePopover } from 'minimal-shared/hooks';
 

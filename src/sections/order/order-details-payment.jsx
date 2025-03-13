@@ -1,4 +1,4 @@
-// order-details-payment.jsx
+// src/sections/order/order-details-payment.jsx
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';

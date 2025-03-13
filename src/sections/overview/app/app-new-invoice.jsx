@@ -12,17 +12,18 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import CardHeader from '@mui/material/CardHeader';
 import IconButton from '@mui/material/IconButton';
-import { useTable, TablePaginationCustom } from 'src/components/table';
 import { useState } from 'react';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-
+import { useTable, TablePaginationCustom } from 'src/components/table';
 
 import { 
   CircularProgress,
+  Alert,
+  Typography,
+  Chip
 } from '@mui/material';
-
 
 import { fCurrency } from 'src/utils/format-number';
 
@@ -36,10 +37,14 @@ import { CustomPopover } from 'src/components/custom-popover';
 
 export function AppNewInvoice({ 
   title, 
+  subheader,
   tableData, 
   headCells, 
   isLoading, 
   error,
+  renderStatus,
+  renderActions,
+  emptyMessage,
   ...other 
 }) {
   const [order, setOrder] = useState('asc');
@@ -65,7 +70,7 @@ export function AppNewInvoice({
   if (isLoading) {
     return (
       <Card {...other}>
-        <CardHeader title={title} />
+        <CardHeader title={title} subheader={subheader} />
         <Box sx={{ p: 3, textAlign: 'center' }}>
           <CircularProgress />
         </Box>
@@ -76,9 +81,22 @@ export function AppNewInvoice({
   if (error) {
     return (
       <Card {...other}>
-        <CardHeader title={title} />
-        <Box sx={{ p: 3, textAlign: 'center', color: 'error.main' }}>
-          {error}
+        <CardHeader title={title} subheader={subheader} />
+        <Box sx={{ p: 3 }}>
+          <Alert severity="error">{error}</Alert>
+        </Box>
+      </Card>
+    );
+  }
+
+  if (!tableData.length) {
+    return (
+      <Card {...other}>
+        <CardHeader title={title} subheader={subheader} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+          <Typography variant="body1" color="text.secondary">
+            {emptyMessage || 'Нет данных для отображения'}
+          </Typography>
         </Box>
       </Card>
     );
@@ -86,60 +104,97 @@ export function AppNewInvoice({
 
   return (
     <Card {...other}>
-      <CardHeader title={title} sx={{ mb: 3 }} />
+      <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
       <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {headCells.map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  align={cell.align || 'left'}
-                  sortDirection={orderBy === cell.id ? order : false}
-                >
-                  <TableSortLabel
-                    active={orderBy === cell.id}
-                    direction={orderBy === cell.id ? order : 'asc'}
-                    onClick={() => handleRequestSort(cell.id)}
+        <Scrollbar>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                {headCells.map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    align={cell.align || 'left'}
+                    sortDirection={orderBy === cell.id ? order : false}
                   >
-                    {cell.label}
-                  </TableSortLabel>
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {tableData
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.category}</TableCell>
-                  <TableCell>{fCurrency(row.price)}</TableCell>
-                  <TableCell>
-                    <Label
-                      variant="soft"
-                      color={
-                        (row.status === 'Завершен' && 'success') ||
-                        (row.status === 'В обработке' && 'warning') ||
-                        (row.status === 'Отменен' && 'error') ||
-                        'default'
-                      }
+                    <TableSortLabel
+                      active={orderBy === cell.id}
+                      direction={orderBy === cell.id ? order : 'asc'}
+                      onClick={() => handleRequestSort(cell.id)}
                     >
-                      {row.status}
-                    </Label>
+                      {cell.label}
+                    </TableSortLabel>
                   </TableCell>
-                  <TableCell align="right">
-                    <IconButton>
-                      <Iconify icon="eva:more-vertical-fill" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+                ))}
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {tableData
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>{row.id}</TableCell>
+
+                    {headCells.map((cell) => {
+                      if (cell.id === 'id' || cell.id === '') return null; // Первую и последнюю колонки обрабатываем отдельно
+                      
+                      if (cell.id === 'status' && renderStatus) {
+                        return (
+                          <TableCell key={cell.id}>
+                            {renderStatus(row.status, row.statusLabel, row.statusColor)}
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (cell.id === 'status' && !renderStatus) {
+                        return (
+                          <TableCell key={cell.id}>
+                            <Label
+                              variant="soft"
+                              color={
+                                (row.status === 'completed' && 'success') ||
+                                (row.status === 'in_processing' && 'warning') ||
+                                (row.status === 'cancelled' && 'error') ||
+                                (row.status === 'rejected' && 'error') ||
+                                (row.status === 'new' && 'primary') ||
+                                (row.status === 'paid' && 'success') ||
+                                'default'
+                              }
+                            >
+                              {row.statusLabel || row.status}
+                            </Label>
+                          </TableCell>
+                        );
+                      }
+                      
+                      if (cell.id === 'price') {
+                        return (
+                          <TableCell key={cell.id}>
+                            {fCurrency(row[cell.id])}
+                          </TableCell>
+                        );
+                      }
+                      
+                      return (
+                        <TableCell key={cell.id}>
+                          {row[cell.id]}
+                        </TableCell>
+                      );
+                    })}
+
+                    <TableCell align="right">
+                      {renderActions ? renderActions(row.orderId) : (
+                        <IconButton>
+                          <Iconify icon="eva:more-vertical-fill" />
+                        </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </Scrollbar>
       </TableContainer>
 
       <TablePaginationCustom
@@ -155,98 +210,27 @@ export function AppNewInvoice({
           `${from}-${to} из ${count !== -1 ? count : `более чем ${to}`}`
         }
       />
+
+      <Divider sx={{ borderStyle: 'dashed' }} />
+
+      <Box sx={{ p: 2, textAlign: 'right' }}>
+        <Button size="small" color="inherit">
+          Все заказы
+        </Button>
+      </Box>
     </Card>
   );
 }
 
 // ----------------------------------------------------------------------
 
-function RowItem({ row }) {
-  const menuActions = usePopover();
-
-  const handleDownload = () => {
-    menuActions.onClose();
-    console.info('DOWNLOAD', row.id);
-  };
-
-  const handlePrint = () => {
-    menuActions.onClose();
-    console.info('PRINT', row.id);
-  };
-
-  const handleShare = () => {
-    menuActions.onClose();
-    console.info('SHARE', row.id);
-  };
-
-  const handleDelete = () => {
-    menuActions.onClose();
-    console.info('DELETE', row.id);
-  };
-
-  const renderMenuActions = () => (
-    <CustomPopover
-      open={menuActions.open}
-      anchorEl={menuActions.anchorEl}
-      onClose={menuActions.onClose}
-      slotProps={{ arrow: { placement: 'right-top' } }}
-    >
-      <MenuList>
-        <MenuItem onClick={handleDownload}>
-          <Iconify icon="eva:cloud-download-fill" />
-          Download
-        </MenuItem>
-
-        <MenuItem onClick={handlePrint}>
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
-
-        <MenuItem onClick={handleShare}>
-          <Iconify icon="solar:share-bold" />
-          Share
-        </MenuItem>
-
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>
-      </MenuList>
-    </CustomPopover>
-  );
-
-  return (
-    <>
-      <TableRow>
-        <TableCell>{row.invoiceNumber}</TableCell>
-
-        <TableCell>{row.category}</TableCell>
-
-        <TableCell>{fCurrency(row.price)}</TableCell>
-
-        <TableCell>
-          <Label
-            variant="soft"
-            color={
-              (row.status === 'progress' && 'warning') ||
-              (row.status === 'out of date' && 'error') ||
-              'success'
-            }
-          >
-            {row.status}
-          </Label>
-        </TableCell>
-
-        <TableCell align="right" sx={{ pr: 1 }}>
-          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
-      </TableRow>
-
-      {renderMenuActions()}
-    </>
-  );
-}
+AppNewInvoice.defaultProps = {
+  tableData: [],
+  headCells: [
+    { id: 'id', label: 'Номер заказа' },
+    { id: 'category', label: 'Категория' },
+    { id: 'price', label: 'Сумма' },
+    { id: 'status', label: 'Статус' },
+    { id: '', label: 'Действия' },
+  ],
+};

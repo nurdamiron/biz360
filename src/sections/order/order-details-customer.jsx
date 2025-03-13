@@ -1,4 +1,4 @@
-// order-details-customer.jsx
+// src/sections/order/order-details-customer.jsx
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';

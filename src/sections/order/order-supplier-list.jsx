@@ -1,3 +1,4 @@
+// src/sections/order/order-supplier-list.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
@@ -16,30 +17,28 @@ import {
 import { Iconify } from 'src/components/iconify';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { toast } from 'src/components/snackbar';
-import { InvoiceCustomer } from './view/invoice-customer-view';
+import { OrderSupplierView } from './view/order-supplier-view.jsx';
 import { ConfirmationDialog } from 'src/components/confirmationDialog';
-import { kazakhstanBanks } from 'src/utils/kazakhstanBanks';
+import { kazakhstanBanks } from '../../utils/kazakhstanBanks';
 
 
-export function CustomerList({ open, onClose, onSelect, selected }) {
-  const [customers, setCustomers] = useState([]);
+export function OrderSupplierList({ open, onClose, onSelect, selected }) {
+  const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showCustomerForm, setShowCustomerForm] = useState(false);
-  const [currentEditingCustomer, setCurrentEditingCustomer] = useState(null);
+  const [showSupplierForm, setShowSupplierForm] = useState(false);
+  const [currentEditingSupplier, setCurrentEditingSupplier] = useState(null);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  
-
-  const fetchCustomers = useCallback(async () => {
+  const fetchSuppliers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get(endpoints.customer.list);
-      setCustomers(response.data.data);
+      const response = await axiosInstance.get(endpoints.supplier.list);
+      setSuppliers(response.data.data);
     } catch (error) {
-      console.error('Ошибка при загрузке клиентов:', error);
-      toast.error('Не удалось загрузить список клиентов');
+      console.error('Ошибка при загрузке поставщиков:', error);
+      toast.error('Не удалось загрузить список поставщиков');
     } finally {
       setLoading(false);
     }
@@ -47,47 +46,47 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
 
   useEffect(() => {
     if (open) {
-      fetchCustomers();
+      fetchSuppliers();
     }
-  }, [open, fetchCustomers]);
+  }, [open, fetchSuppliers]);
 
-  const handleOpenNewCustomer = () => {
-    setCurrentEditingCustomer(null);
-    setShowCustomerForm(true);
+  const handleOpenNewSupplier = () => {
+    setCurrentEditingSupplier(null);
+    setShowSupplierForm(true);
   };
 
-  const handleOpenEditCustomer = (event, customer) => {
+  const handleOpenEditSupplier = (event, supplier) => {
     event.stopPropagation();
-    setCurrentEditingCustomer(customer);
-    setShowCustomerForm(true);
+    setCurrentEditingSupplier(supplier);
+    setShowSupplierForm(true);
   };
 
-  const handleCustomerSaved = async () => {
-    setShowCustomerForm(false);
-    await fetchCustomers();
+  const handleSupplierSaved = async () => {
+    setShowSupplierForm(false);
+    await fetchSuppliers();
   };
 
-  const handleSelectCustomer = (customer) => {
-    onSelect(customer);
+  const handleSelectSupplier = (supplier) => {
+    onSelect(supplier);
     onClose();
   };
 
-  const handleDeleteIconClick = (event, customerId) => {
+  const handleDeleteIconClick = (event, supplierId) => {
     event.stopPropagation();
-    setDeleteId(customerId);
+    setDeleteId(supplierId);
     setShowConfirm(true);
   };
 
   const handleConfirmDelete = async () => {
     try {
       if (deleteId) {
-        await axiosInstance.delete(endpoints.customer.delete(deleteId));
-        toast.success('Клиент успешно удалён');
-        fetchCustomers();
+        await axiosInstance.delete(`${endpoints.supplier.delete}/${deleteId}`);
+        toast.success('Поставщик успешно удалён');
+        fetchSuppliers();
       }
     } catch (error) {
-      console.error('Ошибка при удалении клиента:', error);
-      toast.error('Не удалось удалить клиента');
+      console.error('Ошибка при удалении поставщика:', error);
+      toast.error('Не удалось удалить поставщика');
     } finally {
       setShowConfirm(false);
       setDeleteId(null);
@@ -104,12 +103,12 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
             justifyContent: 'space-between',
           }}
         >
-          Заказчики
+          Поставщики
           <Button
             size="small"
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={handleOpenNewCustomer}
+            onClick={handleOpenNewSupplier}
           >
             Новый
           </Button>
@@ -122,15 +121,15 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
             </Box>
           ) : (
             <List sx={{ width: '100%' }}>
-              {customers.map((customer) => {
-                const bank = kazakhstanBanks.find((b) => b.name === customer.bank_name);
+              {suppliers.map((supplier) => {
+                const bank = kazakhstanBanks.find((b) => b.name === supplier.bank_name);
 
                 return (
                   <ListItem
-                    key={customer.id}
-                    onMouseEnter={() => setHoveredItem(customer.id)}
+                    key={supplier.id}
+                    onMouseEnter={() => setHoveredItem(supplier.id)}
                     onMouseLeave={() => setHoveredItem(null)}
-                    onClick={() => handleSelectCustomer(customer)}
+                    onClick={() => handleSelectSupplier(supplier)}
                     sx={{
                       cursor: 'pointer',
                       py: 2,
@@ -139,30 +138,38 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
                       borderRadius: 1,
                       boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.2s',
-                      bgcolor: selected === customer.id ? 'action.selected' : 'background.paper',
+                      bgcolor: selected === supplier.id ? 'action.selected' : 'background.paper',
                       '&:hover': {
                         bgcolor: 'action.hover',
                       },
                     }}
                   >
-                    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                      }}
+                    >
                       <Typography variant="subtitle1" fontWeight="bold">
-                        {customer.name}
+                        {supplier.name}
                       </Typography>
 
-                      {customer.company_type && (
+                      {/* Тип организации */}
+                      {supplier.company_type && (
                         <Typography variant="body2" color="text.secondary">
-                          Тип организации: {customer.company_type}
+                          Тип организации: {supplier.company_type}
                         </Typography>
                       )}
 
                       <Typography variant="body2" color="text.secondary">
-                        БИН/ИИН: {customer.bin_iin}
+                        БИН/ИИН: {supplier.bin_iin}
                       </Typography>
 
-                      {customer.iik && (
+                      {supplier.iik && (
                         <Typography variant="body2" color="text.secondary">
-                          Номер счета: {customer.iik}
+                          Номер счета: {supplier.iik}
                         </Typography>
                       )}
 
@@ -177,12 +184,13 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
                       )}
                     </Box>
 
-                    {(hoveredItem === customer.id || selected === customer.id) && (
+                    {/* Блок действий */}
+                    {(hoveredItem === supplier.id || selected === supplier.id) && (
                       <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
                         <IconButton
                           edge="end"
                           color="primary"
-                          onClick={(e) => handleOpenEditCustomer(e, customer)}
+                          onClick={(e) => handleOpenEditSupplier(e, supplier)}
                           sx={{ mr: 1 }}
                         >
                           <Iconify icon="solar:pen-bold" />
@@ -190,7 +198,7 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
                         <IconButton
                           edge="end"
                           color="error"
-                          onClick={(e) => handleDeleteIconClick(e, customer.id)}
+                          onClick={(e) => handleDeleteIconClick(e, supplier.id)}
                           sx={{ mr: 1 }}
                         >
                           <Iconify icon="solar:trash-bin-trash-bold" />
@@ -211,17 +219,19 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
         </DialogActions>
       </Dialog>
 
-      <InvoiceCustomer
-        open={showCustomerForm}
-        onClose={() => setShowCustomerForm(false)}
-        onSave={handleCustomerSaved}
-        currentCustomer={currentEditingCustomer}
+      {/* Модалка создания/редактирования */}
+      <OrderSupplierView
+        open={showSupplierForm}
+        onClose={() => setShowSupplierForm(false)}
+        onSave={handleSupplierSaved}
+        currentSupplier={currentEditingSupplier}
       />
 
+      {/* Модалка подтверждения */}
       <ConfirmationDialog
         open={showConfirm}
         title="Подтвердите удаление"
-        description="Вы действительно хотите удалить клиента?"
+        description="Вы действительно хотите удалить поставщика?"
         confirmText="Удалить"
         cancelText="Отмена"
         onConfirm={handleConfirmDelete}

@@ -1,3 +1,4 @@
+// src/routes/sections/dashboard.jsx
 import { Outlet } from 'react-router';
 import { lazy, Suspense } from 'react';
 
@@ -12,7 +13,11 @@ import { AuthGuard } from 'src/auth/guard';
 
 import { usePathname } from '../hooks';
 
+import { Navigate } from 'react-router-dom';
 // ----------------------------------------------------------------------
+const EmployeeMetricsPage = lazy(() => import('src/pages/employee-metrics'));
+const DepartmentMetricsPage = lazy(() => import('src/pages/department-metrics'));
+const NotificationsPage = lazy(() => import('src/pages/notifications'));
 
 // Overview
 const IndexPage = lazy(() => import('src/pages/dashboard'));
@@ -78,6 +83,7 @@ const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission')
 // Blank page
 const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
+const BusinessDashboardPage = lazy(() => import('src/pages/dashboard/business-dashboard'));
 
 // ----------------------------------------------------------------------
 
@@ -173,6 +179,31 @@ export const dashboardRoutes = [
           { path: ':title/edit', element: <BlogEditPostPage /> },
           { path: 'new', element: <BlogNewPostPage /> },
         ],
+      },
+      {
+        path: 'metrics',
+        children: [
+          { element: <BusinessDashboardPage />, index: true }, // Установим дашборд бизнеса как главную страницу метрик
+          { path: 'business', element: <BusinessDashboardPage /> },
+          { path: 'employee/:id', element: <EmployeeMetricsPage /> },
+          { path: 'department/:department', element: <DepartmentMetricsPage /> },
+        ],
+      },
+
+      // {
+      //   path: 'customers',
+      //   children: [
+      //     { element: <CustomersListPage />, index: true },
+      //     { path: 'list', element: <CustomersListPage /> },
+      //     { path: 'cards', element: <CustomersCardsPage /> },
+      //     { path: 'create', element: <CustomerCreatePage /> },
+      //     { path: ':id', element: <CustomerDetailsPage /> },
+      //     { path: ':id/edit', element: <CustomerEditPage /> },
+      //   ],
+      // },
+      {
+        path: 'notifications',
+        element: <NotificationsPage />,
       },
       {
         path: 'job',

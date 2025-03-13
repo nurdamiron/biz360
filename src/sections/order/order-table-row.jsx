@@ -1,4 +1,4 @@
-// order-table-row.jsx
+// src/sections/orders/order-table-row.jsx
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
@@ -21,6 +21,7 @@ import { RouterLink } from 'src/routes/components';
 
 import { fCurrency } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
+import { getStatusColor, getStatusLabel } from 'src/actions/order';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -90,14 +91,9 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
       <TableCell>
         <Label
           variant="soft"
-          color={
-            (row.status === 'completed' && 'success') ||
-            (row.status === 'pending' && 'warning') ||
-            (row.status === 'cancelled' && 'error') ||
-            'default'
-          }
+          color={getStatusColor(row.status)}
         >
-          {row.status}
+          {getStatusLabel(row.status)}
         </Label>
       </TableCell>
 
@@ -127,9 +123,9 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
           sx={{ bgcolor: 'background.neutral' }}
         >
           <Paper sx={{ m: 1.5 }}>
-            {row.items.map((item) => (
+            {row.items?.map((item) => (
               <Box
-                key={item.id}
+                key={item.id || `item-${item.product_name}`}
                 sx={(theme) => ({
                   display: 'flex',
                   alignItems: 'center',
@@ -146,8 +142,8 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
                 />
 
                 <ListItemText
-                  primary={item.name}
-                  secondary={item.code}
+                  primary={item.product_name}
+                  secondary={item.id}
                   slotProps={{
                     primary: {
                       sx: { typography: 'body2' },
@@ -160,7 +156,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
 
                 <div>x{item.quantity} </div>
 
-                <Box sx={{ width: 110, textAlign: 'right' }}>{fCurrency(item.price)}</Box>
+                <Box sx={{ width: 110, textAlign: 'right' }}>{fCurrency(item.unit_price)}</Box>
               </Box>
             ))}
           </Paper>
@@ -185,28 +181,26 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Удалить
         </MenuItem>
 
-        <li>
-          <MenuItem component={RouterLink} href={detailsHref} onClick={() => menuActions.onClose()}>
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-        </li>
+        <MenuItem component={RouterLink} href={detailsHref} onClick={menuActions.onClose}>
+          <Iconify icon="solar:eye-bold" />
+          Просмотр
+        </MenuItem>
       </MenuList>
     </CustomPopover>
   );
 
-  const renderConfrimDialog = () => (
+  const renderConfirmDialog = () => (
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
-      content="Are you sure want to delete?"
+      title="Удаление"
+      content="Вы уверены, что хотите удалить этот заказ?"
       action={
         <Button variant="contained" color="error" onClick={onDeleteRow}>
-          Delete
+          Удалить
         </Button>
       }
     />
@@ -217,7 +211,7 @@ export function OrderTableRow({ row, selected, onSelectRow, onDeleteRow, details
       {renderPrimaryRow()}
       {renderSecondaryRow()}
       {renderMenuActions()}
-      {renderConfrimDialog()}
+      {renderConfirmDialog()}
     </>
   );
 }

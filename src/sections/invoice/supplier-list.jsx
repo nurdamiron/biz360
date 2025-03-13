@@ -16,9 +16,9 @@ import {
 import { Iconify } from 'src/components/iconify';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { toast } from 'src/components/snackbar';
-import { InvoiceSupplier } from './invoice-supplier-view';
+import { InvoiceSupplier } from './view/invoice-supplier-view';
 import { ConfirmationDialog } from 'src/components/confirmationDialog';
-import { kazakhstanBanks } from './kazakhstanBanks';
+import { kazakhstanBanks } from 'src/utils/kazakhstanBanks';
 
 
 export function SupplierList({ open, onClose, onSelect, selected }) {

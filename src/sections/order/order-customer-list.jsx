@@ -1,3 +1,4 @@
+// src/sections/order/order-customer-list.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
@@ -16,12 +17,12 @@ import {
 import { Iconify } from 'src/components/iconify';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { toast } from 'src/components/snackbar';
-import { InvoiceCustomer } from './view/invoice-customer-view';
+import { OrderCustomerView } from './view/order-customer-view';
 import { ConfirmationDialog } from 'src/components/confirmationDialog';
 import { kazakhstanBanks } from 'src/utils/kazakhstanBanks';
 
 
-export function CustomerList({ open, onClose, onSelect, selected }) {
+export function OrderCustomerList({ open, onClose, onSelect, selected }) {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
@@ -211,7 +212,7 @@ export function CustomerList({ open, onClose, onSelect, selected }) {
         </DialogActions>
       </Dialog>
 
-      <InvoiceCustomer
+      <OrderCustomerView
         open={showCustomerForm}
         onClose={() => setShowCustomerForm(false)}
         onSave={handleCustomerSaved}

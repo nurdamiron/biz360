@@ -1,3 +1,4 @@
+// src/routes/sections/components.jsx
 import { lazy, Suspense } from 'react';
 import { Outlet, Navigate } from 'react-router';
 

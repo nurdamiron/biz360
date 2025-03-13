@@ -1,4 +1,4 @@
-// order-details-items.jsx
+// src/sections/order/order-details-items.jsx
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';

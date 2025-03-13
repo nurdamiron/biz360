@@ -147,7 +147,17 @@ export const navData = [
       { title: 'Бухгалтерия', path: paths.dashboard.general.banking, icon: ICONS.banking },
       // { title: 'Booking', path: paths.dashboard.general.booking, icon: ICONS.booking },
       // { title: 'Booking', path: paths.dashboard.general.file, icon: ICONS.file },
-
+      {
+        title: 'Метрики',
+        path: paths.dashboard.metrics.root,
+        icon: ICONS.analytics,
+        children: [
+          { title: 'Моя эффективность', path: paths.dashboard.metrics.employee('me') },
+          { title: 'Метрики отдела продаж', path: paths.dashboard.metrics.department('sales') },
+          { title: 'Метрики бухгалтерии', path: paths.dashboard.metrics.department('accounting') },
+          { title: 'Метрики логистики', path: paths.dashboard.metrics.department('logistics') },
+        ],
+      },
       // { title: 'Course', path: paths.dashboard.general.course, icon: ICONS.course },
     ],
   },
@@ -200,6 +210,11 @@ export const navData = [
         //   { title: 'Create', path: paths.dashboard.invoice.new },
         //   { title: 'Edit', path: paths.dashboard.invoice.demo.edit },
         // ],
+      },
+      {
+        title: 'Уведомления',
+        path: paths.dashboard.notifications,
+        icon: 'mdi:bell',
       },
      
       // {

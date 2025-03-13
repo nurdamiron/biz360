@@ -1,3 +1,4 @@
+// src/components/chart/use-chart.js
 import { merge } from 'es-toolkit';
 import { varAlpha } from 'minimal-shared/utils';
 

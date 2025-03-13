@@ -154,5 +154,12 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/tour/${MOCK_ID}/edit`,
       },
     },
+    metrics: {
+      root: '/dashboard/metrics',
+      business: '/dashboard/metrics/business',
+      employee: (id) => `/dashboard/metrics/employee/${id}`,
+      department: (code) => `/dashboard/metrics/department/${code}`,
+    },
+    notifications: '/dashboard/notifications',
   },
 };

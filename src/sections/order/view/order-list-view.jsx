@@ -1,10 +1,9 @@
-// order-list-view.jsx
+// src/sections/orders/view/order-list-view.jsx
 
-import { paths } from 'src/routes/paths';
-
-import { useState, useCallback } from 'react';
-import { varAlpha } from 'minimal-shared/utils';
+import { useState, useCallback, useEffect } from 'react';
 import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { paths } from 'src/routes/paths';
+import { useGetOrders, getAllOrderStatuses, getStatusColor, getStatusLabel } from 'src/actions/order';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -14,14 +13,17 @@ import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import TableBody from '@mui/material/TableBody';
+import Checkbox from '@mui/material/Checkbox';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-
-
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import axios from 'src/lib/axios';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock'; // <-- Статичный массив для примера
-
 import { Label } from 'src/components/label';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -31,7 +33,6 @@ import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   emptyRows,
-  rowInPage,
   TableNoData,
   getComparator,
   TableEmptyRows,
@@ -46,29 +47,34 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
+// Получаем все статусы для отображения в табах
+const allOrderStatuses = getAllOrderStatuses();
+const STATUS_OPTIONS = [{ value: 'all', label: 'Все' }, ...allOrderStatuses];
 
 const TABLE_HEAD = [
-  { id: 'orderNumber', label: 'Order', width: 88 },
-  { id: 'name', label: 'Customer' },
-  { id: 'createdAt', label: 'Date', width: 140 },
-  { id: 'totalQuantity', label: 'Items', width: 120, align: 'center' },
-  { id: 'totalAmount', label: 'Price', width: 140 },
-  { id: 'status', label: 'Status', width: 110 },
+  { id: 'orderNumber', label: 'Заказ', width: 88 },
+  { id: 'name', label: 'Клиент' },
+  { id: 'createdAt', label: 'Дата', width: 140 },
+  { id: 'totalQuantity', label: 'Позиции', width: 120, align: 'center' },
+  { id: 'totalAmount', label: 'Сумма', width: 140 },
+  { id: 'status', label: 'Статус', width: 110 },
   { id: '', width: 88 },
 ];
 
 // ----------------------------------------------------------------------
 
 export function OrderListView() {
-  // Инициализация таблицы (useTable)
-  const table = useTable({ defaultOrderBy: 'orderNumber' });
+  // Инициализация таблицы
+  const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
 
   // Диалог подтверждения удаления
   const confirmDialog = useBoolean();
 
-  // Список заказов - пока из _orders (mock)
-  const [tableData, setTableData] = useState(_orders);
+  // Получение данных заказов
+  const { orders, ordersLoading, ordersError, refetchOrders } = useGetOrders();
+  
+  // ID заказа для удаления
+  const [deleteOrderId, setDeleteOrderId] = useState(null);
 
   // Фильтры
   const filters = useSetState({
@@ -77,23 +83,27 @@ export function OrderListView() {
     startDate: null,
     endDate: null,
   });
+  
   const { state: currentFilters, setState: updateFilters } = filters;
 
   // Проверка: если дата окончания раньше даты начала -> ошибка
   const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
-  // Применяем сортировку + фильтрацию
+  // Функция фильтрации данных
   const dataFiltered = applyFilter({
-    inputData: tableData,
+    inputData: orders || [],
     comparator: getComparator(table.order, table.orderBy),
     filters: currentFilters,
     dateError,
   });
 
   // Определяем, какие строки показываются на данной странице
-  const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
+  const dataInPage = dataFiltered.slice(
+    table.page * table.rowsPerPage,
+    table.page * table.rowsPerPage + table.rowsPerPage
+  );
 
-  // Определяем, можно ли сбросить фильтр
+  // Определяем, можно ли сбросить фильтры
   const canReset =
     !!currentFilters.name ||
     currentFilters.status !== 'all' ||
@@ -102,24 +112,33 @@ export function OrderListView() {
   // Проверка - не найдены ли данные
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  // Удаление одного заказа
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      toast.success('Delete success!');
-      setTableData(deleteRow);
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
+  // Обработчик удаления заказа
+  const handleDeleteOrder = useCallback(async () => {
+    try {
+      // Здесь должен быть вызов API для удаления заказа
+      await axios.delete(`/api/orders/${deleteOrderId}`);
+      
+      toast.success('Заказ успешно удален');
+      
+      // Обновляем список заказов
+      refetchOrders();
+      
+      // Очищаем выбранные заказы
+      table.onSelectAllRows(false, []);
+    } catch (error) {
+      console.error('Ошибка при удалении заказа:', error);
+      toast.error('Не удалось удалить заказ');
+    } finally {
+      confirmDialog.onFalse(); // Закрываем диалог
+      setDeleteOrderId(null); // Сбрасываем ID для удаления
+    }
+  }, [deleteOrderId, refetchOrders, confirmDialog, table]);
 
-  // Удаление выбранных заказов
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    toast.success('Delete success!');
-    setTableData(deleteRows);
-    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  // Открытие диалога удаления
+  const handleOpenDeleteDialog = useCallback((id) => {
+    setDeleteOrderId(id);
+    confirmDialog.onTrue();
+  }, [confirmDialog]);
 
   // Переключение табов статусов
   const handleFilterStatus = useCallback(
@@ -135,37 +154,67 @@ export function OrderListView() {
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="Delete"
+      title="Удаление заказа"
       content={
         <>
-          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+          Вы уверены, что хотите удалить этот заказ?
+          <br />
+          Это действие нельзя будет отменить.
         </>
       }
       action={
         <Button
           variant="contained"
           color="error"
-          onClick={() => {
-            handleDeleteRows();
-            confirmDialog.onFalse();
-          }}
+          onClick={handleDeleteOrder}
         >
-          Delete
+          Удалить
         </Button>
       }
     />
   );
 
+  // Рендер состояния загрузки
+  if (ordersLoading) {
+    return (
+      <DashboardContent>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress />
+        </Box>
+      </DashboardContent>
+    );
+  }
+
+  // Рендер ошибки
+  if (ordersError) {
+    return (
+      <DashboardContent>
+        <Alert severity="error">
+          Не удалось загрузить данные заказов. Пожалуйста, попробуйте позже.
+        </Alert>
+      </DashboardContent>
+    );
+  }
+
   return (
     <>
       <DashboardContent>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Список заказов"
           links={[
-            { name: 'Главная страница', href: paths.dashboard.root },
+            { name: 'Главная', href: paths.dashboard.root },
             { name: 'Заказы', href: paths.dashboard.order.root },
             { name: 'Список' },
           ]}
+          action={
+            <Button 
+              variant="contained" 
+              startIcon={<Iconify icon="eva:plus-fill" />}
+              href={paths.dashboard.order.new}
+            >
+              Новый заказ
+            </Button>
+          }
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
@@ -174,38 +223,33 @@ export function OrderListView() {
           <Tabs
             value={currentFilters.status}
             onChange={handleFilterStatus}
-            sx={[
-              (theme) => ({
-                px: 2.5,
-                boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-              }),
-            ]}
+            sx={{ px: 2.5, boxShadow: (theme) => `inset 0 -2px 0 0 ${theme.palette.divider}` }}
           >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      (tab.value === 'all' || tab.value === currentFilters.status) ? 'filled' : 'soft'
-                    }
-                    color={
-                      (tab.value === 'completed' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'cancelled' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {['completed', 'pending', 'cancelled', 'refunded'].includes(tab.value)
-                      ? tableData.filter((order) => order.status === tab.value).length
-                      : tableData.length}
-                  </Label>
-                }
-              />
-            ))}
+            {STATUS_OPTIONS.map((tab) => {
+              // Получаем количество заказов с данным статусом
+              const count = tab.value === 'all' 
+                ? orders.length 
+                : orders.filter(order => order.status === tab.value).length;
+                
+              return (
+                <Tab
+                  key={tab.value}
+                  iconPosition="end"
+                  value={tab.value}
+                  label={tab.label}
+                  icon={
+                    <Label
+                      variant={
+                        (tab.value === 'all' || tab.value === currentFilters.status) ? 'filled' : 'soft'
+                      }
+                      color={tab.color || 'default'}
+                    >
+                      {count}
+                    </Label>
+                  }
+                />
+              );
+            })}
           </Tabs>
 
           {/* Панель инструментов (фильтры дат, поиск) */}
@@ -237,7 +281,7 @@ export function OrderListView() {
                 )
               }
               action={
-                <Tooltip title="Delete">
+                <Tooltip title="Удалить выбранные">
                   <IconButton color="primary" onClick={confirmDialog.onTrue}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
@@ -245,7 +289,7 @@ export function OrderListView() {
               }
             />
 
-            <Scrollbar sx={{ minHeight: 444 }}>
+            <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -263,21 +307,31 @@ export function OrderListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
-                    .map((row) => (
-                      <OrderTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        detailsHref={paths.dashboard.order.details(row.id)} // ссылка на детальную страницу
-                      />
-                    ))}
+                  {dataInPage.map((row) => (
+                    <OrderTableRow
+                      key={row.id}
+                      row={{
+                        id: row.id,
+                        orderNumber: row.order_number,
+                        customer: {
+                          name: row.customer_name,
+                          email: row.customer_email,
+                          avatarUrl: null
+                        },
+                        createdAt: row.created_at,
+                        totalQuantity: row.total_items || 0,
+                        subtotal: row.total || 0,
+                        status: row.status
+                      }}
+                      selected={table.selected.includes(row.id)}
+                      onSelectRow={() => table.onSelectRow(row.id)}
+                      onDeleteRow={() => handleOpenDeleteDialog(row.id)}
+                      detailsHref={paths.dashboard.order.details(row.id)}
+                    />
+                  ))}
 
                   <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
+                    height={table.dense ? 56 : 76}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
                   />
 
@@ -311,20 +365,23 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   // Сортировка
   const stabilizedThis = inputData.map((el, index) => [el, index]);
+  
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
+  
   inputData = stabilizedThis.map((el) => el[0]);
 
   // Фильтр по имени/номеру заказа/клиенту
   if (name) {
-    inputData = inputData.filter(({ orderNumber, customer }) =>
-      [orderNumber, customer?.name, customer?.email].some((field) =>
-        field?.toLowerCase().includes(name.toLowerCase())
-      )
+    inputData = inputData.filter((order) =>
+      (order.order_number?.toLowerCase().includes(name.toLowerCase())) ||
+      (order.customer_name?.toLowerCase().includes(name.toLowerCase())) ||
+      (order.customer_email?.toLowerCase().includes(name.toLowerCase()))
     );
+    
   }
 
   // Фильтр по статусу
@@ -334,7 +391,9 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   // Фильтр по дате, если нет ошибки в диапазоне
   if (!dateError && startDate && endDate) {
-    inputData = inputData.filter((order) => fIsBetween(order.createdAt, startDate, endDate));
+    inputData = inputData.filter((order) => 
+      fIsBetween(order.created_at, startDate, endDate)
+    );
   }
 
   return inputData;
