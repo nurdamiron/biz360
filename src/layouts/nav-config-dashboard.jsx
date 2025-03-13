@@ -197,7 +197,7 @@ export const navData = [
         icon: ICONS.order,
         // children: [
         //   { title: 'Список', path: paths.dashboard.order.root },
-        //   { title: 'Details', path: paths.dashboard.order.demo.details },
+        //   { title: 'Новый заказ', path: paths.dashboard.order.new },
         // ],
       },
       {

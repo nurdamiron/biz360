@@ -84,6 +84,183 @@ export function useCreateOrder() {
   return { createOrder, loading, error };
 }
 
+// Дополняем существующий хук в src/actions/order.js
+
+/**
+ * Хук для создания и редактирования заказа с расширенной функциональностью
+ */
+export function useOrderForm(initialOrder = null) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [order, setOrder] = useState(initialOrder);
+  
+  // Получение заказа по ID, если он передан
+  const fetchOrder = useCallback(async (orderId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await axios.get(endpoints.order.details(orderId));
+      setOrder(response.data);
+      return response.data;
+    } catch (err) {
+      console.error('Ошибка при загрузке заказа:', err);
+      setError(err.message || 'Ошибка при загрузке заказа');
+      toast.error('Не удалось загрузить заказ');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Сохранение заказа (создание или обновление)
+  const saveOrder = useCallback(async (orderData, isDraft = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const payload = {
+        ...orderData,
+        status: isDraft ? 'draft' : 'new',
+        // Преобразуем элементы заказа в нужный формат для API
+        items: orderData.items.map((item) => ({
+          product_id: item.productId,
+          product_name: item.title,
+          description: item.description || '',
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.quantity * item.unit_price
+        }))
+      };
+      
+      let response;
+      
+      if (order?.id) {
+        // Обновление существующего заказа
+        response = await axios.put(endpoints.order.update(order.id), payload);
+        toast.success(isDraft ? 'Черновик заказа обновлен' : 'Заказ успешно обновлен');
+      } else {
+        // Создание нового заказа
+        response = await axios.post(endpoints.order.create, payload);
+        toast.success(isDraft ? 'Черновик заказа создан' : 'Заказ успешно создан');
+      }
+      
+      // Обновляем локальное состояние заказа
+      setOrder(response.data);
+      return response.data;
+    } catch (err) {
+      console.error('Ошибка при сохранении заказа:', err);
+      setError(err.message || 'Ошибка при сохранении заказа');
+      toast.error('Не удалось сохранить заказ');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [order]);
+
+  // Расчет итоговых сумм заказа
+  const calculateOrderTotals = useCallback((items, shipping = 0, discount = 0, supplierType = '') => {
+    let subtotal = 0;
+    
+    // Суммируем все позиции
+    items.forEach((item) => {
+      subtotal += (item.quantity || 0) * (item.unit_price || 0);
+    });
+    
+    // Рассчитываем НДС только для определенных типов организаций
+    const vatEnabled = ['ТОО', 'АО', 'ГП', 'ПК'].includes(supplierType);
+    const tax = vatEnabled ? Number((subtotal * 0.12).toFixed(2)) : 0;
+    
+    // Финальная сумма
+    const total = subtotal + shipping - discount + tax;
+    
+    return {
+      subtotal,
+      tax,
+      total,
+      shipping,
+      discount
+    };
+  }, []);
+
+  // Проверка доступности продуктов
+  const checkProductsAvailability = useCallback(async (items) => {
+    try {
+      setLoading(true);
+      
+      const productIds = items
+        .map(item => item.productId)
+        .filter(id => id && id !== '');
+      
+      if (productIds.length === 0) {
+        return { allAvailable: true, items: [] };
+      }
+      
+      // Получаем информацию о продуктах
+      const productPromises = productIds.map(id => 
+        axios.get(endpoints.product.details(id)).then(res => res.data)
+      );
+      
+      const products = await Promise.all(productPromises);
+      
+      // Проверяем доступность каждого продукта
+      const availabilityResult = {
+        allAvailable: true,
+        items: []
+      };
+      
+      items.forEach(item => {
+        if (!item.productId) return;
+        
+        const product = products.find(p => p.id == item.productId);
+        
+        if (!product) {
+          availabilityResult.items.push({
+            productId: item.productId,
+            productName: item.title || 'Неизвестный продукт',
+            requested: item.quantity,
+            available: 0,
+            isAvailable: false
+          });
+          availabilityResult.allAvailable = false;
+          return;
+        }
+        
+        const isAvailable = product.quantity >= item.quantity;
+        
+        availabilityResult.items.push({
+          productId: product.id,
+          productName: product.name,
+          requested: item.quantity,
+          available: product.quantity,
+          isAvailable
+        });
+        
+        if (!isAvailable) {
+          availabilityResult.allAvailable = false;
+        }
+      });
+      
+      return availabilityResult;
+    } catch (err) {
+      console.error('Ошибка при проверке доступности продуктов:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return {
+    order,
+    loading,
+    error,
+    fetchOrder,
+    saveOrder,
+    calculateOrderTotals,
+    checkProductsAvailability
+  };
+}
+
 /**
  * Хук для обновления заказа
  */

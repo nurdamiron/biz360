@@ -17,7 +17,7 @@ import {
 import { Iconify } from 'src/components/iconify';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { toast } from 'src/components/snackbar';
-import { OrderCustomerView } from './view/order-customer-view';
+import { OrderCustomerView } from 'src/sections/order/view';
 import { ConfirmationDialog } from 'src/components/confirmationDialog';
 import { kazakhstanBanks } from 'src/utils/kazakhstanBanks';
 

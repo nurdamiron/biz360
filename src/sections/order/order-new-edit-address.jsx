@@ -1,4 +1,4 @@
-// src/sections/invoice/invoice-new-edit-address.jsx
+// src/sections/order/order-new-edit-address.jsx
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Typography, Stack, Box, IconButton, Divider, Avatar } from '@mui/material';
@@ -6,8 +6,8 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { Iconify } from 'src/components/iconify';
-import { SupplierList } from './supplier-list';
-import { CustomerList } from './customer-list';
+import { OrderSupplierList } from './order-supplier-list';
+import { OrderCustomerList } from './order-customer-list';
 import { kazakhstanBanks } from '../../utils/kazakhstanBanks';
 
 
@@ -15,7 +15,7 @@ import { kazakhstanBanks } from '../../utils/kazakhstanBanks';
 // Функция поиска банка по названию
 const findBank = (bankName) => kazakhstanBanks.find((bank) => bank.name === bankName) || {};
 
-export function InvoiceNewEditAddress() {
+export function OrderNewEditAddress() {
   const {
     watch,
     setValue,
@@ -209,8 +209,8 @@ const handleSelectCustomer = (customer) => {
       </Stack>
 
       {/* Диалоги выбора */}
-      <SupplierList open={showFromDialog} onClose={() => setShowFromDialog(false)} onSelect={handleSelectSupplier} />
-      <CustomerList open={showToDialog} onClose={() => setShowToDialog(false)} onSelect={handleSelectCustomer} />
+      <OrderSupplierList open={showFromDialog} onClose={() => setShowFromDialog(false)} onSelect={handleSelectSupplier} />
+      <OrderCustomerList open={showToDialog} onClose={() => setShowToDialog(false)} onSelect={handleSelectCustomer} />
     </>
   );
 }

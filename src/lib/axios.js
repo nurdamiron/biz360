@@ -129,6 +129,7 @@ export const endpoints = {
     create: `${BASE_API_URL}/api/orders`,        // POST
     update: (id) => `${BASE_API_URL}/api/orders/${id}`,  // PUT
     delete: (id) => `${BASE_API_URL}/api/orders/${id}`,  // DELETE
+    metrics: (id) => `${BASE_API_URL}/api/orders/${id}/metrics`,
   },
 
   // Счета (invoices)

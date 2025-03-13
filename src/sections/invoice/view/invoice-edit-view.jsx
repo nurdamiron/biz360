@@ -1,4 +1,4 @@
-// invoice-edit-view.jsx
+// src/sections/invoice/view/invoice-edit-view.jsx
 
 import { paths } from 'src/routes/paths';
 

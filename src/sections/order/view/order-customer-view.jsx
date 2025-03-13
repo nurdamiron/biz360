@@ -23,7 +23,7 @@ import { toast } from 'src/components/snackbar';
 import axiosInstance, { endpoints } from 'src/lib/axios';
 import { kazakhstanBanks } from '../../../utils/kazakhstanBanks';
 
-export function OrderCustomer({ open, onClose, onSave, currentCustomer }) {
+export function OrderCustomerView({ open, onClose, onSave, currentCustomer }) {
   const isEditMode = Boolean(currentCustomer);
 
   // Здесь — расширенные поля, аналогичные "OrderSupplier"

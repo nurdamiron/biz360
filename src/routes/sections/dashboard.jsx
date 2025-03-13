@@ -13,6 +13,7 @@ import { AuthGuard } from 'src/auth/guard';
 
 import { usePathname } from '../hooks';
 
+
 import { Navigate } from 'react-router-dom';
 // ----------------------------------------------------------------------
 const EmployeeMetricsPage = lazy(() => import('src/pages/employee-metrics'));
@@ -33,8 +34,12 @@ const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
 const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
 const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
 // Order
-const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
-const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
+  const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
+const OrderCreateView = lazy(() => import('src/pages/dashboard/order/create'));
+const OrderDetailsView = lazy(() => import('src/pages/dashboard/order/details'));
+const OrderEditView = lazy(() => import('src/pages/dashboard/order/edit'));
+const OrderListView = lazy(() => import('src/pages/dashboard/order/list'));
+
 // Invoice
 const InvoiceListPage = lazy(() => import('src/pages/dashboard/invoice/list'));
 const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/details'));
@@ -155,9 +160,10 @@ export const dashboardRoutes = [
       {
         path: 'order',
         children: [
-          { index: true, element: <OrderListPage /> },
-          { path: 'list', element: <OrderListPage /> },
-          { path: ':id', element: <OrderDetailsPage /> },
+          { element: <OrderListView />, index: true },
+          { path: 'new', element: <OrderCreateView /> },
+          { path: ':id', element: <OrderDetailsView /> },
+          { path: ':id/edit', element: <OrderEditView /> },
         ],
       },
       {
