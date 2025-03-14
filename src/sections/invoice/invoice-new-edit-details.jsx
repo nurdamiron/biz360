@@ -163,6 +163,13 @@ function InvoiceItemRow({ index, onRemove, productList }) {
             label="Кол-во"
             inputProps={{ min: 1 }}
             sx={{ maxWidth: { md: 300} }}
+            slotProps={{
+              textField: {
+                // Явно отключаем ошибку и helperText:
+                error: false,
+                helperText: '', 
+              },
+            }}
           />
 
           {/* «Доступно: ...» + проверка на превышение */}

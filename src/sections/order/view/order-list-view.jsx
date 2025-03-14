@@ -44,7 +44,7 @@ import {
 import { OrderTableRow } from '../order-table-row';
 import { OrderTableToolbar } from '../order-table-toolbar';
 import { OrderTableFiltersResult } from '../order-table-filters-result';
-
+import { RouterLink } from 'src/routes/components';
 // ----------------------------------------------------------------------
 
 // Получаем все статусы для отображения в табах
@@ -203,11 +203,11 @@ export function OrderListView() {
           heading="Список заказов"
           links={[
             { name: 'Главная', href: paths.dashboard.root },
-            { name: 'Заказы', href: paths.dashboard.order.root },
-            { name: 'Список' },
+            { name: 'Список заказов', href: paths.dashboard.order.root },
           ]}
           action={
-            <Button 
+            <Button
+              component={RouterLink}
               variant="contained" 
               startIcon={<Iconify icon="eva:plus-fill" />}
               href={paths.dashboard.order.new}

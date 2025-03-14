@@ -1,3 +1,4 @@
+// src/pages/dashboard/order/new.jsx
 import { Helmet } from 'react-helmet-async';
 import { CONFIG } from 'src/global-config';
 import { OrderCreateView } from 'src/sections/order/view';
@@ -17,3 +18,4 @@ export default function Page() {
     </>
   );
 }
+

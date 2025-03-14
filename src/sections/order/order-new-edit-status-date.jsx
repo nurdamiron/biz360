@@ -63,21 +63,24 @@ export function OrderNewEditStatusDate() {
           </MenuItem>
         ))}
       </Field.Select>
-
-      {/* Дата создания */}
+{/* 
+      Дата создания
       <Field.DatePicker
         name="createDate"
         label="Дата создания"
         value={watch('createDate')}
-
+        // Убедитесь, что преобразование происходит корректно
+        onChange={(date) => setValue('createDate', date)}
       />
 
-      {/* Дата окончания */}
+      Дата окончания
       <Field.DatePicker
         name="due_date"
         label="Дата окончания"
-        value={watch('dueDate')}
-      />
+        value={watch('due_date')}
+        // Может потребоваться дополнительная обработка для null значений
+        onChange={(date) => setValue('due_date', date)}
+      /> */}
     </Box>
   );
 }

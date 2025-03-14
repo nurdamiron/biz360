@@ -36,6 +36,7 @@ const ICONS = {
   analytics: icon('ic-analytics'),
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
+  notifications: icon('ic-mail'),
 };
 
 // ----------------------------------------------------------------------
@@ -214,7 +215,7 @@ export const navData = [
       {
         title: 'Уведомления',
         path: paths.dashboard.notifications,
-        icon: 'mdi:bell',
+        icon: ICONS.notifications,
       },
      
       // {

@@ -84,8 +84,6 @@ export function useCreateOrder() {
   return { createOrder, loading, error };
 }
 
-// Дополняем существующий хук в src/actions/order.js
-
 /**
  * Хук для создания и редактирования заказа с расширенной функциональностью
  */
@@ -113,24 +111,58 @@ export function useOrderForm(initialOrder = null) {
     }
   }, []);
 
+  /**
+   * Расчет потенциального бонуса на основе разницы между базовой и продажной ценой
+   * @param {Array} items - элементы заказа
+   * @returns {number} - сумма потенциального бонуса
+   */
+  const calculatePotentialBonus = useCallback((items) => {
+    let totalMargin = 0;
+    
+    items.forEach(item => {
+      const quantity = Number(item.quantity) || 0;
+      const unitPrice = Number(item.unit_price) || 0;
+      const basePrice = Number(item.base_price) || (unitPrice); // Если базовая цена не указана, используем 80% от цены продажи
+      
+      const margin = (unitPrice - basePrice) * quantity;
+      if (margin > 0) {
+        totalMargin += margin;
+      }
+    });
+    
+    // Применяем ставку бонуса 5%
+    return Math.round(totalMargin * 0.05);
+  }, []);
+
   // Сохранение заказа (создание или обновление)
   const saveOrder = useCallback(async (orderData, isDraft = false) => {
     try {
       setLoading(true);
       setError(null);
       
+      // Calculate creation time
+      const creationTime = Math.floor((Date.now() - (order?.creationStartTime || Date.now())) / 1000);
+      
+      // Преобразуем элементы заказа в нужный формат для API
+      const formattedItems = orderData.items.map((item) => ({
+        product_id: item.productId,
+        product_name: item.title,
+        description: item.description || '',
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        base_price: item.base_price || (item.unit_price), // Если базовая цена не указана, используем 80% от цены продажи
+        total_price: item.quantity * item.unit_price
+      }));
+      
+      // Рассчитываем потенциальный бонус
+      const potentialBonus = calculatePotentialBonus(formattedItems);
+      
       const payload = {
         ...orderData,
         status: isDraft ? 'draft' : 'new',
-        // Преобразуем элементы заказа в нужный формат для API
-        items: orderData.items.map((item) => ({
-          product_id: item.productId,
-          product_name: item.title,
-          description: item.description || '',
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          total_price: item.quantity * item.unit_price
-        }))
+        items: formattedItems,
+        creation_time: creationTime,
+        potential_bonus: potentialBonus
       };
       
       let response;
@@ -156,15 +188,21 @@ export function useOrderForm(initialOrder = null) {
     } finally {
       setLoading(false);
     }
-  }, [order]);
+  }, [order, calculatePotentialBonus]);
 
-  // Расчет итоговых сумм заказа
+  // Расчет итоговых сумм заказа и маржи
   const calculateOrderTotals = useCallback((items, shipping = 0, discount = 0, supplierType = '') => {
     let subtotal = 0;
+    let totalBaseCost = 0;
     
-    // Суммируем все позиции
+    // Суммируем все позиции и рассчитываем базовую стоимость
     items.forEach((item) => {
-      subtotal += (item.quantity || 0) * (item.unit_price || 0);
+      const quantity = Number(item.quantity) || 0;
+      const unitPrice = Number(item.unit_price) || 0;
+      const basePrice = Number(item.base_price) || (unitPrice); // Если базовая цена не указана, используем 80% от цены продажи
+      
+      subtotal += quantity * unitPrice;
+      totalBaseCost += quantity * basePrice;
     });
     
     // Рассчитываем НДС только для определенных типов организаций
@@ -174,12 +212,23 @@ export function useOrderForm(initialOrder = null) {
     // Финальная сумма
     const total = subtotal + shipping - discount + tax;
     
+    // Рассчитываем маржу и маржинальность
+    const margin = subtotal - totalBaseCost;
+    const marginPercentage = totalBaseCost > 0 ? (margin / totalBaseCost) * 100 : 0;
+    
+    // Рассчитываем потенциальный бонус (5% от маржи)
+    const potentialBonus = Math.round(margin * 0.05);
+    
     return {
       subtotal,
       tax,
       total,
       shipping,
-      discount
+      discount,
+      margin,
+      marginPercentage,
+      potentialBonus,
+      totalBaseCost
     };
   }, []);
 
@@ -250,6 +299,29 @@ export function useOrderForm(initialOrder = null) {
     }
   }, []);
 
+  // Получение деталей продукта и установка базовой цены
+  const fetchProductDetails = useCallback(async (productId) => {
+    try {
+      setLoading(true);
+      
+      const response = await axios.get(endpoints.product.details(productId));
+      const product = response.data;
+      
+      // Устанавливаем базовую цену как 80% от цены продажи, если не указано иное
+      const basePrice = Math.round(product.price * 0.8);
+      
+      return {
+        ...product,
+        base_price: basePrice
+      };
+    } catch (err) {
+      console.error('Ошибка при получении деталей продукта:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     order,
     loading,
@@ -257,7 +329,9 @@ export function useOrderForm(initialOrder = null) {
     fetchOrder,
     saveOrder,
     calculateOrderTotals,
-    checkProductsAvailability
+    checkProductsAvailability,
+    calculatePotentialBonus,
+    fetchProductDetails
   };
 }
 
@@ -374,6 +448,7 @@ export function getStatusColor(status) {
 export function getStatusLabel(status) {
   const statusLabels = {
     new: 'Новый',
+    pending_validation: 'На проверке',
     pending_payment: 'Ожидает оплаты',
     paid: 'Оплачен',
     in_processing: 'В обработке',
@@ -433,6 +508,7 @@ export function getResponsibleDepartment(status) {
 export function getAllOrderStatuses() {
   return [
     { value: 'new', label: 'Новый', color: 'primary' },
+    { value: 'pending_validation', label: 'На проверке', color: 'warning' },
     { value: 'pending_payment', label: 'Ожидает оплаты', color: 'info' },
     { value: 'paid', label: 'Оплачен', color: 'success' },
     { value: 'in_processing', label: 'В обработке', color: 'warning' },

@@ -1,6 +1,5 @@
-// order-new-edit-details.jsx
-
-import { useState, useEffect, useCallback } from 'react';
+// OrderNewEditDetails.jsx
+import React, { useState, useEffect, useCallback } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import {
   Box,
@@ -8,17 +7,15 @@ import {
   Button,
   Divider,
   Typography,
-  InputAdornment,
+  Alert
 } from '@mui/material';
-import { inputBaseClasses } from '@mui/material/InputBase';
-import MenuItem from '@mui/material/MenuItem';
-
 import { Iconify } from 'src/components/iconify';
 import { Field } from 'src/components/hook-form';
+import { NumericField } from 'src/components/form/NumericField';
 import { fetcher, endpoints } from 'src/lib/axios';
+import OrderItemRow from './order-item-row';
 
-
-// Исходные поля для новой строки (товара)
+// Значения по умолчанию для новой позиции
 export const defaultItem = {
   productId: '',
   title: '',
@@ -26,269 +23,134 @@ export const defaultItem = {
   service: '',
   quantity: 1,
   unit_price: 0,
+  base_price: 0, // Базовая (фиксированная) цена для расчёта бонуса
   total_price: 0,
+  margin_percentage: 0,
+  potential_bonus: 0
 };
 
-// Функция-утилита: получить имена полей items[index]
-const getFieldNames = (index) => ({
-  productId: `items[${index}].productId`,
-  title: `items[${index}].title`,
-  description: `items[${index}].description`,
-  service: `items[${index}].service`,
-  quantity: `items[${index}].quantity`,
-  unit_price: `items[${index}].unit_price`,
-  total_price: `items[${index}].total_price`,
-});
-
+// Проверка, нужно ли применять НДС
 function shouldApplyVat(companyType) {
   if (!companyType) return false;
   const vatCompanies = ['ТОО', 'АО', 'ГП', 'ПК'];
   return vatCompanies.includes(companyType);
 }
 
-// Одна строка (товар) в списке
-function OrderItemRow({ index, onRemove, productList }) {
-  const { watch, setValue } = useFormContext();
-  const fieldNames = getFieldNames(index);
-
-  // Храним детали выбранного товара (для "Доступно: ...")
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  // Следим за кол-вом и ценой
-  const quantity = watch(fieldNames.quantity) || 1;
-  const unitPrice = watch(fieldNames.unit_price) || 0;
-
-  // При выборе товара в Select
-  const handleSelectProduct = async (event) => {
-    const productId = event.target.value;
-    if (!productId) {
-      // Сброс
-      setSelectedProduct(null);
-      setValue(fieldNames.productId, '');
-      setValue(fieldNames.title, '');
-      setValue(fieldNames.description, '');
-      setValue(fieldNames.service, '');
-      setValue(fieldNames.unit_price, 0);
-      setValue(fieldNames.quantity, 1);
-      setValue(fieldNames.total_price, 0);
-      return;
-    }
-
-    const existingItem = watch('items').find((item, i) => i !== index && item.productId === productId);
-    if (existingItem) {
-      alert('Этот товар уже добавлен в счет!');
-      return;
-    }
-
-    try {
-      const productResp = await fetcher(endpoints.product.details(productId));
-      const prod = productResp.data; 
-      if (prod) {
-        setSelectedProduct(prod);
-
-        // Заполняем поля
-        setValue(fieldNames.productId, productId);
-        setValue(fieldNames.title, prod.name || '');
-        setValue(
-          fieldNames.description,
-          prod.description?.replace(/<[^>]*>?/gm, '') || ''
-        );
-        setValue(fieldNames.service, prod.code || '');
-        setValue(fieldNames.unit_price, prod.price || 0);
-        setValue(fieldNames.quantity, 1);
-
-        // total_price = price * 1
-        setValue(fieldNames.total_price, prod.price || 0);
-      }
-    } catch (error) {
-      console.error('Ошибка при получении деталей:', error);
-      setSelectedProduct(null);
-    }
-  };
-
-  // Пересчёт total_price при изменениях
-  useEffect(() => {
-    const total = Number(quantity) * Number(unitPrice);
-    setValue(fieldNames.total_price, total);
-  }, [quantity, unitPrice, setValue, fieldNames.total_price]);
-
-  return (
-    <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
-      <Box
-        sx={{
-          gap: 2,
-          display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
-        }}
-      >
-        {/* Селект продукта */}
-        <Field.Select
-          name={fieldNames.productId}
-          label="Выбрать продукт"
-          onChange={handleSelectProduct}
-          slotProps={{
-            select: {
-              MenuProps: {
-                slotProps: { paper: { sx: { maxHeight: 100, maxWidth: 200 } } },
-              },
-            },
-          }}
-        >
-          <MenuItem value="">
-            <em>- Не выбрано -</em>
-          </MenuItem>
-          {productList.map((p) => (
-            <MenuItem key={p.id} value={p.id} disabled={p.quantity <= 0}>
-              {p.name} {p.quantity <= 0 ? '(нет в наличии)' : ''}
-            </MenuItem>
-          ))}
-        </Field.Select>
-
-        {/* Номенклатурный номер (read-only) */}
-        <Field.Text
-          size="small"
-          name={fieldNames.service}
-          label="Номенклатурный номер"
-          disabled
-          sx={{ maxWidth: { md: 150} }}
-
-        />
-
-        {/* Количество */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-          <Field.Text
-            size="small"
-            type="number"
-            name={fieldNames.quantity}
-            label="Кол-во"
-            inputProps={{ min: 1 }}
-            sx={{ maxWidth: { md: 300} }}
-          />
-
-          {/* «Доступно: ...» + проверка на превышение */}
-          {selectedProduct && (
-            <>
-              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                Доступно: {selectedProduct.quantity}
-              </Typography>
-              {Number(quantity) > selectedProduct.quantity && (
-                <Typography variant="caption" color="error">
-                  Вы пытаетесь ввести больше, чем доступно!
-                </Typography>
-              )}
-            </>
-          )}
-        </Box>
-
-        {/* Цена */}
-        <Field.Text
-          size="small"
-          name={fieldNames.unit_price}
-          label="Цена"
-          disabled
-          InputProps={{
-            startAdornment: <InputAdornment position="start">₸</InputAdornment>,
-          }}
-          sx={{ maxWidth: { md: 100 } }}
-        />
-
-        {/* Итого */}
-        <Field.Text
-          disabled
-          size="small"
-          name={fieldNames.total_price}
-          label="Итого"
-          InputProps={{
-            startAdornment: <InputAdornment position="start">₸</InputAdornment>,
-          }}
-          sx={{
-            maxWidth: { md: 150 },
-            [`& .${inputBaseClasses.input}`]: {
-              textAlign: 'right',
-            },
-          }}
-        />
-      </Box>
-
-      {/* Кнопка Удалить строку */}
-      <Button size="small" color="error" onClick={onRemove}>
-        Удалить
-      </Button>
-    </Box>
-  );
+// Безопасное преобразование в число
+function safeNumber(value, defaultValue = 0) {
+  const num = Number(value);
+  return isNaN(num) ? defaultValue : num;
 }
 
 export function OrderNewEditDetails() {
-  const { control, setValue, watch } = useFormContext();
+  console.log('Рендеринг компонента OrderNewEditDetails');
+  
+  const { control, setValue, watch, getValues } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
-
-  // 2) Определяем логику «НДС включать или нет» по company_type поставщика
+  
+  // Определяем, нужно ли применять НДС по типу компании поставщика
   const supplierCompanyType = watch('supplier_company_type');
   const isVatSupplier = shouldApplyVat(supplierCompanyType);
-
+  
+  // Состояние компонента
   const [productList, setProductList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // 3) Функция загрузки списка продуктов
+  
+  // Процент бонуса
+  const BONUS_PERCENTAGE = 5; // 5%
+  
+  // Функция загрузки списка товаров
   const fetchProducts = useCallback(async () => {
     try {
+      console.log('Загрузка списка товаров...');
       setIsLoading(true);
       setError(null);
-
+      
       const response = await fetcher(endpoints.product.list);
+      console.log(`Получено ${response.products?.length || 0} товаров`);
+      
       setProductList(response.products || []);
     } catch (err) {
-      console.error('Ошибка загрузки продуктов:', err);
-      setError('Не удалось загрузить список продуктов');
+      console.error('Ошибка загрузки списка товаров:', err);
+      setError('Не удалось загрузить список товаров');
     } finally {
       setIsLoading(false);
     }
   }, []);
-
   
+  // Загружаем список товаров при первом рендере
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
   
-
-  // Достаём нужные поля
+  // Получаем данные заказа из формы
   const items = watch('items') || [];
-  const shipping = Number(watch('shipping') || 0);
-  const discount = Number(watch('discount') || 0);
-
-  const total = items.reduce((acc, item) => acc + (Number(item.total_price) || 0), 0) + shipping - discount;
-
-
-  // Подытог
+  const shipping = safeNumber(watch('shipping'));
+  const discount = safeNumber(watch('discount'));
+  
+  // Рассчитываем общую сумму заказа
+  const calculateTotal = useCallback(() => {
+    try {
+      let subtotal = 0;
+      
+      // Суммируем все позиции
+      items.forEach(item => {
+        const itemTotal = safeNumber(item.quantity) * safeNumber(item.unit_price);
+        subtotal += itemTotal;
+      });
+      
+      // Добавляем доставку, применяем скидку
+      const withShippingAndDiscount = subtotal + shipping - discount;
+      
+      return withShippingAndDiscount;
+    } catch (err) {
+      console.error('Ошибка расчета суммы заказа:', err);
+      return 0;
+    }
+  }, [items, shipping, discount]);
+  
+  const total = calculateTotal();
+  
+  // Рассчитываем суммы с НДС и без НДС
   const subtotal = isVatSupplier ? Number((total / 1.12).toFixed(2)) : total;
   const tax = isVatSupplier ? Number((subtotal * 0.12).toFixed(2)) : 0;
-
-  // Если поставщик платит НДС => tax = 12% от subtotal
+  
+  // Обновляем налог в зависимости от типа поставщика
   useEffect(() => {
-    if (isVatSupplier) {
-      setValue('tax', tax);
-    } else {
-      setValue('tax', 0);
-    }
-  }, [isVatSupplier, subtotal, setValue]);
-  // Итого
-  const realTax = isVatSupplier ? watch('tax') : 0;
-
-  // Записываем итог в form
+    console.log(`Расчёт НДС: ${isVatSupplier ? 'Да' : 'Нет'}, сумма НДС: ${tax} ₸`);
+    setValue('tax', tax);
+  }, [isVatSupplier, subtotal, setValue, tax]);
+  
+  // Обновляем итоговые суммы в форме
   useEffect(() => {
+    console.log(`Обновление итоговых сумм: без НДС ${subtotal} ₸, НДС ${tax} ₸, всего ${total} ₸`);
     setValue('subtotal', subtotal);
     setValue('tax', tax);
     setValue('total', total);
-  
-    console.log('🔹 subtotal:', subtotal);
-    console.log('🔹 tax:', tax);
-    console.log('🔹 total:', total);
   }, [subtotal, tax, total, setValue]);
-
+  
+  // Рассчитываем общую сумму потенциального бонуса
+  const calculateTotalBonus = useCallback(() => {
+    try {
+      return items.reduce((sum, item) => {
+        const bonus = safeNumber(item.potential_bonus);
+        return sum + bonus;
+      }, 0);
+    } catch (err) {
+      console.error('Ошибка расчета общего бонуса:', err);
+      return 0;
+    }
+  }, [items]);
+  
+  const totalPotentialBonus = calculateTotalBonus();
+  
+  // Показываем индикатор загрузки
   if (isLoading) {
-    return <Typography>Загрузка списка продуктов...</Typography>;
+    return <Typography>Загрузка списка товаров...</Typography>;
   }
+  
+  // Показываем сообщение об ошибке
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
@@ -299,21 +161,61 @@ export function OrderNewEditDetails() {
       </Box>
     );
   }
-
+  
+  // Обработчик добавления новой позиции
+  const handleAddItem = () => {
+    console.log('Добавляем новую позицию');
+    
+    // Проверяем, что все текущие позиции заполнены
+    const existingProductIds = getValues('items').map(item => item.productId);
+    
+    if (existingProductIds.includes('')) {
+      console.log('Нельзя добавить новую позицию - есть незаполненные');
+      alert('Сначала выберите продукт для текущей строки перед добавлением новой');
+      return;
+    }
+    
+    append(defaultItem);
+  };
+  
+  // Обработчик удаления позиции
+  const handleRemoveItem = (index) => {
+    console.log(`Удаляем позицию с индексом ${index}`);
+    remove(index);
+  };
+  
+  // Обработчик изменения числовых полей
+  const handleNumericChange = (name, value) => {
+    setValue(name, value);
+  };
+  
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h6" sx={{ color: 'text.disabled', mb: 3 }}>
         Детали заказа:
       </Typography>
-
+      
+      {/* Информация о бонусах */}
+      {items.some(item => safeNumber(item.potential_bonus) > 0) && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Бонусы рассчитываются как {BONUS_PERCENTAGE}% от маржи (разница между ценой продажи и фиксированной ценой)
+        </Alert>
+      )}
+      
+      {/* Список позиций */}
       <Stack divider={<Divider flexItem sx={{ borderStyle: 'dashed' }} />} spacing={3}>
         {fields.map((item, index) => (
-          <OrderItemRow key={item.id} index={index} productList={productList} onRemove={() => remove(index)} />
+          <OrderItemRow 
+            key={item.id} 
+            index={index} 
+            productList={productList} 
+            onRemove={() => handleRemoveItem(index)} 
+          />
         ))}
       </Stack>
-
+      
       <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
-
+      
       <Box
         sx={{
           gap: 3,
@@ -322,22 +224,17 @@ export function OrderNewEditDetails() {
           alignItems: { xs: 'flex-end', md: 'center' },
         }}
       >
+        {/* Кнопка добавления товара */}
         <Button
           size="small"
           startIcon={<Iconify icon="mingcute:add-line" />}
-          onClick={() => {
-            const existingProductIds = watch('items').map(item => item.productId);
-            if (existingProductIds.includes('')) {
-              alert('Сначала выберите продукт для текущей строки перед добавлением новой.');
-              return;
-            }
-            append(defaultItem);
-            }}
+          onClick={handleAddItem}
           sx={{ flexShrink: 0 }}
-          >
+        >
           Добавить товар
-          </Button>
-
+        </Button>
+        
+        {/* Дополнительные поля (доставка, скидка, НДС) */}
         <Box
           sx={{
             gap: 2,
@@ -348,76 +245,72 @@ export function OrderNewEditDetails() {
           }}
         >
           {/* Доставка */}
-          <Field.Text
-            size="small"
-            label="Доставка"
+          <NumericField
             name="shipping"
-            type="number"
+            label="Доставка"
+            prefix="₸"
+            min={0}
+            onChange={(value) => handleNumericChange('shipping', value)}
             sx={{ maxWidth: { md: 120 } }}
           />
-
+          
           {/* Скидка */}
-          <Field.Text
-            size="small"
-            label="Скидка"
+          <NumericField
             name="discount"
-            type="number"
+            label="Скидка"
+            prefix="₸"
+            min={0}
+            onChange={(value) => handleNumericChange('discount', value)}
             sx={{ maxWidth: { md: 120 } }}
           />
-
-          {/* Если поставщик с НДС, показываем «Сумма НДС (12%)» (disabled) */}
+          
+          {/* НДС (если применимо) */}
           {isVatSupplier && (
-            <Field.Text
-              size="small"
-              label="Сумма НДС (12%)"
+            <NumericField
               name="tax"
-              type="number"
+              label="Сумма НДС (12%)"
+              prefix="₸"
               disabled
               sx={{ maxWidth: { md: 150 } }}
             />
           )}
         </Box>
       </Box>
-
+      
+      {/* Итоговые суммы */}
       <Box sx={{ mt: 3 }}>
         <Stack spacing={2}>
-          {/* Подытог */}
+          {/* Сумма без НДС */}
           <Stack direction="row" justifyContent="space-between">
-              <Typography>Сумма без НДС:</Typography>
-              <Typography>{subtotal.toLocaleString()} ₸</Typography>
-            </Stack>
-
-          {/* {shipping > 0 && (
-            <Stack direction="row" justifyContent="space-between">
-              <Typography>Доставка:</Typography>
-              <Typography>+{shipping} ₸</Typography>
-            </Stack>
-          )} */}
-
+            <Typography>Сумма без НДС:</Typography>
+            <Typography>{subtotal.toLocaleString()} ₸</Typography>
+          </Stack>
+          
+          {/* НДС (если применимо) */}
           {isVatSupplier && (
             <Stack direction="row" justifyContent="space-between">
               <Typography>НДС (12%):</Typography>
               <Typography>{tax.toLocaleString()} ₸</Typography>
             </Stack>
           )}
-
-          {/* {discount > 0 && (
-            <Stack direction="row" justifyContent="space-between">
-              <Typography>Скидка:</Typography>
-              <Typography color="error">-{discount} ₸</Typography>
-            </Stack>
-          )} */}
-
+          
           <Divider sx={{ borderStyle: 'dashed' }} />
-
+          
           {/* Итого */}
           <Stack direction="row" justifyContent="space-between">
             <Typography variant="h6">Итого (с НДС):</Typography>
             <Typography variant="h6">{total.toLocaleString()} ₸</Typography>
           </Stack>
+          
+          {/* Потенциальный бонус */}
+          {totalPotentialBonus > 0 && (
+            <Stack direction="row" justifyContent="space-between" sx={{ color: 'success.main' }}>
+              <Typography>Потенциальный бонус:</Typography>
+              <Typography>{totalPotentialBonus.toLocaleString()} ₸</Typography>
+            </Stack>
+          )}
         </Stack>
       </Box>
     </Box>
   );
 }
-

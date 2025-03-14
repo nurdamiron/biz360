@@ -34,11 +34,10 @@ const ProductListPage = lazy(() => import('src/pages/dashboard/product/list'));
 const ProductCreatePage = lazy(() => import('src/pages/dashboard/product/new'));
 const ProductEditPage = lazy(() => import('src/pages/dashboard/product/edit'));
 // Order
-  const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
-const OrderCreateView = lazy(() => import('src/pages/dashboard/order/create'));
-const OrderDetailsView = lazy(() => import('src/pages/dashboard/order/details'));
-const OrderEditView = lazy(() => import('src/pages/dashboard/order/edit'));
-const OrderListView = lazy(() => import('src/pages/dashboard/order/list'));
+const OrderCreatePage = lazy(() => import('src/pages/dashboard/order/new'));
+const OrderDetailsPage = lazy(() => import('src/pages/dashboard/order/details'));
+const OrderEditPage = lazy(() => import('src/pages/dashboard/order/edit'));
+const OrderListPage = lazy(() => import('src/pages/dashboard/order/list'));
 
 // Invoice
 const InvoiceListPage = lazy(() => import('src/pages/dashboard/invoice/list'));
@@ -160,10 +159,10 @@ export const dashboardRoutes = [
       {
         path: 'order',
         children: [
-          { element: <OrderListView />, index: true },
-          { path: 'new', element: <OrderCreateView /> },
-          { path: ':id', element: <OrderDetailsView /> },
-          { path: ':id/edit', element: <OrderEditView /> },
+          { element: <OrderListPage />, index: true },
+          { path: 'new', element: <OrderCreatePage /> },
+          { path: ':id', element: <OrderDetailsPage /> },
+          { path: ':id/edit', element: <OrderEditPage /> },
         ],
       },
       {

@@ -154,7 +154,7 @@ export function EmployeeMetricsDashboard() {
           <Stack spacing={3} sx={{ p: 3 }}>
             <Box>
               <Typography variant="subtitle2" gutterBottom>
-                KPI ({Math.round(employeeMetrics.kpi)}%)
+                Количество времени ({Math.round(employeeMetrics.kpi)}%)
               </Typography>
               <LinearProgress
                 variant="determinate"
@@ -166,7 +166,7 @@ export function EmployeeMetricsDashboard() {
 
             <Box>
               <Typography variant="subtitle2" gutterBottom>
-                Объем работы ({Math.round(employeeMetrics.work_volume)}%)
+                Качество работы ({Math.round(employeeMetrics.work_volume)}%)
               </Typography>
               <LinearProgress
                 variant="determinate"
@@ -178,7 +178,7 @@ export function EmployeeMetricsDashboard() {
 
             <Box>
               <Typography variant="subtitle2" gutterBottom>
-                Активность ({Math.round(employeeMetrics.activity)}%)
+                Операционные показатели ({Math.round(employeeMetrics.activity)}%)
               </Typography>
               <LinearProgress
                 variant="determinate"
@@ -190,7 +190,7 @@ export function EmployeeMetricsDashboard() {
 
             <Box>
               <Typography variant="subtitle2" gutterBottom>
-                Качество ({Math.round(employeeMetrics.quality)}%)
+                Финансовые показатели ({Math.round(employeeMetrics.quality)}%)
               </Typography>
               <LinearProgress
                 variant="determinate"

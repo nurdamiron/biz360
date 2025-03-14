@@ -12,7 +12,7 @@ export function OrderCreateView() {
         links={[
           { name: 'Главная', href: paths.dashboard.root },
           { name: 'Заказы', href: paths.dashboard.order.root },
-          { name: 'Новый заказ' }
+          { name: 'Новый заказ'},
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
@@ -21,3 +21,4 @@ export function OrderCreateView() {
     </DashboardContent>
   );
 }
+
