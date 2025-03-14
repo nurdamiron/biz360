@@ -1,5 +1,5 @@
 // OrderItemRow.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
   Box,
@@ -16,10 +16,13 @@ import {
 import { Iconify } from 'src/components/iconify';
 import { Field } from 'src/components/hook-form';
 import { fetcher, endpoints } from 'src/lib/axios';
+import { 
+  calculateItemBonusAndMargin, 
+  safeNumber, 
+  BONUS_PERCENTAGE 
+} from 'src/utils/bonusCalculator';
 
-// Бонус, % от маржи (разница между ценой продажи и базовой ценой)
-const BONUS_PERCENTAGE = 5;
-
+// Helper to get field names for consistent access
 function getFieldNames(index) {
   return {
     productId: `items[${index}].productId`,
@@ -35,67 +38,47 @@ function getFieldNames(index) {
   };
 }
 
-// Функция расчета бонуса и маржи
-function calculateBonusAndMargin(basePrice, unitPrice, quantity) {
-  if (!basePrice || !unitPrice || basePrice <= 0 || unitPrice <= 0 || !quantity || quantity <= 0) {
-    return { bonus: 0, marginPercentage: 0 };
-  }
-  
-  // Проверяем, что маржа положительная
-  const priceDifference = unitPrice - basePrice;
-  const marginPercentage = (priceDifference / basePrice) * 100;
-  
-  // Бонус 5% от маржи (разница в цене * количество * процент бонуса)
-  const bonus = Math.round(priceDifference * quantity * (BONUS_PERCENTAGE / 100));
-  
-  return { 
-    bonus, 
-    marginPercentage,
-    priceDifference
-  };
-}
-
 export default function OrderItemRow({ index, onRemove, productList }) {
   const { watch, setValue, getValues } = useFormContext();
   const fieldNames = getFieldNames(index);
 
-  // Состояние компонента
+  // Component state
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [priceEditable, setPriceEditable] = useState(false);
   const [rowErrors, setRowErrors] = useState([]);
   const [quantityValue, setQuantityValue] = useState('1');
 
-  // Извлекаем поля из формы
+  // Watch for form fields
   const quantity = watch(fieldNames.quantity) || 1;
   const unitPrice = watch(fieldNames.unit_price) || 0;
   const basePrice = watch(fieldNames.base_price) || 0;
 
-  // Синхронизация локального состояния с формой
+  // Sync local quantity state with form
   useEffect(() => {
     setQuantityValue(quantity.toString());
   }, [quantity]);
 
-  // Проверки на ошибки
+  // Error checks
   const tooMuch = selectedProduct && quantity > (selectedProduct.quantity || 0);
-  const priceTooLow = basePrice && unitPrice && unitPrice < basePrice;
+  const priceTooLow = basePrice > 0 && unitPrice > 0 && unitPrice < basePrice;
 
-  // Обновление расчетов при изменении данных
+  // Calculate bonus and margin when relevant values change
   useEffect(() => {
-    // Сначала чистим ошибки
+    // Clear previous errors
     const newErrors = [];
 
-    // Расчет итоговых значений
+    // Calculate final values if all required data is present
     if (basePrice > 0 && unitPrice > 0 && quantity > 0) {
-      // Итоговая цена строки
+      // Total price for this line
       const total = quantity * unitPrice;
       setValue(fieldNames.total_price, total);
 
-      // Расчет маржи и бонуса
-      const { bonus, marginPercentage } = calculateBonusAndMargin(basePrice, unitPrice, quantity);
+      // Calculate bonus and margin
+      const { bonus, marginPercentage } = calculateItemBonusAndMargin(basePrice, unitPrice, quantity);
       setValue(fieldNames.margin_percentage, marginPercentage);
       setValue(fieldNames.potential_bonus, bonus);
 
-      // Отправляем событие для обновления общего бонуса
+      // Dispatch event to notify parent components
       setTimeout(() => {
         const calculatedEvent = new CustomEvent('orderItemUpdated', {
           detail: { index, bonus, marginPercentage }
@@ -103,12 +86,13 @@ export default function OrderItemRow({ index, onRemove, productList }) {
         document.dispatchEvent(calculatedEvent);
       }, 0);
     } else {
+      // Set default values if data is incomplete
       setValue(fieldNames.total_price, 0);
       setValue(fieldNames.margin_percentage, 0);
       setValue(fieldNames.potential_bonus, 0);
     }
 
-    // Проверка на ошибки
+    // Add any applicable errors
     if (tooMuch) {
       const available = selectedProduct?.quantity || 0;
       newErrors.push(`Вы пытаетесь заказать больше, чем доступно: ${available} шт.`);
@@ -120,7 +104,7 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     setRowErrors(newErrors);
   }, [quantity, unitPrice, basePrice, tooMuch, priceTooLow, selectedProduct, setValue, fieldNames, index]);
 
-  // Выбор продукта
+  // Product selection handler
   const handleSelectProduct = async (e) => {
     const productId = e.target.value;
     if (!productId) {
@@ -128,7 +112,7 @@ export default function OrderItemRow({ index, onRemove, productList }) {
       return;
     }
 
-    // Проверка дубликатов
+    // Check for duplicates
     const allItems = watch('items');
     const duplicate = allItems.find((it, i) => i !== index && it.productId === productId);
     if (duplicate) {
@@ -143,10 +127,10 @@ export default function OrderItemRow({ index, onRemove, productList }) {
         setSelectedProduct(prod);
         setPriceEditable(true);
 
-        // Используем базовую цену из продукта, если она есть
-        const newBase = prod.base_price || Math.round(prod.price * 0.8);
+        // Use base price from product or fallback to default calculation
+        const newBase = prod.base_price || prod.price;
 
-        // Заполняем поля формы
+        // Fill form fields
         setValue(fieldNames.productId, productId);
         setValue(fieldNames.title, prod.name || '');
         setValue(fieldNames.service, prod.code || '');
@@ -155,13 +139,13 @@ export default function OrderItemRow({ index, onRemove, productList }) {
         setValue(fieldNames.quantity, 1);
         setQuantityValue('1');
 
-        // Сразу рассчитываем итоговую цену, маржу и бонус
+        // Calculate total price, margin and bonus
         setValue(fieldNames.total_price, prod.price || 0);
-        const { bonus, marginPercentage } = calculateBonusAndMargin(newBase, prod.price, 1);
+        const { bonus, marginPercentage } = calculateItemBonusAndMargin(newBase, prod.price, 1);
         setValue(fieldNames.margin_percentage, marginPercentage);
         setValue(fieldNames.potential_bonus, bonus);
 
-        // Отправляем событие для обновления общего бонуса
+        // Dispatch event to notify parent components
         setTimeout(() => {
           const calculatedEvent = new CustomEvent('orderItemUpdated', {
             detail: { index, bonus, marginPercentage }
@@ -176,10 +160,12 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     }
   };
 
-  // Сброс полей
+  // Reset all fields
   const resetFields = () => {
     setSelectedProduct(null);
     setPriceEditable(false);
+    
+    // Reset all form values
     setValue(fieldNames.productId, '');
     setValue(fieldNames.title, '');
     setValue(fieldNames.description, '');
@@ -192,7 +178,7 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     setValue(fieldNames.margin_percentage, 0);
     setValue(fieldNames.potential_bonus, 0);
     
-    // Отправляем событие для обновления общего бонуса
+    // Notify parent about changes
     setTimeout(() => {
       const calculatedEvent = new CustomEvent('orderItemUpdated', {
         detail: { index, bonus: 0, marginPercentage: 0 }
@@ -201,24 +187,24 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     }, 0);
   };
 
-  // Обработчик изменения цены
+  // Handle price change
   const handlePriceChange = (e) => {
     const newPrice = parseFloat(e.target.value);
     if (isNaN(newPrice)) return;
     
     setValue(fieldNames.unit_price, newPrice);
     
-    // Пересчитываем итоговую сумму
+    // Recalculate total price
     const total = quantity * newPrice;
     setValue(fieldNames.total_price, total);
     
-    // Пересчитываем маржу и бонус
+    // Recalculate margin and bonus
     if (basePrice > 0) {
-      const { bonus, marginPercentage } = calculateBonusAndMargin(basePrice, newPrice, quantity);
+      const { bonus, marginPercentage } = calculateItemBonusAndMargin(basePrice, newPrice, quantity);
       setValue(fieldNames.margin_percentage, marginPercentage);
       setValue(fieldNames.potential_bonus, bonus);
       
-      // Отправляем событие для обновления общего бонуса
+      // Notify parent about changes
       setTimeout(() => {
         const calculatedEvent = new CustomEvent('orderItemUpdated', {
           detail: { index, bonus, marginPercentage }
@@ -228,12 +214,12 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     }
   };
 
-  // Обработчик изменения количества
+  // Handle quantity change
   const handleQuantityChange = (e) => {
     const value = e.target.value;
     setQuantityValue(value);
     
-    // Если поле пустое, не обновляем форму
+    // Skip updates if field is empty
     if (value === '') return;
     
     const newQuantity = parseInt(value, 10);
@@ -241,18 +227,18 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     
     setValue(fieldNames.quantity, newQuantity);
     
-    // Пересчитываем итоговую сумму
+    // Recalculate if unit price exists
     if (unitPrice > 0) {
       const total = newQuantity * unitPrice;
       setValue(fieldNames.total_price, total);
       
-      // Пересчитываем маржу и бонус
+      // Recalculate margin and bonus
       if (basePrice > 0) {
-        const { bonus, marginPercentage } = calculateBonusAndMargin(basePrice, unitPrice, newQuantity);
+        const { bonus, marginPercentage } = calculateItemBonusAndMargin(basePrice, unitPrice, newQuantity);
         setValue(fieldNames.margin_percentage, marginPercentage);
         setValue(fieldNames.potential_bonus, bonus);
         
-        // Отправляем событие для обновления общего бонуса
+        // Notify parent about changes
         setTimeout(() => {
           const calculatedEvent = new CustomEvent('orderItemUpdated', {
             detail: { index, bonus, marginPercentage }
@@ -263,23 +249,23 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     }
   };
 
-  // Обработчик потери фокуса полем количества
+  // Handle quantity field blur
   const handleQuantityBlur = () => {
     if (quantityValue === '' || parseInt(quantityValue, 10) <= 0) {
       setValue(fieldNames.quantity, 1);
       setQuantityValue('1');
       
-      // Пересчитываем итоговую сумму при сбросе на значение по умолчанию
+      // Recalculate with default quantity
       if (unitPrice > 0) {
         setValue(fieldNames.total_price, unitPrice);
         
-        // Пересчитываем маржу и бонус
+        // Recalculate margin and bonus
         if (basePrice > 0) {
-          const { bonus, marginPercentage } = calculateBonusAndMargin(basePrice, unitPrice, 1);
+          const { bonus, marginPercentage } = calculateItemBonusAndMargin(basePrice, unitPrice, 1);
           setValue(fieldNames.margin_percentage, marginPercentage);
           setValue(fieldNames.potential_bonus, bonus);
           
-          // Отправляем событие для обновления общего бонуса
+          // Notify parent about changes
           setTimeout(() => {
             const calculatedEvent = new CustomEvent('orderItemUpdated', {
               detail: { index, bonus, marginPercentage }
@@ -291,113 +277,32 @@ export default function OrderItemRow({ index, onRemove, productList }) {
     }
   };
 
-  // Общие стили для полей ввода
+  // Common field styles
   const commonFieldStyle = {
     '& .MuiOutlinedInput-root': {
       height: '40px'
     }
   };
 
-  // Рендер селектора продукта
-  const renderProductSelect = () => (
-    <Field.Select
-      name={fieldNames.productId}
-      label="Выбрать продукт"
-      onChange={handleSelectProduct}
-      sx={{ flex: 1, ...commonFieldStyle }}
-    >
-      <MenuItem value=""><em>- Не выбрано -</em></MenuItem>
-      {productList.map((p) => (
-        <MenuItem key={p.id} value={p.id} disabled={p.quantity <= 0}>
-          {p.name}{p.quantity <= 0 ? ' (нет в наличии)' : ''}
-        </MenuItem>
-      ))}
-    </Field.Select>
-  );
-
-  // Рендер поля количества
-  const renderQuantity = () => (
-    <Box sx={{ width: 120, display: 'flex', flexDirection: 'column' }}>
-      <TextField
-        size="small"
-        type="number"
-        label="Кол-во"
-        value={quantityValue}
-        onChange={handleQuantityChange}
-        onBlur={handleQuantityBlur}
-        inputProps={{ min: 1 }}
-        sx={{ width: '100%', ...commonFieldStyle }}
-      />
-      {selectedProduct && (
-        <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
-          Доступно: {selectedProduct.quantity}
-        </Typography>
-      )}
-    </Box>
-  );
-
-  // Рендер поля цены
-  const renderPrice = () => (
-    <Box sx={{ width: 150, display: 'flex', flexDirection: 'column' }}>
-      <TextField
-        size="small"
-        type="number"
-        label="Цена"
-        value={unitPrice}
-        onChange={handlePriceChange}
-        disabled={!priceEditable}
-        InputProps={{
-          startAdornment: <InputAdornment position="start">₸</InputAdornment>,
-        }}
-        sx={{ width: '100%', ...commonFieldStyle }}
-      />
-      {basePrice > 0 && (
-        <Tooltip title="Базовая цена, ниже которой устанавливать нельзя">
-          <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', mt: 0.5 }}>
-            Базовая: {basePrice.toLocaleString()} ₸
-          </Typography>
-        </Tooltip>
-      )}
-    </Box>
-  );
-
-  // Рендер поля кода
-  const renderCode = () => (
-    <TextField
-      size="small"
-      label="Номенклатурный номер"
-      value={watch(fieldNames.service) || ''}
-      disabled
-      sx={{ width: 150, ...commonFieldStyle }}
-    />
-  );
-
-  // Рендер поля итоговой суммы
-  const renderTotal = () => (
-    <TextField
-      size="small"
-      label="Итого"
-      value={watch(fieldNames.total_price) || 0}
-      disabled
-      InputProps={{
-        startAdornment: <InputAdornment position="start">₸</InputAdornment>,
-        style: { fontWeight: 600, color: '#000' }
-      }}
-      inputProps={{
-        style: { textAlign: 'right', fontWeight: 600, color: '#000' }
-      }}
-      sx={{ width: 150, ...commonFieldStyle }}
-    />
-  );
-
-  // Получаем значения бонуса и маржи для отображения
+  // Get bonus and margin values for display
   const bonusVal = watch(fieldNames.potential_bonus) || 0;
   const marginVal = watch(fieldNames.margin_percentage) || 0;
   const isNegativeMargin = marginVal < 0;
 
+  // Memorize bonus message for display
+  const bonusMessage = useMemo(() => {
+    if (bonusVal === 0) return null;
+    
+    return (
+      <Alert severity={bonusVal > 0 ? "info" : "error"} sx={{ mb: 1 }}>
+        Бонус: {bonusVal.toLocaleString()} ₸ &nbsp;/ Маржа: {marginVal.toFixed(1)}%
+      </Alert>
+    );
+  }, [bonusVal, marginVal]);
+
   return (
     <Box sx={{ mb: 3 }}>
-      {/* Отображение ошибок */}
+      {/* Display errors if any */}
       {rowErrors.length > 0 && (
         <Alert severity="error" sx={{ mb: 1 }}>
           {rowErrors.map((errMsg, i) => (
@@ -406,14 +311,10 @@ export default function OrderItemRow({ index, onRemove, productList }) {
         </Alert>
       )}
 
-      {/* Отображение информации о бонусе */}
-      {bonusVal !== 0 && (
-        <Alert severity={bonusVal > 0 ? "info" : "error"} sx={{ mb: 1 }}>
-          Бонус: {bonusVal.toLocaleString()} ₸ &nbsp;/ Маржа: {marginVal.toFixed(1)}%
-        </Alert>
-      )}
+      {/* Display bonus information */}
+      {bonusMessage}
 
-      {/* Строка товара */}
+      {/* Item row */}
       <Paper 
         variant="outlined" 
         sx={{ 
@@ -428,22 +329,89 @@ export default function OrderItemRow({ index, onRemove, productList }) {
           flexWrap="wrap"
           alignItems="flex-start"
         >
-          {/* Селектор продукта */}
-          {renderProductSelect()}
+          {/* Product selector */}
+          <Field.Select
+            name={fieldNames.productId}
+            label="Выбрать продукт"
+            onChange={handleSelectProduct}
+            sx={{ flex: 1, ...commonFieldStyle }}
+          >
+            <MenuItem value=""><em>- Не выбрано -</em></MenuItem>
+            {productList.map((p) => (
+              <MenuItem key={p.id} value={p.id} disabled={p.quantity <= 0}>
+                {p.name}{p.quantity <= 0 ? ' (нет в наличии)' : ''}
+              </MenuItem>
+            ))}
+          </Field.Select>
 
-          {/* Номенклатурный номер */}
-          {renderCode()}
+          {/* Product code */}
+          <TextField
+            size="small"
+            label="Номенклатурный номер"
+            value={watch(fieldNames.service) || ''}
+            disabled
+            sx={{ width: 150, ...commonFieldStyle }}
+          />
 
-          {/* Количество */}
-          {renderQuantity()}
+          {/* Quantity */}
+          <Box sx={{ width: 120, display: 'flex', flexDirection: 'column' }}>
+            <TextField
+              size="small"
+              type="number"
+              label="Кол-во"
+              value={quantityValue}
+              onChange={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              inputProps={{ min: 1 }}
+              sx={{ width: '100%', ...commonFieldStyle }}
+            />
+            {selectedProduct && (
+              <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
+                Доступно: {selectedProduct.quantity}
+              </Typography>
+            )}
+          </Box>
 
-          {/* Цена */}
-          {renderPrice()}
+          {/* Price */}
+          <Box sx={{ width: 150, display: 'flex', flexDirection: 'column' }}>
+            <TextField
+              size="small"
+              type="number"
+              label="Цена"
+              value={unitPrice}
+              onChange={handlePriceChange}
+              disabled={!priceEditable}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">₸</InputAdornment>,
+              }}
+              sx={{ width: '100%', ...commonFieldStyle }}
+            />
+            {basePrice > 0 && (
+              <Tooltip title="Базовая цена, ниже которой устанавливать нельзя">
+                <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', mt: 0.5 }}>
+                  Базовая: {basePrice.toLocaleString()} ₸
+                </Typography>
+              </Tooltip>
+            )}
+          </Box>
 
-          {/* Итоговая сумма */}
-          {renderTotal()}
+          {/* Total */}
+          <TextField
+            size="small"
+            label="Итого"
+            value={watch(fieldNames.total_price) || 0}
+            disabled
+            InputProps={{
+              startAdornment: <InputAdornment position="start">₸</InputAdornment>,
+              style: { fontWeight: 600, color: '#000' }
+            }}
+            inputProps={{
+              style: { textAlign: 'right', fontWeight: 600, color: '#000' }
+            }}
+            sx={{ width: 150, ...commonFieldStyle }}
+          />
 
-          {/* Кнопка удаления */}
+          {/* Remove button */}
           <Button
             size="small"
             color="error"

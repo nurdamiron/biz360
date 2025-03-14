@@ -75,7 +75,7 @@ const PriceField = React.memo(({ field, basePrice, disabled, onChange }) => {
         value={displayValue}
         onChange={handleChange}
         onBlur={handleBlur}
-        disabled={disabled}
+        // disabled={disabled}
         error={priceTooLow}
         helperText=""
         InputProps={{
@@ -114,7 +114,7 @@ export function PriceInput({
           <PriceField
             field={field}
             basePrice={basePrice}
-            disabled={disabled}
+            // disabled={disabled}
             onChange={onChange}
           />
         )}

@@ -51,7 +51,7 @@ export const formatNumber = (value, decimals = 2) => {
     items.forEach(item => {
       const quantity = safeNumber(item.quantity, 1);
       const unitPrice = safeNumber(item.unit_price);
-      const basePrice = safeNumber(item.base_price, unitPrice * 0.8); // По умолчанию базовая цена 80% от цены продажи
+      const basePrice = safeNumber(item.base_price, unitPrice); // По умолчанию базовая цена 80% от цены продажи
       
       subtotal += quantity * unitPrice;
       totalBaseCost += quantity * basePrice;

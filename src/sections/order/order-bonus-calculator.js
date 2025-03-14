@@ -50,38 +50,42 @@ export function useOrderBonusCalculator() {
   // Инициализация и обновление при изменении товаров
   useEffect(() => {
     if (!methods || typeof methods.watch !== 'function') {
-      return;
+      return undefined; // Возвращаем undefined, а не просто return;
     }
-    
-    // Вызываем расчет при инициализации
+  
     calculateBonus();
-    
-    // Слушаем события обновления отдельных товаров
+  
     const handleOrderItemUpdated = () => {
       calculateBonus();
     };
-    
+  
     document.addEventListener('orderItemUpdated', handleOrderItemUpdated);
-    
+  
     return () => {
       document.removeEventListener('orderItemUpdated', handleOrderItemUpdated);
     };
   }, [methods, calculateBonus]);
   
+  
   // Дополнительная подписка на изменения самих items
   useEffect(() => {
     if (!methods || typeof methods.watch !== 'function') {
-      return;
+      return undefined;
     }
-    
+  
     const subscription = methods.watch((value, { name }) => {
       if (name?.startsWith('items')) {
         calculateBonus();
       }
     });
-    
-    return () => subscription.unsubscribe();
+  
+    return () => {
+      if (subscription?.unsubscribe) {
+        subscription.unsubscribe();
+      }
+    };
   }, [methods, calculateBonus]);
+  
   
   return { totalBonus, avgMargin };
 }

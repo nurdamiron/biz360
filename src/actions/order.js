@@ -307,8 +307,7 @@ export function useOrderForm(initialOrder = null) {
       const response = await axios.get(endpoints.product.details(productId));
       const product = response.data;
       
-      // Устанавливаем базовую цену как 80% от цены продажи, если не указано иное
-      const basePrice = Math.round(product.price * 0.8);
+      const basePrice = Math.round(product.price);
       
       return {
         ...product,
