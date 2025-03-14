@@ -15,9 +15,11 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { ApexChart } from 'src/components/chart';
 import { useFormContext } from 'react-hook-form';
-
-// Константа для расчета бонуса
-const BONUS_PERCENTAGE = 5;
+import { 
+  calculateItemBonusAndMargin, 
+  simulateMetricsImpact,
+  BASE_BONUS_PERCENTAGE 
+} from 'src/utils/bonusCalculator';
 
 export function OrderMetricsPreview({ totalBonus, avgMargin }) {
   const theme = useTheme();
@@ -27,42 +29,54 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
   const [error, setError] = useState(null);
   const [metrics, setMetrics] = useState(null);
   
-  // Get all relevant fields from the form
+  // Get relevant fields from the form
   const items = watch('items') || [];
   const billing_to = watch('billing_to');
   const total = watch('total') || 0;
   
-  // Calculate form validation status
+  // Form validation status
   const isValid = items.length > 0 && 
                  items.every(item => item.title && item.quantity > 0 && item.unit_price > 0) &&
                  billing_to;
   
-  // Функция расчета общего бонуса на основе товаров
+  // Function to calculate total bonus from items using the correct formula
   const calculateTotalBonus = useCallback(() => {
-    let calculatedBonus = 0;
+    let calculatedTotalBonus = 0;
     let totalMarginPercentage = 0;
     let validItemsCount = 0;
     
     items.forEach(item => {
-      // Проверяем наличие всех необходимых данных
+      // Check for all required data
       if (item && item.base_price && item.unit_price && item.quantity) {
-        const priceDifference = item.unit_price - item.base_price;
-        const marginPercentage = (priceDifference / item.base_price) * 100;
-        const itemBonus = Math.round(priceDifference * item.quantity * (BONUS_PERCENTAGE / 100));
+        // Calculate using the correct formula:
+        // 1. Base bonus = basePrice * 5%
+        // 2. Adjusted bonus = baseBonus * (sellingPrice / basePrice)
+        // 3. Total bonus = adjustedBonus * quantity
+        const basePrice = Number(item.base_price);
+        const sellingPrice = Number(item.unit_price);
+        const quantity = Number(item.quantity);
         
-        calculatedBonus += itemBonus;
+        const baseBonus = basePrice * (BASE_BONUS_PERCENTAGE / 100);
+        const adjustedBonus = baseBonus * (sellingPrice / basePrice);
+        const itemBonus = Math.round(adjustedBonus * quantity);
+        
+        // Calculate margin percentage for display
+        const priceDifference = sellingPrice - basePrice;
+        const marginPercentage = (priceDifference / basePrice) * 100;
+        
+        calculatedTotalBonus += itemBonus;
         totalMarginPercentage += marginPercentage;
         validItemsCount += 1;
       }
     });
     
     return {
-      bonus: calculatedBonus,
+      bonus: calculatedTotalBonus,
       avgMargin: validItemsCount > 0 ? totalMarginPercentage / validItemsCount : 0
     };
   }, [items]);
   
-  // Получаем данные бонуса - либо из пропсов, либо рассчитываем
+  // Get bonus data from props or calculate it
   const [calculatedTotalBonus, setCalculatedTotalBonus] = useState(0);
   const [calculatedAvgMargin, setCalculatedAvgMargin] = useState(0);
   
@@ -82,7 +96,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     }
   }, [totalBonus, avgMargin, calculateTotalBonus]);
   
-  // Вычисляем метрики для сотрудника
+  // Calculate metrics impact
   const fetchProjectedMetrics = useCallback(async () => {
     if (!isValid) return;
     
@@ -90,43 +104,16 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
       setLoading(true);
       setError(null);
       
-      // Рассчитываем влияние бонуса на метрики
-      const bonusImpact = Math.min(15, calculatedTotalBonus / 200);
-      
-      // В реальной реализации здесь будет API-запрос
-      // Симулируем ответ сервера
+      // In a real implementation, this would be an API call
+      // Here we use the simulateMetricsImpact utility
       setTimeout(() => {
-        // Базовые метрики сотрудника
-        const currentValues = {
-          kpi: 65,
-          workVolume: 70,
-          activity: 75,
-          overallPerformance: 68
-        };
+        const metricsData = simulateMetricsImpact(
+          calculatedTotalBonus,
+          calculatedAvgMargin,
+          total
+        );
         
-        // Рассчитываем влияние заказа на метрики
-        const impactFactor = Math.min(15, (total / 10000) + (calculatedAvgMargin / 10));
-        
-        const projectedValues = {
-          kpi: Math.min(100, currentValues.kpi + bonusImpact),
-          workVolume: Math.min(100, currentValues.workVolume + bonusImpact * 1.2),
-          activity: Math.min(100, currentValues.activity + bonusImpact * 0.8),
-          overallPerformance: Math.min(100, currentValues.overallPerformance + bonusImpact)
-        };
-        
-        const impact = {
-          kpi: parseFloat((projectedValues.kpi - currentValues.kpi).toFixed(1)),
-          workVolume: parseFloat((projectedValues.workVolume - currentValues.workVolume).toFixed(1)),
-          activity: parseFloat((projectedValues.activity - currentValues.activity).toFixed(1)),
-          overallPerformance: parseFloat((projectedValues.overallPerformance - currentValues.overallPerformance).toFixed(1))
-        };
-        
-        setMetrics({
-          current: currentValues,
-          projected: projectedValues,
-          impact
-        });
-        
+        setMetrics(metricsData);
         setLoading(false);
       }, 800);
     } catch (err) {
@@ -136,7 +123,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     }
   }, [isValid, calculatedTotalBonus, calculatedAvgMargin, total]);
   
-  // Обновление метрик при изменении данных заказа
+  // Update metrics when order data changes
   useEffect(() => {
     if (isValid) {
       const timer = setTimeout(() => {
@@ -148,7 +135,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     return undefined;
   }, [isValid, fetchProjectedMetrics, items, calculatedTotalBonus, calculatedAvgMargin]);
   
-  // Слушаем события обновления товаров
+  // Listen for order item update events
   useEffect(() => {
     const handleOrderItemUpdate = () => {
       const result = calculateTotalBonus();
@@ -163,6 +150,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     };
   }, [calculateTotalBonus]);
   
+  // Show guidance when form is incomplete
   if (!isValid) {
     return (
       <Card sx={{ p: 3, mb: 3 }}>
@@ -176,7 +164,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     );
   }
   
-  // If still loading or no metrics yet
+  // Show loading state
   if (loading || !metrics) {
     return (
       <Card sx={{ p: 3, mb: 3 }}>
@@ -190,7 +178,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     );
   }
   
-  // If there was an error
+  // Show error state
   if (error) {
     return (
       <Card sx={{ p: 3, mb: 3 }}>
@@ -202,7 +190,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
     );
   }
   
-  // Определяем цвет для бонуса на основе значения
+  // Determine color for bonus display
   const bonusColor = calculatedTotalBonus < 0 ? 'error.main' : 'success.main';
   const bonusBackgroundColor = calculatedTotalBonus < 0 ? `${theme.palette.error.main}10` : `${theme.palette.success.main}10`;
   const bonusBorderColor = calculatedTotalBonus < 0 ? theme.palette.error.main : theme.palette.success.main;
@@ -262,7 +250,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
       </Typography>
       
       <Grid container spacing={3}>
-        {/* Потенциальный бонус */}
+        {/* Potential bonus */}
         <Grid item xs={12} md={4}>
           <Paper 
             variant="outlined" 
@@ -289,7 +277,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
           </Paper>
         </Grid>
         
-        {/* Изменение метрик */}
+        {/* Metrics impact */}
         <Grid item xs={12} md={8}>
           <Paper 
             variant="outlined" 
@@ -313,7 +301,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
           </Paper>
         </Grid>
         
-        {/* Детальное сравнение текущих и будущих показателей */}
+        {/* Detailed metrics comparison */}
         <Grid item xs={12}>
           <Paper variant="outlined" sx={{ p: 2.5 }}>
             <Typography variant="subtitle2" sx={{ mb: 2 }}>
@@ -343,7 +331,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
                 </Stack>
               </Grid>
               
-              {/* Эффективность */}
+              {/* Effectiveness */}
               <Grid item xs={12} md={3}>
                 <Stack spacing={1}>
                   <Typography variant="body2" color="text.secondary">
@@ -366,7 +354,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
                 </Stack>
               </Grid>
               
-              {/* Объем работы */}
+              {/* Work volume */}
               <Grid item xs={12} md={3}>
                 <Stack spacing={1}>
                   <Typography variant="body2" color="text.secondary">
@@ -389,7 +377,7 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
                 </Stack>
               </Grid>
               
-              {/* Активность */}
+              {/* Activity */}
               <Grid item xs={12} md={3}>
                 <Stack spacing={1}>
                   <Typography variant="body2" color="text.secondary">
@@ -415,12 +403,12 @@ export function OrderMetricsPreview({ totalBonus, avgMargin }) {
           </Paper>
         </Grid>
         
-        {/* Информация о расчете бонусов */}
+        {/* Bonus calculation info */}
         <Grid item xs={12}>
           <Paper variant="outlined" sx={{ p: 2.5, bgcolor: 'info.lighter', color: 'info.dark' }}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <Typography variant="body2">
-                Бонусы рассчитываются как 5% от маржи (разница между ценой продажи и фиксированной ценой)
+                Бонусы рассчитываются как {BASE_BONUS_PERCENTAGE}% от базовой цены, пропорционально цене продажи
               </Typography>
             </Stack>
             {calculatedAvgMargin > 0 && (

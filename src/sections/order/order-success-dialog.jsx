@@ -1,3 +1,4 @@
+// src/sections/order/OrderSuccessDialog.jsx
 import { useState } from 'react';
 import {
   Dialog,
@@ -14,7 +15,6 @@ import {
   Alert,
   Chip
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import { Iconify } from 'src/components/iconify';
 import { useRouter } from 'src/routes/hooks';
 
@@ -27,7 +27,7 @@ export function OrderSuccessDialog({ open, onClose, orderData, invoiceData }) {
     return null;
   }
   
-  // Calculate the total potential bonus if available
+  // Ensure potential bonus is correctly displayed
   const potentialBonus = orderData.potential_bonus || 0;
   
   // Format creation date

@@ -43,7 +43,6 @@ function safeNumber(value, defaultValue = 0) {
 }
 
 export function OrderNewEditDetails() {
-  console.log('Рендеринг компонента OrderNewEditDetails');
   
   const { control, setValue, watch, getValues } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });

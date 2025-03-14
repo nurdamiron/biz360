@@ -11,6 +11,9 @@ const SWR_OPTIONS = {
   revalidateOnReconnect: false,
 };
 
+// Константа для расчета бонуса (базовая ставка)
+const BASE_BONUS_PERCENTAGE = 5;
+
 /**
  * Хук для получения списка заказов
  */
@@ -112,26 +115,40 @@ export function useOrderForm(initialOrder = null) {
   }, []);
 
   /**
-   * Расчет потенциального бонуса на основе разницы между базовой и продажной ценой
+   * Расчет потенциального бонуса по правильной формуле:
+   * 1. Базовый бонус = базовая цена * 5%
+   * 2. Актуальный бонус = базовый бонус * (цена продажи / базовая цена)
+   * 3. Итоговый бонус = актуальный бонус * количество
+   * 
    * @param {Array} items - элементы заказа
    * @returns {number} - сумма потенциального бонуса
    */
   const calculatePotentialBonus = useCallback((items) => {
-    let totalMargin = 0;
+    let totalBonus = 0;
     
     items.forEach(item => {
       const quantity = Number(item.quantity) || 0;
       const unitPrice = Number(item.unit_price) || 0;
-      const basePrice = Number(item.base_price) || (unitPrice); // Если базовая цена не указана, используем 80% от цены продажи
+      const basePrice = Number(item.base_price) || unitPrice;
       
-      const margin = (unitPrice - basePrice) * quantity;
-      if (margin > 0) {
-        totalMargin += margin;
+      // Пропускаем позиции с невалидными значениями
+      if (basePrice <= 0 || unitPrice <= 0 || quantity <= 0) {
+        return;
       }
+      
+      // Шаг 1: Рассчитываем базовый бонус (5% от базовой цены)
+      const baseBonus = basePrice * (BASE_BONUS_PERCENTAGE / 100);
+      
+      // Шаг 2: Корректируем бонус пропорционально цене продажи
+      const adjustedBonus = baseBonus * (unitPrice / basePrice);
+      
+      // Шаг 3: Рассчитываем общий бонус для указанного количества
+      const itemBonus = Math.round(adjustedBonus * quantity);
+      
+      totalBonus += itemBonus;
     });
     
-    // Применяем ставку бонуса 5%
-    return Math.round(totalMargin * 0.05);
+    return totalBonus;
   }, []);
 
   // Сохранение заказа (создание или обновление)
@@ -150,11 +167,13 @@ export function useOrderForm(initialOrder = null) {
         description: item.description || '',
         quantity: item.quantity,
         unit_price: item.unit_price,
-        base_price: item.base_price || (item.unit_price), // Если базовая цена не указана, используем 80% от цены продажи
-        total_price: item.quantity * item.unit_price
+        base_price: item.base_price || item.unit_price,
+        total_price: item.quantity * item.unit_price,
+        margin_percentage: item.margin_percentage || 0,
+        potential_bonus: item.potential_bonus || 0
       }));
       
-      // Рассчитываем потенциальный бонус
+      // Рассчитываем потенциальный бонус по правильной формуле
       const potentialBonus = calculatePotentialBonus(formattedItems);
       
       const payload = {
@@ -194,15 +213,30 @@ export function useOrderForm(initialOrder = null) {
   const calculateOrderTotals = useCallback((items, shipping = 0, discount = 0, supplierType = '') => {
     let subtotal = 0;
     let totalBaseCost = 0;
+    let totalBonus = 0;
     
     // Суммируем все позиции и рассчитываем базовую стоимость
     items.forEach((item) => {
       const quantity = Number(item.quantity) || 0;
       const unitPrice = Number(item.unit_price) || 0;
-      const basePrice = Number(item.base_price) || (unitPrice); // Если базовая цена не указана, используем 80% от цены продажи
+      const basePrice = Number(item.base_price) || unitPrice;
       
       subtotal += quantity * unitPrice;
       totalBaseCost += quantity * basePrice;
+      
+      // Рассчитываем бонус для каждой позиции по правильной формуле
+      if (basePrice > 0 && unitPrice > 0 && quantity > 0) {
+        // Шаг 1: Рассчитываем базовый бонус (5% от базовой цены)
+        const baseBonus = basePrice * (BASE_BONUS_PERCENTAGE / 100);
+        
+        // Шаг 2: Корректируем бонус пропорционально цене продажи
+        const adjustedBonus = baseBonus * (unitPrice / basePrice);
+        
+        // Шаг 3: Рассчитываем общий бонус для указанного количества
+        const itemBonus = Math.round(adjustedBonus * quantity);
+        
+        totalBonus += itemBonus;
+      }
     });
     
     // Рассчитываем НДС только для определенных типов организаций
@@ -216,9 +250,6 @@ export function useOrderForm(initialOrder = null) {
     const margin = subtotal - totalBaseCost;
     const marginPercentage = totalBaseCost > 0 ? (margin / totalBaseCost) * 100 : 0;
     
-    // Рассчитываем потенциальный бонус (5% от маржи)
-    const potentialBonus = Math.round(margin * 0.05);
-    
     return {
       subtotal,
       tax,
@@ -227,7 +258,7 @@ export function useOrderForm(initialOrder = null) {
       discount,
       margin,
       marginPercentage,
-      potentialBonus,
+      potentialBonus: totalBonus,
       totalBaseCost
     };
   }, []);
@@ -307,7 +338,9 @@ export function useOrderForm(initialOrder = null) {
       const response = await axios.get(endpoints.product.details(productId));
       const product = response.data;
       
-      const basePrice = Math.round(product.price);
+      // Используем исходную цену продукта как базовую,
+      // не применяем скидку 20% как было ранее
+      const basePrice = product.base_price || product.price;
       
       return {
         ...product,

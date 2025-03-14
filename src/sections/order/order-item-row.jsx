@@ -19,7 +19,7 @@ import { fetcher, endpoints } from 'src/lib/axios';
 import { 
   calculateItemBonusAndMargin, 
   safeNumber, 
-  BONUS_PERCENTAGE 
+  BASE_BONUS_PERCENTAGE 
 } from 'src/utils/bonusCalculator';
 
 // Helper to get field names for consistent access
@@ -73,7 +73,7 @@ export default function OrderItemRow({ index, onRemove, productList }) {
       const total = quantity * unitPrice;
       setValue(fieldNames.total_price, total);
 
-      // Calculate bonus and margin
+      // Calculate bonus and margin using the new formula
       const { bonus, marginPercentage } = calculateItemBonusAndMargin(basePrice, unitPrice, quantity);
       setValue(fieldNames.margin_percentage, marginPercentage);
       setValue(fieldNames.potential_bonus, bonus);
@@ -127,7 +127,7 @@ export default function OrderItemRow({ index, onRemove, productList }) {
         setSelectedProduct(prod);
         setPriceEditable(true);
 
-        // Use base price from product or fallback to default calculation
+        // Use base price from product
         const newBase = prod.base_price || prod.price;
 
         // Fill form fields
@@ -141,6 +141,8 @@ export default function OrderItemRow({ index, onRemove, productList }) {
 
         // Calculate total price, margin and bonus
         setValue(fieldNames.total_price, prod.price || 0);
+        
+        // Calculate bonus using the new formula
         const { bonus, marginPercentage } = calculateItemBonusAndMargin(newBase, prod.price, 1);
         setValue(fieldNames.margin_percentage, marginPercentage);
         setValue(fieldNames.potential_bonus, bonus);

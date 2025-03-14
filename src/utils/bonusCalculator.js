@@ -3,7 +3,7 @@
 /**
  * Constants for bonus calculation
  */
-export const BONUS_PERCENTAGE = 5; // 5% bonus rate from margin
+export const BASE_BONUS_PERCENTAGE = 5; // 5% of base price as initial bonus value
 
 /**
  * Formats a number with specified decimal places
@@ -33,11 +33,15 @@ export const safeNumber = (value, defaultValue = 0) => {
 };
 
 /**
- * Calculates margin and bonus for a single order item
+ * Calculates bonus and margin for a single order item according to the formula:
+ * 1. Base bonus = basePrice * BASE_BONUS_PERCENTAGE / 100
+ * 2. Actual bonus = baseBonus * (unitPrice / basePrice)
+ * 3. Total bonus = actualBonus * quantity
+ * 
  * @param {number} basePrice - Base/fixed price of the item
  * @param {number} unitPrice - Selling price of the item
  * @param {number} quantity - Quantity of the item
- * @returns {Object} - Calculated values including bonus, margin percentage, and price difference
+ * @returns {Object} - Calculated values including bonus, margin percentage
  */
 export const calculateItemBonusAndMargin = (basePrice, unitPrice, quantity) => {
   // Convert inputs to safe numbers
@@ -51,7 +55,8 @@ export const calculateItemBonusAndMargin = (basePrice, unitPrice, quantity) => {
     marginPercentage: 0,
     priceDifference: 0,
     marginTotal: 0,
-    isNegativeMargin: false
+    isNegativeMargin: false,
+    baseBonus: 0
   };
   
   // Check for valid values
@@ -59,24 +64,27 @@ export const calculateItemBonusAndMargin = (basePrice, unitPrice, quantity) => {
     return result;
   }
   
-  // Calculate margin (difference between selling price and base price)
+  // Step 1: Calculate base bonus (5% of base price)
+  const baseBonus = base * (BASE_BONUS_PERCENTAGE / 100);
+  
+  // Step 2: Adjust bonus proportionally to the selling price
+  const adjustedBonus = baseBonus * (price / base);
+  
+  // Step 3: Calculate total bonus for the quantity
+  const totalBonus = Math.round(adjustedBonus * qty);
+  
+  // Calculate margin percentage for information purposes
   const priceDifference = price - base;
-  
-  // Calculate margin percentage relative to base price
   const marginPercentage = (priceDifference / base) * 100;
-  
-  // Calculate total margin for the line item
   const marginTotal = priceDifference * qty;
   
-  // Calculate bonus as BONUS_PERCENTAGE% of the total margin
-  const bonus = Math.round(marginTotal * (BONUS_PERCENTAGE / 100));
-  
   return {
-    bonus,
+    bonus: totalBonus,
     marginPercentage: formatNumber(marginPercentage, 1),
     priceDifference: formatNumber(priceDifference, 2),
     marginTotal: formatNumber(marginTotal, 2),
-    isNegativeMargin: marginPercentage < 0
+    isNegativeMargin: marginPercentage < 0,
+    baseBonus: formatNumber(baseBonus, 2)
   };
 };
 
@@ -200,5 +208,37 @@ export const simulateMetricsImpact = (totalBonus, avgMargin, orderTotal) => {
     current: currentMetrics,
     projected: projectedMetrics,
     impact
+  };
+};
+
+/**
+ * Validate and verify bonus calculation for a test case
+ * @param {number} basePrice - Base price
+ * @param {number} sellPrice - Selling price
+ * @param {number} quantity - Quantity
+ * @returns {Object} - Calculation details for debugging
+ */
+export const testBonusCalculation = (basePrice, sellPrice, quantity) => {
+  // Base bonus (5% of base price)
+  const baseBonus = basePrice * 0.05;
+  
+  // Adjusted bonus proportional to selling price
+  const adjustedBonus = baseBonus * (sellPrice / basePrice);
+  
+  // Total bonus for all units
+  const totalBonus = Math.round(adjustedBonus * quantity);
+  
+  // Margin calculation
+  const margin = sellPrice - basePrice;
+  const marginPercentage = (margin / basePrice) * 100;
+  
+  return {
+    basePrice,
+    sellPrice,
+    quantity,
+    baseBonus,
+    adjustedBonus,
+    totalBonus,
+    marginPercentage: formatNumber(marginPercentage, 1)
   };
 };
