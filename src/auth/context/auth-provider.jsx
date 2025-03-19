@@ -1,14 +1,16 @@
+// src/auth/context/auth-provider.jsx 
+
 import { useReducer, useCallback, useEffect } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/auth-context';
+import { AuthContext } from './auth-context';
 
 // Получаем базовый URL из переменных окружения
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'https://biz360-backend.onrender.com';
 
 const initialState = {
-  isAuthenticated: false,
-  user: null,
-  loading: true, // Добавляем состояние загрузки
+  authenticated: false,
+  employee: null,
+  loading: true, // Состояние загрузки
 };
 
 const reducer = (state, action) => {
@@ -20,14 +22,14 @@ const reducer = (state, action) => {
       };
     case 'LOGIN':
       return {
-        isAuthenticated: true,
-        user: action.payload,
+        authenticated: true,
+        employee: action.payload,
         loading: false,
       };
     case 'LOGOUT':
       return {
-        isAuthenticated: false,
-        user: null,
+        authenticated: false,
+        employee: null,
         loading: false,
       };
     default:
@@ -55,16 +57,16 @@ export function AuthProvider({ children }) {
         dispatch({
           type: 'INITIAL',
           payload: {
-            isAuthenticated: true,
-            user: response.data,
+            authenticated: true,
+            employee: response.data,
           },
         });
       } else {
         dispatch({
           type: 'INITIAL',
           payload: {
-            isAuthenticated: false,
-            user: null,
+            authenticated: false,
+            employee: null,
           },
         });
       }
@@ -78,8 +80,8 @@ export function AuthProvider({ children }) {
       dispatch({
         type: 'INITIAL',
         payload: {
-          isAuthenticated: false,
-          user: null,
+          authenticated: false,
+          employee: null,
         },
       });
     }
@@ -128,7 +130,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       // Только если пользователь авторизован, отправляем запрос на выход
-      if (state.isAuthenticated) {
+      if (state.authenticated) {
         await axios.post(`${SERVER_URL}/api/auth/logout`);
       }
     } catch (error) {
@@ -139,7 +141,7 @@ export function AuthProvider({ children }) {
       delete axios.defaults.headers.common.Authorization;
       dispatch({ type: 'LOGOUT' });
     }
-  }, [state.isAuthenticated]);
+  }, [state.authenticated]);
 
   // Функция обновления данных пользователя
   const refreshUserData = useCallback(async () => {
@@ -158,15 +160,27 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Проверка сессии сотрудника - алиас для initialize
+  const checkEmployeeSession = useCallback(async () => {
+    try {
+      await initialize();
+      return { success: true };
+    } catch (error) {
+      console.error('Session check error:', error);
+      return { success: false, error: error.message || 'Ошибка проверки сессии' };
+    }
+  }, [initialize]);
+
   // Формируем значение контекста
   const value = {
-    isAuthenticated: state.isAuthenticated,
-    user: state.user,
+    authenticated: state.authenticated,
+    employee: state.employee,
     loading: state.loading,
     login,
     logout,
     initialize,
     refreshUserData,
+    checkEmployeeSession
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

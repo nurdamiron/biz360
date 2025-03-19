@@ -1,26 +1,15 @@
+// Модификация в src/auth/guard/auth-guard.jsx
 import { useState, useEffect } from 'react';
-
 import { paths } from 'src/routes/paths';
 import { useRouter, usePathname } from 'src/routes/hooks';
-
 import { CONFIG } from 'src/global-config';
-
 import { SplashScreen } from 'src/components/loading-screen';
-
 import { useAuthContext } from '../hooks';
-
-// ----------------------------------------------------------------------
-
-const signInPaths = {
-  jwt: paths.auth.jwt.signIn,
-};
 
 export function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-
-  const { authenticated, loading } = useAuthContext();
-
+  const { authenticated, loading, employee } = useAuthContext();
   const [isChecking, setIsChecking] = useState(true);
 
   const createRedirectPath = (currentPath) => {
@@ -33,14 +22,12 @@ export function AuthGuard({ children }) {
       return;
     }
 
-    if (!authenticated) {
+    // Измененная проверка - считаем пользователя аутентифицированным, если есть сотрудник
+    if (!authenticated && !employee) {
       const { method } = CONFIG.auth;
-
-      const signInPath = signInPaths[method];
+      const signInPath = paths.auth.jwt.signIn;
       const redirectPath = createRedirectPath(signInPath);
-
       router.replace(redirectPath);
-
       return;
     }
 
@@ -50,7 +37,7 @@ export function AuthGuard({ children }) {
   useEffect(() => {
     checkPermissions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticated, loading]);
+  }, [authenticated, loading, employee]);
 
   if (isChecking) {
     return <SplashScreen />;

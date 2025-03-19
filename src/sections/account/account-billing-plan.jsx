@@ -1,3 +1,5 @@
+// src/sections/account/account-billing-plan.jsx
+
 import { useState, useCallback } from 'react';
 import { useBoolean } from 'minimal-shared/hooks';
 
@@ -9,6 +11,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import CardHeader from '@mui/material/CardHeader';
+import Typography from '@mui/material/Typography';
 
 import { PlanFreeIcon, PlanStarterIcon, PlanPremiumIcon } from 'src/assets/icons';
 
@@ -17,13 +20,14 @@ import { Iconify } from 'src/components/iconify';
 
 import { AddressListDialog } from '../address';
 import { PaymentCardListDialog } from '../payment/payment-card-list-dialog';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function AccountBillingPlan({ cardList, addressBook, plans }) {
   const openAddress = useBoolean();
-
   const openCards = useBoolean();
+  const { employee } = useAuthContext();
 
   const primaryCard = cardList.find((card) => card.primary) || null;
   const primaryAddress = addressBook.find((address) => address.primary) || null;
@@ -75,7 +79,7 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
               startIcon={<Iconify icon="eva:star-fill" />}
               sx={{ position: 'absolute', top: 8, right: 8 }}
             >
-              Current
+              Текущий
             </Label>
           )}
 
@@ -91,15 +95,17 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
               textTransform: 'capitalize',
             }}
           >
-            {plan.subscription}
+            {plan.subscription === 'basic' && 'Базовый'}
+            {plan.subscription === 'starter' && 'Стартовый'}
+            {plan.subscription === 'premium' && 'Премиум'}
           </Box>
 
           <Box sx={{ display: 'flex', typography: 'h4', alignItems: 'center' }}>
-            {plan.price || 'Free'}
+            {plan.price ? `${plan.price} ₽` : 'Бесплатно'}
 
             {!!plan.price && (
               <Box component="span" sx={{ typography: 'body2', color: 'text.disabled', ml: 0.5 }}>
-                /mo
+                /мес
               </Box>
             )}
           </Box>
@@ -110,7 +116,7 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
   return (
     <>
       <Card>
-        <CardHeader title="Plan" />
+        <CardHeader title="Тарифный план" />
 
         <Grid container spacing={2} sx={{ p: 3 }}>
           {renderPlans()}
@@ -119,20 +125,23 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
         <Stack spacing={2} sx={{ p: 3, pt: 0, typography: 'body2' }}>
           <Grid container spacing={{ xs: 0.5, md: 2 }}>
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Plan
+              План
             </Grid>
 
             <Grid
               sx={{ typography: 'subtitle2', textTransform: 'capitalize' }}
               size={{ xs: 12, md: 8 }}
             >
-              {selectedPlan || '-'}
+              {selectedPlan === 'basic' && 'Базовый'}
+              {selectedPlan === 'starter' && 'Стартовый'}
+              {selectedPlan === 'premium' && 'Премиум'}
+              {!selectedPlan && '-'}
             </Grid>
           </Grid>
 
           <Grid container spacing={{ xs: 0.5, md: 2 }}>
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Billing name
+              Плательщик
             </Grid>
 
             <Grid size={{ xs: 12, md: 8 }}>
@@ -141,34 +150,34 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
                 endIcon={<Iconify width={16} icon="eva:arrow-ios-downward-fill" />}
                 sx={{ typography: 'subtitle2', p: 0, borderRadius: 0 }}
               >
-                {selectedAddress?.name}
+                {selectedAddress?.name || employee?.name || 'Не указан'}
               </Button>
             </Grid>
           </Grid>
 
           <Grid container spacing={{ xs: 0.5, md: 2 }}>
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Billing address
+              Адрес плательщика
             </Grid>
 
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 8 }}>
-              {selectedAddress?.fullAddress}
+              {selectedAddress?.fullAddress || employee?.address || 'Не указан'}
             </Grid>
           </Grid>
 
           <Grid container spacing={{ xs: 0.5, md: 2 }}>
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Billing phone number
+              Телефон плательщика
             </Grid>
 
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 8 }}>
-              {selectedAddress?.phoneNumber}
+              {selectedAddress?.phoneNumber || employee?.phoneNumber || 'Не указан'}
             </Grid>
           </Grid>
 
           <Grid container spacing={{ xs: 0.5, md: 2 }}>
             <Grid sx={{ color: 'text.secondary' }} size={{ xs: 12, md: 4 }}>
-              Payment method
+              Способ оплаты
             </Grid>
 
             <Grid size={{ xs: 12, md: 8 }}>
@@ -177,7 +186,7 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
                 endIcon={<Iconify width={16} icon="eva:arrow-ios-downward-fill" />}
                 sx={{ typography: 'subtitle2', p: 0, borderRadius: 0 }}
               >
-                {selectedCard?.cardNumber}
+                {selectedCard?.cardNumber || 'Не указан'}
               </Button>
             </Grid>
           </Grid>
@@ -193,8 +202,8 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
             justifyContent: 'flex-end',
           }}
         >
-          <Button variant="outlined">Cancel plan</Button>
-          <Button variant="contained">Upgrade plan</Button>
+          <Button variant="outlined">Отменить план</Button>
+          <Button variant="contained">Обновить план</Button>
         </Box>
       </Card>
 
@@ -218,7 +227,7 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{ alignSelf: 'flex-end' }}
           >
-            New
+            Новый
           </Button>
         }
       />

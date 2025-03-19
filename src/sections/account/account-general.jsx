@@ -1,4 +1,4 @@
-// account-general.jsx
+// src/sections/account/account-general.jsx
 
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -16,54 +16,54 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { fData } from 'src/utils/format-number';
 import { toast } from 'src/components/snackbar';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
-
-import { useMockedEmployee } from 'src/auth/hooks';
+import { useAuthContext } from 'src/auth/hooks';
+import { departmentToRussian, roleToRussian } from 'src/auth/utils';
+import { useCallback } from 'react';
 
 // ----------------------------------------------------------------------
 
-// Схема "аккаунта" (пример, если нужна отдельная)
+// Схема "аккаунта"
 export const UpdateEmployeeSchema = zod.object({
-  displayName: zod.string().min(1, { message: 'Name is required!' }),
+  displayName: zod.string().min(1, { message: 'ФИО обязательно!' }),
   email: zod
     .string()
-    .min(1, { message: 'Email is required!' })
-    .email({ message: 'Email must be a valid email address!' }),
-  photoURL: schemaHelper.file({ message: 'Avatar is required!' }),
+    .min(1, { message: 'Эл. почта обязательна!' })
+    .email({ message: 'Неверный формат эл. почты!' }),
+  photoURL: schemaHelper.file({ message: 'Аватар обязателен!' }),
   phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
-  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
-    message: 'Country is required!',
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Страна обязательна!' }), {
+    message: 'Страна обязательна!',
   }),
-  address: zod.string().min(1, { message: 'Address is required!' }),
-  state: zod.string().min(1, { message: 'State is required!' }),
-  city: zod.string().min(1, { message: 'City is required!' }),
-  zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-  about: zod.string().min(1, { message: 'About is required!' }),
-  // Можно добавить поля isPublic и т.д.
+  address: zod.string().min(1, { message: 'Адрес обязателен!' }),
+  state: zod.string().min(1, { message: 'Область/Регион обязателен!' }),
+  city: zod.string().min(1, { message: 'Город обязателен!' }),
+  zipCode: zod.string().min(1, { message: 'Индекс обязателен!' }),
+  about: zod.string().min(1, { message: 'Информация о себе обязательна!' }),
   isPublic: zod.boolean(),
 });
 
 // ----------------------------------------------------------------------
 
-/**
- * Пример формы для "General" настроек аккаунта сотрудника (mock).
- */
 export function AccountGeneral() {
-  const { employee } = useMockedEmployee();
+  // Получаем данные пользователя из AuthContext
+  const { employee, refreshUserData } = useAuthContext();
 
-  // Инициируем данные для формы, если есть employee
-  const currentEmployee = {
-    displayName: employee?.displayName,
-    email: employee?.email,
-    photoURL: employee?.photoURL,
-    phoneNumber: employee?.phoneNumber,
-    country: employee?.country,
-    address: employee?.address,
-    state: employee?.state,
-    city: employee?.city,
-    zipCode: employee?.zipCode,
-    about: employee?.about,
-    isPublic: employee?.isPublic,
-  };
+  // Маппинг данных пользователя для формы
+  const currentEmployee = employee ? {
+    displayName: employee.name || '',
+    email: employee.email || '',
+    photoURL: employee.photoURL || null,
+    phoneNumber: employee.phoneNumber || '',
+    country: employee.country || null,
+    address: employee.address || '',
+    state: employee.state || '',
+    city: employee.city || '',
+    zipCode: employee.zipCode || '',
+    about: employee.about || '',
+    isPublic: employee.isPublic || false,
+    department: employee.department ? departmentToRussian(employee.department) : '',
+    role: employee.role ? roleToRussian(employee.role) : '',
+  } : null;
 
   const defaultValues = {
     displayName: '',
@@ -84,7 +84,7 @@ export function AccountGeneral() {
     mode: 'all',
     resolver: zodResolver(UpdateEmployeeSchema),
     defaultValues,
-    values: currentEmployee,
+    values: currentEmployee || defaultValues,
   });
 
   const {
@@ -92,17 +92,34 @@ export function AccountGeneral() {
     formState: { isSubmitting },
   } = methods;
 
-  // Сабмит (имитация)
+  // Обработчик отправки формы
   const onSubmit = handleSubmit(async (data) => {
     try {
-      // Здесь реальный запрос PUT/PATCH к серверу
+      console.log('Отправка данных на сервер:', data);
+      
+      // Здесь должен быть реальный запрос PUT/PATCH к серверу
       await new Promise((resolve) => setTimeout(resolve, 500));
-      toast.success('Update success!');
-      console.info('DATA', data);
+      
+      // После успешного обновления обновляем данные пользователя
+      if (refreshUserData) {
+        await refreshUserData();
+      }
+      
+      toast.success('Данные успешно обновлены!');
     } catch (error) {
-      console.error(error);
+      console.error('Ошибка при обновлении данных:', error);
+      toast.error('Не удалось обновить данные. Пожалуйста, попробуйте позже.');
     }
   });
+
+  // Если данные пользователя еще не загружены
+  if (!employee) {
+    return (
+      <Card sx={{ p: 3 }}>
+        <Typography variant="body1">Загрузка данных пользователя...</Typography>
+      </Card>
+    );
+  }
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
@@ -130,22 +147,32 @@ export function AccountGeneral() {
                     color: 'text.disabled',
                   }}
                 >
-                  Allowed *.jpeg, *.jpg, *.png, *.gif
-                  <br /> max size of {fData(3145728)}
+                  Разрешены форматы *.jpeg, *.jpg, *.png, *.gif
+                  <br /> максимальный размер {fData(3145728)}
                 </Typography>
               }
             />
 
+            <Typography variant="subtitle1" sx={{ mt: 3 }}>
+              {currentEmployee.role}
+            </Typography>
+
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3 }}>
+              {currentEmployee.department}
+            </Typography>
+
             <Field.Switch
               name="isPublic"
               labelPlacement="start"
-              label="Public profile"
+              label="Публичный профиль"
               sx={{ mt: 5 }}
             />
 
-            <Button variant="soft" color="error" sx={{ mt: 3 }}>
-              Delete employee
-            </Button>
+            {(employee.role === 'admin' || employee.role === 'owner') && (
+              <Button variant="soft" color="error" sx={{ mt: 3 }}>
+                Удалить сотрудника
+              </Button>
+            )}
           </Card>
         </Grid>
 
@@ -164,7 +191,6 @@ export function AccountGeneral() {
               <Field.Phone name="phoneNumber" label="Номер телефона" />
               <Field.Text name="address" label="Адрес" />
 
-              {/* Например, label="Страна" вместо "Отдел" */}
               <Field.CountrySelect name="country" label="Страна" placeholder="Выберите страну" />
 
               <Field.Text name="state" label="Область/Регион" />
@@ -173,7 +199,7 @@ export function AccountGeneral() {
             </Box>
 
             <Stack spacing={3} sx={{ mt: 3, alignItems: 'flex-end' }}>
-              <Field.Text name="about" multiline rows={4} label="About" />
+              <Field.Text name="about" multiline rows={4} label="О себе" />
 
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 Сохранить изменения

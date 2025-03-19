@@ -1,3 +1,4 @@
+// src/sections/account/account-change-password.jsx
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { useBoolean } from 'minimal-shared/hooks';
@@ -12,6 +13,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -19,17 +21,20 @@ export const ChangePassWordSchema = zod
   .object({
     oldPassword: zod
       .string()
-      .min(1, { message: 'Password is required!' })
-      .min(6, { message: 'Password must be at least 6 characters!' }),
-    newPassword: zod.string().min(1, { message: 'New password is required!' }),
-    confirmNewPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
+      .min(1, { message: 'Текущий пароль обязателен!' })
+      .min(6, { message: 'Пароль должен содержать минимум 6 символов!' }),
+    newPassword: zod
+      .string()
+      .min(1, { message: 'Новый пароль обязателен!' })
+      .min(6, { message: 'Пароль должен содержать минимум 6 символов!' }),
+    confirmNewPassword: zod.string().min(1, { message: 'Подтверждение пароля обязательно!' }),
   })
   .refine((data) => data.oldPassword !== data.newPassword, {
-    message: 'New password must be different than old password',
+    message: 'Новый пароль должен отличаться от текущего',
     path: ['newPassword'],
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: 'Passwords do not match!',
+    message: 'Пароли не совпадают!',
     path: ['confirmNewPassword'],
   });
 
@@ -37,6 +42,7 @@ export const ChangePassWordSchema = zod
 
 export function AccountChangePassword() {
   const showPassword = useBoolean();
+  const { employee } = useAuthContext();
 
   const defaultValues = {
     oldPassword: '',
@@ -58,12 +64,16 @@ export function AccountChangePassword() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      console.log('Отправка данных смены пароля:', data);
+      
+      // Здесь должен быть реальный запрос на изменение пароля
       await new Promise((resolve) => setTimeout(resolve, 500));
+      
       reset();
-      toast.success('Update success!');
-      console.info('DATA', data);
+      toast.success('Пароль успешно изменен!');
     } catch (error) {
-      console.error(error);
+      console.error('Ошибка при изменении пароля:', error);
+      toast.error('Не удалось изменить пароль. Пожалуйста, попробуйте позже.');
     }
   });
 
@@ -80,7 +90,7 @@ export function AccountChangePassword() {
         <Field.Text
           name="oldPassword"
           type={showPassword.value ? 'text' : 'password'}
-          label="Old password"
+          label="Текущий пароль"
           slotProps={{
             input: {
               endAdornment: (
@@ -98,7 +108,7 @@ export function AccountChangePassword() {
 
         <Field.Text
           name="newPassword"
-          label="New password"
+          label="Новый пароль"
           type={showPassword.value ? 'text' : 'password'}
           slotProps={{
             input: {
@@ -115,7 +125,7 @@ export function AccountChangePassword() {
           }}
           helperText={
             <Box component="span" sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
-              <Iconify icon="eva:info-fill" width={16} /> Password must be minimum 6+
+              <Iconify icon="eva:info-fill" width={16} /> Пароль должен содержать минимум 6 символов
             </Box>
           }
         />
@@ -123,7 +133,7 @@ export function AccountChangePassword() {
         <Field.Text
           name="confirmNewPassword"
           type={showPassword.value ? 'text' : 'password'}
-          label="Confirm new password"
+          label="Подтвердите новый пароль"
           slotProps={{
             input: {
               endAdornment: (
@@ -140,7 +150,7 @@ export function AccountChangePassword() {
         />
 
         <LoadingButton type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-        Сохранить изменения
+          Сохранить изменения
         </LoadingButton>
       </Card>
     </Form>

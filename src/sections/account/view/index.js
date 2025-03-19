@@ -1,3 +1,4 @@
+// src/sections/account/view/index.js
 export * from './account-billing-view';
 
 export * from './account-general-view';

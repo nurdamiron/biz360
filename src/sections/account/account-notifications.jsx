@@ -1,3 +1,5 @@
+// src/sections/account/account-notifications.jsx
+
 import { useForm, Controller } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
@@ -10,26 +12,29 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { toast } from 'src/components/snackbar';
 import { Form } from 'src/components/hook-form';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 const NOTIFICATIONS = [
   {
-    subheader: 'Activity',
-    caption: 'Donec mi odio, faucibus at, scelerisque quis',
+    subheader: 'Активность',
+    caption: 'Настройте уведомления о действиях в системе',
     items: [
-      { id: 'activity_comments', label: 'Email me when someone comments onmy article' },
-      { id: 'activity_answers', label: 'Email me when someone answers on my form' },
-      { id: 'activityFollows', label: 'Email me hen someone follows me' },
+      { id: 'activity_comments', label: 'Уведомлять по email, когда кто-то комментирует мою статью' },
+      { id: 'activity_answers', label: 'Уведомлять по email, когда кто-то отвечает на мою форму' },
+      { id: 'activity_follows', label: 'Уведомлять по email, когда кто-то подписывается на меня' },
     ],
   },
   {
-    subheader: 'Application',
-    caption: 'Donec mi odio, faucibus at, scelerisque quis',
+    subheader: 'Приложение',
+    caption: 'Настройте уведомления о системных событиях',
     items: [
-      { id: 'application_news', label: 'News and announcements' },
-      { id: 'application_product', label: 'Weekly product updates' },
-      { id: 'application_blog', label: 'Weekly blog digest' },
+      { id: 'application_news', label: 'Новости и анонсы' },
+      { id: 'application_product', label: 'Еженедельные обновления продуктов' },
+      { id: 'application_blog', label: 'Еженедельная рассылка блога' },
+      { id: 'application_metrics', label: 'Обновления показателей эффективности' },
+      { id: 'application_orders', label: 'Уведомления о новых заказах' },
     ],
   },
 ];
@@ -37,8 +42,13 @@ const NOTIFICATIONS = [
 // ----------------------------------------------------------------------
 
 export function AccountNotifications({ sx, ...other }) {
+  const { employee } = useAuthContext();
+  
+  // Получаем предпочтения уведомлений из данных пользователя или используем значения по умолчанию
+  const userNotifications = employee?.notifications || ['activity_comments', 'application_product', 'application_metrics'];
+  
   const methods = useForm({
-    defaultValues: { selected: ['activity_comments', 'application_product'] },
+    defaultValues: { selected: userNotifications },
   });
 
   const {
@@ -52,11 +62,15 @@ export function AccountNotifications({ sx, ...other }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      console.log('Сохранение настроек уведомлений:', data);
+      
+      // Здесь должен быть реальный запрос на обновление настроек уведомлений
       await new Promise((resolve) => setTimeout(resolve, 500));
-      toast.success('Update success!');
-      console.info('DATA', data);
+      
+      toast.success('Настройки уведомлений обновлены!');
     } catch (error) {
-      console.error(error);
+      console.error('Ошибка при обновлении настроек уведомлений:', error);
+      toast.error('Не удалось обновить настройки. Пожалуйста, попробуйте позже.');
     }
   });
 
@@ -135,7 +149,7 @@ export function AccountNotifications({ sx, ...other }) {
         ))}
 
         <LoadingButton type="submit" variant="contained" loading={isSubmitting} sx={{ ml: 'auto' }}>
-        Сохранить изменения
+          Сохранить изменения
         </LoadingButton>
       </Card>
     </Form>

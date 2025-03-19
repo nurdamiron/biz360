@@ -1,3 +1,5 @@
+// src/auth/guard/guest-guard.jsx
+
 import { useState, useEffect } from 'react';
 
 import { useSearchParams } from 'src/routes/hooks';

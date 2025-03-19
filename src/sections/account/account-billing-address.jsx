@@ -1,3 +1,5 @@
+// src/sections/account/account-billing-address.jsx
+
 import { useState, useCallback } from 'react';
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
@@ -13,17 +15,23 @@ import { Iconify } from 'src/components/iconify';
 import { CustomPopover } from 'src/components/custom-popover';
 
 import { AddressItem, AddressNewForm } from '../address';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function AccountBillingAddress({ addressBook }) {
   const menuActions = usePopover();
   const newAddressForm = useBoolean();
+  const { employee } = useAuthContext();
+
+  // Выбираем адреса пользователя, если они есть, или используем переданные параметры
+  const userAddresses = employee?.addresses || addressBook || [];
 
   const [addressId, setAddressId] = useState('');
 
   const handleAddNewAddress = useCallback((address) => {
-    console.info('ADDRESS', address);
+    console.info('Новый адрес:', address);
+    // Здесь должен быть запрос на сервер для добавления адреса
   }, []);
 
   const handleSelectedId = useCallback(
@@ -45,32 +53,32 @@ export function AccountBillingAddress({ addressBook }) {
         <MenuItem
           onClick={() => {
             handleClose();
-            console.info('SET AS PRIMARY', addressId);
+            console.info('Установить как основной', addressId);
           }}
         >
           <Iconify icon="eva:star-fill" />
-          Set as primary
+          Сделать основным
         </MenuItem>
 
         <MenuItem
           onClick={() => {
             handleClose();
-            console.info('EDIT', addressId);
+            console.info('Редактировать', addressId);
           }}
         >
           <Iconify icon="solar:pen-bold" />
-          Edit
+          Редактировать
         </MenuItem>
 
         <MenuItem
           onClick={() => {
             handleClose();
-            console.info('DELETE', addressId);
+            console.info('Удалить', addressId);
           }}
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Удалить
         </MenuItem>
       </MenuList>
     </CustomPopover>
@@ -88,7 +96,7 @@ export function AccountBillingAddress({ addressBook }) {
     <>
       <Card>
         <CardHeader
-          title="Address book"
+          title="Адресная книга"
           action={
             <Button
               size="small"
@@ -96,13 +104,13 @@ export function AccountBillingAddress({ addressBook }) {
               startIcon={<Iconify icon="mingcute:add-line" />}
               onClick={newAddressForm.onTrue}
             >
-              Address
+              Адрес
             </Button>
           }
         />
 
         <Stack spacing={2.5} sx={{ p: 3 }}>
-          {addressBook.map((address) => (
+          {userAddresses.map((address) => (
             <AddressItem
               variant="outlined"
               key={address.id}

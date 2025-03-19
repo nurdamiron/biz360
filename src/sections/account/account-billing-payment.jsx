@@ -1,3 +1,5 @@
+// src/sections/account/account-billing-payment.jsx
+
 import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -13,17 +15,22 @@ import { Iconify } from 'src/components/iconify';
 
 import { PaymentCardItem } from '../payment/payment-card-item';
 import { PaymentNewCardForm } from '../payment/payment-new-card-form';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function AccountBillingPayment({ cards, sx, ...other }) {
   const openForm = useBoolean();
+  const { employee } = useAuthContext();
+
+  // Выбираем карты пользователя, если они есть, или используем переданные параметры
+  const userCards = employee?.paymentCards || cards || [];
 
   return (
     <>
       <Card sx={[{ my: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
         <CardHeader
-          title="Payment method"
+          title="Способы оплаты"
           action={
             <Button
               size="small"
@@ -31,7 +38,7 @@ export function AccountBillingPayment({ cards, sx, ...other }) {
               startIcon={<Iconify icon="mingcute:add-line" />}
               onClick={openForm.onTrue}
             >
-              New card
+              Новая карта
             </Button>
           }
         />
@@ -45,14 +52,14 @@ export function AccountBillingPayment({ cards, sx, ...other }) {
             gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
           }}
         >
-          {cards.map((card) => (
+          {userCards.map((card) => (
             <PaymentCardItem key={card.id} card={card} />
           ))}
         </Box>
       </Card>
 
       <Dialog fullWidth maxWidth="xs" open={openForm.value} onClose={openForm.onFalse}>
-        <DialogTitle> Add new card </DialogTitle>
+        <DialogTitle>Добавить новую карту</DialogTitle>
 
         <DialogContent sx={{ overflow: 'unset' }}>
           <PaymentNewCardForm />
@@ -60,11 +67,11 @@ export function AccountBillingPayment({ cards, sx, ...other }) {
 
         <DialogActions>
           <Button color="inherit" variant="outlined" onClick={openForm.onFalse}>
-            Cancel
+            Отмена
           </Button>
 
           <Button color="inherit" variant="contained" onClick={openForm.onFalse}>
-            Add
+            Добавить
           </Button>
         </DialogActions>
       </Dialog>

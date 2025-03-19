@@ -1,3 +1,4 @@
+// src/layouts/dashboard/layout.jsx (обновленная версия)
 import { merge } from 'es-toolkit';
 import { useBoolean } from 'minimal-shared/hooks';
 
@@ -33,21 +34,40 @@ import { WorkspacesPopover } from '../components/workspaces-popover';
 import { navData as dashboardNavData } from '../nav-config-dashboard';
 import { dashboardLayoutVars, dashboardNavColorVars } from './css-vars';
 import { NotificationsDrawer } from '../components/notifications-drawer';
-import { navData as getFilteredNavData } from '../nav-config-dashboard';
+import { getFilteredNavData } from '../nav-config-dashboard';
 
 // ----------------------------------------------------------------------
 
 export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery = 'lg' }) {
   const theme = useTheme();
-  const { user } = useAuthContext();
-
+  const authContext = useAuthContext();
   const settings = useSettingsContext();
-
   const navVars = dashboardNavColorVars(theme, settings.state.navColor, settings.state.navLayout);
-
   const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const navData = slotProps?.nav?.data ?? dashboardNavData;
+  // Получаем данные пользователя (employee) из контекста аутентификации
+  const { employee } = authContext || {};
+
+  console.log('DashboardLayout - получены данные authContext:', authContext);
+
+  // Используем функцию getFilteredNavData для получения отфильтрованных данных навигации
+  // Если employee не определен, используем полные данные навигации
+  let filteredNavData;
+  try {
+    filteredNavData = employee ? getFilteredNavData(employee) : dashboardNavData;
+    console.log('Результат getFilteredNavData:', filteredNavData);
+  } catch (error) {
+    console.error('Ошибка при фильтрации навигации:', error);
+    filteredNavData = dashboardNavData;
+  }
+  
+  if (!filteredNavData || filteredNavData.length === 0) {
+    console.log('Используем полные данные навигации, так как фильтрованные данные пусты');
+    filteredNavData = dashboardNavData;
+  }
+
+  const navData = slotProps?.nav?.data ?? filteredNavData;
+
 
   const isNavMini = settings.state.navLayout === 'mini';
   const isNavHorizontal = settings.state.navLayout === 'horizontal';
@@ -143,12 +163,12 @@ export function DashboardLayout({ sx, cssVars, children, slotProps, layoutQuery 
     );
   };
   
-  console.log('User:', user);
-  console.log('Nav data available:', dashboardNavData && dashboardNavData.length > 0);
+  console.log('Employee:', employee);
+  console.log('Nav data available:', navData && navData.length > 0);
 
   const renderSidebar = () => (
     <NavVertical
-      data={dashboardNavData} // Explicitly pass the dashboard nav data
+      data={navData} // Используем подготовленные данные
       isNavMini={isNavMini}
       layoutQuery={layoutQuery}
       cssVars={navVars.section}

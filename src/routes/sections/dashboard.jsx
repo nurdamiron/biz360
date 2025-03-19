@@ -13,6 +13,8 @@ import { AuthGuard } from 'src/auth/guard';
 
 import { usePathname } from '../hooks';
 
+import RoleDepartmentGuard from 'src/auth/RoleDepartmentGuard';
+import { hasAccessToDepartment, hasAccessByRole, isAdmin, isDepartmentHead } from 'src/auth/utils';
 
 import { Navigate } from 'react-router-dom';
 // ----------------------------------------------------------------------
@@ -89,6 +91,11 @@ const ParamsPage = lazy(() => import('src/pages/dashboard/params'));
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 const BusinessDashboardPage = lazy(() => import('src/pages/dashboard/business-dashboard'));
 
+// User
+
+const UserProfileView = lazy(() => import('src/sections/user/view/user-profile-view'));
+
+
 // ----------------------------------------------------------------------
 
 function SuspenseOutlet() {
@@ -117,22 +124,149 @@ export const dashboardRoutes = [
     path: 'dashboard',
     element: CONFIG.auth.skip ? dashboardLayout() : <AuthGuard>{dashboardLayout()}</AuthGuard>,
     children: [
-      { index: true, element: <IndexPage /> },
-      { path: 'ecommerce', element: <OverviewEcommercePage /> },
-      { path: 'analytics', element: <OverviewAnalyticsPage /> },
-      { path: 'banking', element: <OverviewBankingPage /> },
-      { path: 'booking', element: <OverviewBookingPage /> },
-      { path: 'file', element: <OverviewFilePage /> },
-      { path: 'course', element: <OverviewCoursePage /> },
+      // Начальная страница - перенаправляем на страницу метрик текущего пользователя для сотрудников
+      // или на общий дашборд для админов и руководителей
+      { 
+        index: true, 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => true}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <IndexPage />
+          </RoleDepartmentGuard>
+        ) 
+      },
+      
+      // Секции с защитой доступа по отделу
+      { 
+        path: 'ecommerce', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <OverviewEcommercePage />
+          </RoleDepartmentGuard>
+        ) 
+      },
+      { 
+        path: 'analytics', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <OverviewAnalyticsPage />
+          </RoleDepartmentGuard>
+        ) 
+      },
+      { 
+        path: 'banking', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'accounting')}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <OverviewBankingPage />
+          </RoleDepartmentGuard>
+        ) 
+      },
+      { 
+        path: 'course', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'logistics')}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <OverviewCoursePage />
+          </RoleDepartmentGuard>
+        ) 
+      },
+      { path: 'profile/:id', element: <UserProfileView /> },
+
+      { 
+        path: 'file', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'manufacture')}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <OverviewFilePage />
+          </RoleDepartmentGuard>
+        ) 
+      },
+      
+      // Защита маршрутов сотрудников
       {
         path: 'employee',
         children: [
-          { index: true, element: <EmployeeProfilePage /> },
-          { path: 'profile', element: <EmployeeProfilePage /> },
-          { path: 'cards', element: <EmployeeCardsPage /> },
-          { path: 'list', element: <EmployeeListPage /> },
-          { path: 'new', element: <EmployeeCreatePage /> },
-          { path: ':id/edit', element: <EmployeeEditPage /> },
+          { 
+            index: true, 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <EmployeeProfilePage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'profile', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <EmployeeProfilePage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'cards', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <EmployeeCardsPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'list', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <EmployeeListPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'new', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <EmployeeCreatePage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: ':id/edit', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <EmployeeEditPage />
+              </RoleDepartmentGuard>
+            )
+          },
           {
             path: 'account',
             element: accountLayout(),
@@ -146,35 +280,225 @@ export const dashboardRoutes = [
           },
         ],
       },
+      
+      // Защита маршрутов продуктов
       {
         path: 'product',
         children: [
-          { index: true, element: <ProductListPage /> },
-          { path: 'list', element: <ProductListPage /> },
-          { path: ':id', element: <ProductDetailsPage /> },
-          { path: 'new', element: <ProductCreatePage /> },
-          { path: ':id/edit', element: <ProductEditPage /> },
+          { 
+            index: true, 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'manufacture'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <ProductListPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'list', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'manufacture'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <ProductListPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: ':id', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'manufacture'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <ProductDetailsPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'new', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'manufacture'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <ProductCreatePage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: ':id/edit', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'manufacture'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <ProductEditPage />
+              </RoleDepartmentGuard>
+            )
+          },
         ],
       },
+      
+      // Защита маршрутов заказов
       {
         path: 'order',
         children: [
-          { element: <OrderListPage />, index: true },
-          { path: 'new', element: <OrderCreatePage /> },
-          { path: ':id', element: <OrderDetailsPage /> },
-          { path: ':id/edit', element: <OrderEditPage /> },
+          { 
+            index: true, 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'logistics'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <OrderListPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: 'new', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'logistics'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <OrderCreatePage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: ':id', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'logistics'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <OrderDetailsPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: ':id/edit', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'logistics'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <OrderEditPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
         ],
       },
+      
+      // Защита маршрутов счетов
       {
         path: 'invoice',
         children: [
-          { index: true, element: <InvoiceListPage /> },
-          { path: 'list', element: <InvoiceListPage /> },
-          { path: ':id', element: <InvoiceDetailsPage /> },
-          { path: ':id/edit', element: <InvoiceEditPage /> },
-          { path: 'new', element: <InvoiceCreatePage /> },
+          { 
+            index: true, 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'accounting'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <InvoiceListPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'list', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'accounting'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <InvoiceListPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: ':id', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'accounting'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <InvoiceDetailsPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: ':id/edit', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'accounting'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <InvoiceEditPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: 'new', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  if (isAdmin(user) || isDepartmentHead(user)) return true;
+                  return ['sales', 'accounting'].includes(user?.employee?.department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <InvoiceCreatePage />
+              </RoleDepartmentGuard>
+            )
+          },
         ],
       },
+      
+      // Маршруты для блога/обучения (доступны всем)
       {
         path: 'post',
         children: [
@@ -185,59 +509,190 @@ export const dashboardRoutes = [
           { path: 'new', element: <BlogNewPostPage /> },
         ],
       },
+      
+      // Маршруты метрик
       {
         path: 'metrics',
         children: [
-          { element: <BusinessDashboardPage />, index: true }, // Установим дашборд бизнеса как главную страницу метрик
-          { path: 'business', element: <BusinessDashboardPage /> },
+          { 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <BusinessDashboardPage />
+              </RoleDepartmentGuard>
+            ),
+            index: true
+          },
+          { 
+            path: 'business', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <BusinessDashboardPage />
+              </RoleDepartmentGuard>
+            )
+          },
+          // Свои метрики доступны всем
           { path: 'employee/:id', element: <EmployeeMetricsPage /> },
-          { path: 'department/:department', element: <DepartmentMetricsPage /> },
+          // Метрики отдела доступны только сотрудникам этого отдела и админам
+          { 
+            path: 'department/:department', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => {
+                  const { department } = user?.params || {};
+                  return isAdmin(user) || 
+                         isDepartmentHead(user) || 
+                         hasAccessToDepartment(user, department);
+                }}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <DepartmentMetricsPage />
+              </RoleDepartmentGuard>
+            )
+          },
         ],
       },
 
-      // {
-      //   path: 'customers',
-      //   children: [
-      //     { element: <CustomersListPage />, index: true },
-      //     { path: 'list', element: <CustomersListPage /> },
-      //     { path: 'cards', element: <CustomersCardsPage /> },
-      //     { path: 'create', element: <CustomerCreatePage /> },
-      //     { path: ':id', element: <CustomerDetailsPage /> },
-      //     { path: ':id/edit', element: <CustomerEditPage /> },
-      //   ],
-      // },
+      // Уведомления - доступны всем
       {
         path: 'notifications',
         element: <NotificationsPage />,
       },
+      
+      // Вакансии - доступны всем
       {
         path: 'job',
         children: [
           { index: true, element: <JobListPage /> },
           { path: 'list', element: <JobListPage /> },
           { path: ':id', element: <JobDetailsPage /> },
-          { path: 'new', element: <JobCreatePage /> },
-          { path: ':id/edit', element: <JobEditPage /> },
+          { 
+            path: 'new', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <JobCreatePage />
+              </RoleDepartmentGuard>
+            )
+          },
+          { 
+            path: ':id/edit', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <JobEditPage />
+              </RoleDepartmentGuard>
+            )
+          },
         ],
       },
-      {
+      
+      // Остальные маршруты доступны только для администраторов и руководителей
+      { 
         path: 'tour',
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <Navigate to="/dashboard/tour/list" replace />
+          </RoleDepartmentGuard>
+        ),
         children: [
-          { index: true, element: <TourListPage /> },
+          { element: <Navigate to="/dashboard/tour/list" replace />, index: true },
           { path: 'list', element: <TourListPage /> },
           { path: ':id', element: <TourDetailsPage /> },
           { path: 'new', element: <TourCreatePage /> },
           { path: ':id/edit', element: <TourEditPage /> },
         ],
       },
-      { path: 'file-manager', element: <FileManagerPage /> },
-      { path: 'mail', element: <MailPage /> },
-      { path: 'chat', element: <ChatPage /> },
-      { path: 'calendar', element: <CalendarPage /> },
-      { path: 'kanban', element: <KanbanPage /> },
+      { 
+        path: 'file-manager', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <FileManagerPage />
+          </RoleDepartmentGuard>
+        )
+      },
+      { 
+        path: 'mail', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <MailPage />
+          </RoleDepartmentGuard>
+        )
+      },
+      { 
+        path: 'chat', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <ChatPage />
+          </RoleDepartmentGuard>
+        )
+      },
+      { 
+        path: 'calendar', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <CalendarPage />
+          </RoleDepartmentGuard>
+        )
+      },
+      { 
+        path: 'kanban', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user) || isDepartmentHead(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <KanbanPage />
+          </RoleDepartmentGuard>
+        )
+      },
       { path: 'permission', element: <PermissionDeniedPage /> },
-      { path: 'params', element: <ParamsPage /> },
-      { path: 'blank', element: <BlankPage /> },
+      { 
+        path: 'params', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <ParamsPage />
+          </RoleDepartmentGuard>
+        )
+      },
+      { 
+        path: 'blank', 
+        element: (
+          <RoleDepartmentGuard
+            hasPermission={(user) => isAdmin(user)}
+            accessDeniedPath="/dashboard/metrics/employee/me"
+          >
+            <BlankPage />
+          </RoleDepartmentGuard>
+        )
+      },
     ],
   },
 ];

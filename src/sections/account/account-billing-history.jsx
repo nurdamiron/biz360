@@ -1,3 +1,4 @@
+// src/sections/account/account-billing-history.jsx
 import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
@@ -11,18 +12,21 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
-
 import { Iconify } from 'src/components/iconify';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export function AccountBillingHistory({ invoices, sx, ...other }) {
   const showMore = useBoolean();
+  const { employee } = useAuthContext();
+
+  // Выбираем счета пользователя, если они есть, или используем переданные параметры
+  const userInvoices = employee?.invoices || invoices || [];
 
   return (
     <Card sx={sx} {...other}>
       <CardHeader title="История счетов" />
-
       <Box
         sx={{
           px: 3,
@@ -32,7 +36,7 @@ export function AccountBillingHistory({ invoices, sx, ...other }) {
           flexDirection: 'column',
         }}
       >
-        {(showMore.value ? invoices : invoices.slice(0, 8)).map((invoice) => (
+        {(showMore.value ? userInvoices : userInvoices.slice(0, 8)).map((invoice) => (
           <Box key={invoice.id} sx={{ display: 'flex', alignItems: 'center' }}>
             <ListItemText
               primary={invoice.invoiceNumber}
@@ -44,20 +48,16 @@ export function AccountBillingHistory({ invoices, sx, ...other }) {
                 },
               }}
             />
-
             <Typography variant="body2" sx={{ mr: 5 }}>
               {fCurrency(invoice.price)}
             </Typography>
-
             <Link color="inherit" underline="always" variant="body2" href="#">
               PDF
             </Link>
           </Box>
         ))}
-
         <Divider sx={{ borderStyle: 'dashed' }} />
       </Box>
-
       <Box sx={{ p: 2 }}>
         <Button
           size="small"
@@ -71,7 +71,7 @@ export function AccountBillingHistory({ invoices, sx, ...other }) {
           }
           onClick={showMore.onToggle}
         >
-          Show {showMore.value ? `less` : `more`}
+          Показать {showMore.value ? `меньше` : `больше`}
         </Button>
       </Box>
     </Card>
