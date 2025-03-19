@@ -77,40 +77,40 @@ export const getFilteredNavData = (user) => {
   }
   
   // 2. Продажи - только для отдела продаж и админов
-  if (isAdminUser || department === 'sales') {
-    analysisSections.push({ 
-      title: 'Продажи', 
-      path: paths.dashboard.general.ecommerce, 
-      icon: ICONS.ecommerce 
-    });
-  }
+  // if (isAdminUser || department === 'sales') {
+  //   analysisSections.push({ 
+  //     title: 'Продажи', 
+  //     path: paths.dashboard.general.ecommerce, 
+  //     icon: ICONS.ecommerce 
+  //   });
+  // }
   
   // 3. Бухгалтерия - только для отдела бухгалтерии и админов
-  if (isAdminUser || (department === 'accounting' && !isSalesEmployee)) {
-    analysisSections.push({ 
-      title: 'Бухгалтерия', 
-      path: paths.dashboard.general.banking, 
-      icon: ICONS.banking 
-    });
-  }
+  // if (isAdminUser || (department === 'accounting' && !isSalesEmployee)) {
+  //   analysisSections.push({ 
+  //     title: 'Бухгалтерия', 
+  //     path: paths.dashboard.general.banking, 
+  //     icon: ICONS.banking 
+  //   });
+  // }
   
-  // 4. Логистика - только для отдела логистики и админов
-  if (isAdminUser || (department === 'logistics' && !isSalesEmployee)) {
-    analysisSections.push({ 
-      title: 'Логистика', 
-      path: paths.dashboard.general.course, 
-      icon: ICONS.course 
-    });
-  }
+  // // 4. Логистика - только для отдела логистики и админов
+  // if (isAdminUser || (department === 'logistics' && !isSalesEmployee)) {
+  //   analysisSections.push({ 
+  //     title: 'Логистика', 
+  //     path: paths.dashboard.general.course, 
+  //     icon: ICONS.course 
+  //   });
+  // }
   
-  // 5. Производство - только для отдела производства и админов
-  if (isAdminUser || (department === 'manufacture' && !isSalesEmployee)) {
-    analysisSections.push({ 
-      title: 'Производство', 
-      path: paths.dashboard.general.file, 
-      icon: ICONS.file 
-    });
-  }
+  // // 5. Производство - только для отдела производства и админов
+  // if (isAdminUser || (department === 'manufacture' && !isSalesEmployee)) {
+  //   analysisSections.push({ 
+  //     title: 'Производство', 
+  //     path: paths.dashboard.general.file, 
+  //     icon: ICONS.file 
+  //   });
+  // }
   
   // Элементы подменю метрик
   const metricsChildren = [
