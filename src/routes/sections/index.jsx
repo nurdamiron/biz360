@@ -9,6 +9,7 @@ import { mainRoutes } from './main';
 // import { authDemoRoutes } from './auth-demo';
 import { dashboardRoutes } from './dashboard';
 import { componentsRoutes } from './components';
+import { salesRoutes } from './sales-routes';
 
 // ----------------------------------------------------------------------
 
@@ -44,6 +45,8 @@ export const routesSection = [
 
   // Main
   ...mainRoutes,
+  
+  ...salesRoutes,
 
   // Components
   ...componentsRoutes,

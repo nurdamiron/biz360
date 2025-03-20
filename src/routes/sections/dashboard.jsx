@@ -96,6 +96,13 @@ const BusinessDashboardPage = lazy(() => import('src/pages/dashboard/business-da
 const UserProfileView = lazy(() => import('src/sections/user/view/user-profile-view'));
 
 
+// Sales 
+const SalesEmployeeDashboardPage = lazy(() => import('src/pages/sales/sales-employee-dashboard'));
+const SalesClientsPage = lazy(() => import('src/pages/sales/sales-clients'));
+const SalesClientDetailPage = lazy(() => import('src/pages/sales/sales-client-detail'));
+const SalesDevelopmentPage = lazy(() => import('src/pages/sales/sales-development'));
+const SalesBonusesPage = lazy(() => import('src/pages/sales/sales-bonuses'));
+
 // ----------------------------------------------------------------------
 
 function SuspenseOutlet() {
@@ -195,6 +202,66 @@ export const dashboardRoutes = [
             <OverviewFilePage />
           </RoleDepartmentGuard>
         ) 
+      },
+      {
+        path: 'sales',
+        children: [
+          { 
+            index: true, 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesEmployeeDashboardPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: 'clients', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesClientsPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: 'client/:id', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesClientDetailPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: 'development', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesDevelopmentPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: 'bonuses', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesBonusesPage />
+              </RoleDepartmentGuard>
+            ) 
+          }
+        ]
       },
       
       // Защита маршрутов сотрудников

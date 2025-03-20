@@ -76,15 +76,20 @@ export const getFilteredNavData = (user) => {
     });
   }
   
-  // 2. Продажи - только для отдела продаж и админов
-  // if (isAdminUser || department === 'sales') {
-  //   analysisSections.push({ 
-  //     title: 'Продажи', 
-  //     path: paths.dashboard.general.ecommerce, 
-  //     icon: ICONS.ecommerce 
-  //   });
-  // }
-  
+  // Если пользователь относится к отделу продаж или админ
+  if (isAdminUser || department === 'sales') {
+  analysisSections.push({
+    title: 'Отдел продаж',
+    path: paths.dashboard.sales.root,
+    icon: ICONS.ecommerce,
+    children: [
+      { title: 'Мой дашборд', path: paths.dashboard.sales.root },
+      { title: 'Мои клиенты', path: paths.dashboard.sales.clients },
+      { title: 'План развития', path: paths.dashboard.sales.development },
+      { title: 'Бонусы', path: paths.dashboard.sales.bonuses }
+    ]
+  });
+}
   // 3. Бухгалтерия - только для отдела бухгалтерии и админов
   // if (isAdminUser || (department === 'accounting' && !isSalesEmployee)) {
   //   analysisSections.push({ 

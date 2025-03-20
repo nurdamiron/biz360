@@ -7,7 +7,7 @@ import packageJson from '../package.json';
 
 export const CONFIG = {
   appName: 'BIZ360',
-  appVersion: packageJson.version,
+  appVersion: packageJson.version,  
   serverUrl: import.meta.env.VITE_SERVER_URL ?? 'http://localhost:5000',
   assetsDir: import.meta.env.VITE_ASSETS_DIR ?? '',
   /**
