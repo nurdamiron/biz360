@@ -23,7 +23,7 @@ const Icons = {
 };
 
 // Компонент для отображения компетенций сотрудника
-function CompetenciesCard({ competencies }) {
+function CompetenciesCard({ competencies = {} }) {
   const theme = useTheme();
   
   // Соответствие ключей компетенций иконкам и названиям
@@ -50,6 +50,28 @@ function CompetenciesCard({ competencies }) {
     }
   };
   
+  // Создаем массив компетенций для отображения
+  // Если competencies пусто, используем значения по умолчанию
+  const competenciesEntries = competencies 
+    ? Object.entries(competencies) 
+    : Object.keys(competencyMap).map(key => [key, 0]);
+  
+  // Если нет компетенций даже после дефолтных значений, показываем стандартные
+  const hasCompetencies = competenciesEntries.length > 0;
+  
+  // Если нет компетенций, используем значения по умолчанию
+  const defaultCompetencies = hasCompetencies 
+    ? [] 
+    : [
+        ['product_knowledge', 0],
+        ['sales_skills', 0],
+        ['objection_handling', 0],
+        ['documentation', 0]
+      ];
+  
+  // Используем компетенции или дефолтные значения
+  const displayCompetencies = hasCompetencies ? competenciesEntries : defaultCompetencies;
+  
   return (
     <Card sx={{ 
       boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
@@ -62,8 +84,14 @@ function CompetenciesCard({ competencies }) {
       />
       <Divider />
       <CardContent>
+        {!hasCompetencies && (
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Данные о компетенциях загружаются или недоступны.
+          </Typography>
+        )}
+        
         <Stack spacing={3}>
-          {Object.entries(competencies).map(([key, value]) => {
+          {displayCompetencies.map(([key, value]) => {
             const competency = competencyMap[key] || {
               title: key,
               icon: Icons.Info,
@@ -103,7 +131,7 @@ function CompetenciesCard({ competencies }) {
                 
                 <LinearProgress 
                   variant="determinate" 
-                  value={Math.min(value, 100)}
+                  value={Math.min(value || 0, 100)}
                   sx={{ 
                     height: 8, 
                     borderRadius: 1,
@@ -124,7 +152,16 @@ function CompetenciesCard({ competencies }) {
 }
 
 CompetenciesCard.propTypes = {
-  competencies: PropTypes.object.isRequired
+  competencies: PropTypes.object
+};
+
+CompetenciesCard.defaultProps = {
+  competencies: {
+    product_knowledge: 0,
+    sales_skills: 0,
+    objection_handling: 0,
+    documentation: 0
+  }
 };
 
 export { CompetenciesCard };

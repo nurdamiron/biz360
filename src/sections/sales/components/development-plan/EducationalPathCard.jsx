@@ -118,8 +118,22 @@ CourseItem.propTypes = {
 function EducationalPathCard({ developmentPlan, onToggleCourseComplete }) {
   const theme = useTheme();
   
-  // Прогресс по курсам
-  const coursesProgress = (developmentPlan.completed_courses / developmentPlan.total_courses) * 100;
+  // Используем значения по умолчанию, если developmentPlan не определен
+  const defaultPlan = {
+    completed_courses: 0,
+    total_courses: 1,
+    required_courses: []
+  };
+  
+  // Безопасно получаем значения из developmentPlan или используем значения по умолчанию
+  const {
+    completed_courses = defaultPlan.completed_courses,
+    total_courses = defaultPlan.total_courses,
+    required_courses = defaultPlan.required_courses
+  } = developmentPlan || defaultPlan;
+  
+  // Прогресс по курсам (избегаем деления на ноль)
+  const coursesProgress = total_courses > 0 ? (completed_courses / total_courses) * 100 : 0;
   
   return (
     <Card sx={{ 
@@ -167,7 +181,7 @@ function EducationalPathCard({ developmentPlan, onToggleCourseComplete }) {
           />
           
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-            Завершено {developmentPlan.completed_courses} из {developmentPlan.total_courses} для текущего уровня
+            Завершено {completed_courses} из {total_courses} для текущего уровня
           </Typography>
         </Box>
         
@@ -175,15 +189,21 @@ function EducationalPathCard({ developmentPlan, onToggleCourseComplete }) {
           Рекомендуемые курсы
         </Typography>
         
-        <List sx={{ p: 0 }}>
-          {developmentPlan.required_courses.map((course) => (
-            <CourseItem 
-              key={course.id} 
-              course={course} 
-              onToggleComplete={onToggleCourseComplete} 
-            />
-          ))}
-        </List>
+        {required_courses.length > 0 ? (
+          <List sx={{ p: 0 }}>
+            {required_courses.map((course) => (
+              <CourseItem 
+                key={course.id} 
+                course={course} 
+                onToggleComplete={onToggleCourseComplete} 
+              />
+            ))}
+          </List>
+        ) : (
+          <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+            Нет рекомендуемых курсов на данный момент
+          </Typography>
+        )}
         
         <Button 
           fullWidth 
@@ -199,8 +219,18 @@ function EducationalPathCard({ developmentPlan, onToggleCourseComplete }) {
 }
 
 EducationalPathCard.propTypes = {
-  developmentPlan: PropTypes.object.isRequired,
+  developmentPlan: PropTypes.object,
   onToggleCourseComplete: PropTypes.func.isRequired
+};
+
+// Предоставляем значения по умолчанию для свойств
+EducationalPathCard.defaultProps = {
+  developmentPlan: {
+    completed_courses: 0,
+    total_courses: 0,
+    required_courses: []
+  },
+  onToggleCourseComplete: () => {}
 };
 
 export { EducationalPathCard };

@@ -222,6 +222,13 @@ export function SalesEmployeeDashboard() {
     );
   }
   
+  // Проверяем, что employee и employee.name определены
+  const employeeName = employee?.name || 'Сотрудник';
+  const employeeRole = employee?.role || 'employee';
+  const employeeLevel = employee?.level || 'Junior';
+  const employeeNextLevel = employee?.next_level || 'Middle';
+  const employeeProgress = employee?.progress_to_next_level || 0;
+  
   return (
     <Container maxWidth="xl">
       <LazyMotion features={domAnimation}>
@@ -264,18 +271,18 @@ export function SalesEmployeeDashboard() {
                   sx={{
                     width: 64,
                     height: 64,
-                    bgcolor: getAvatarColor(employee.role),
+                    bgcolor: getAvatarColor(employeeRole),
                     fontSize: '1.5rem',
                     fontWeight: 'bold',
-                    boxShadow: `0 0 0 4px ${alpha(getAvatarColor(employee.role), 0.2)}`
+                    boxShadow: `0 0 0 4px ${alpha(getAvatarColor(employeeRole), 0.2)}`
                   }}
                 >
-                  {employee.name.charAt(0)}
+                  {employeeName.charAt(0)}
                 </Avatar>
                 
                 <Box>
                   <Typography variant="h4" gutterBottom fontWeight="bold">
-                    {employee.name}
+                    {employeeName}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip 
@@ -285,7 +292,7 @@ export function SalesEmployeeDashboard() {
                       size="small"
                     />
                     <Chip 
-                      label={getRoleName(employee.role)} 
+                      label={getRoleName(employeeRole)} 
                       color="secondary" 
                       variant="outlined"
                       size="small"
@@ -299,15 +306,15 @@ export function SalesEmployeeDashboard() {
                   <Typography variant="body2" color="text.secondary">
                     Текущий уровень: 
                     <Typography component="span" fontWeight="bold" color="primary.main" sx={{ pl: 0.5 }}>
-                      {employee.level}
+                      {employeeLevel}
                     </Typography>
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Прогресс до {employee.next_level}:
+                      Прогресс до {employeeNextLevel}:
                     </Typography>
                     <Typography variant="body2" fontWeight="bold" color="primary.main">
-                      {employee.progress_to_next_level}%
+                      {employeeProgress}%
                     </Typography>
                   </Box>
                 </Box>

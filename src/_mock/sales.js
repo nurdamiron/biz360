@@ -1,13 +1,10 @@
-// src/sections/sales/_mock/sales-mock-data.js
-import { shouldUseMockData, mockApiCall } from '../../../utils/mock-data-utils';
-import { leadInteractionsMockData, fetchLeadInteractionsMock, processAIAnalysisMock } from './lead-interactions-mock';
+// src/_mock/sales.js
+import { getMockData, shouldUseMockData } from '../utils/mock-data-utils';
 
-// Флаг для определения, использовать ли мок-данные
-// В продакшене или при наличии API установите в false
-export const ENABLE_MOCK_DATA = true;
-
-// Данные сотрудника
-export const mockEmployee = {
+/**
+ * Мок-данные для сотрудника
+ */
+export const employeeMockData = {
   id: '12345',
   name: "Иван Петров",
   department: "sales",
@@ -32,8 +29,10 @@ export const mockEmployee = {
   }
 };
 
-// Данные метрик
-export const mockMetrics = {
+/**
+ * Мок-данные метрик
+ */
+export const metricsMockData = {
   overall_performance: 70,
   overall_performance_trend: 5,
   kpi: 69,
@@ -60,23 +59,29 @@ export const mockMetrics = {
   }
 };
 
-// Данные активных клиентов
-export const mockActiveClients = [
+/**
+ * Мок-данные активных клиентов
+ */
+export const activeClientsMockData = [
   { id: 1, name: 'ООО "Технопром"', status: 'Переговоры', potential_amount: 450000, probability: 65, urgency: 'Высокая' },
   { id: 2, name: 'ИП Иванов', status: 'Первичный контакт', potential_amount: 120000, probability: 25, urgency: 'Средняя' },
   { id: 3, name: 'АО "СтройИнвест"', status: 'Согласование КП', potential_amount: 780000, probability: 40, urgency: 'Низкая' },
   { id: 4, name: 'ООО "ФинТрейд"', status: 'Новый клиент', potential_amount: 520000, probability: 20, urgency: 'Высокая' }
 ];
 
-// Данные завершенных сделок
-export const mockCompletedDeals = [
+/**
+ * Мок-данные завершенных сделок
+ */
+export const completedDealsMockData = [
   { id: 1, client: 'ООО "ТехноЛаб"', close_date: '12.03.2025', amount: 350000, days: 18, bonus: 24500, rating: 4 },
   { id: 2, client: 'ИП Петров', close_date: '05.03.2025', amount: 85000, days: 7, bonus: 5950, rating: 3 },
   { id: 3, client: 'ЗАО "МегаТех"', close_date: '25.01.2025', amount: 750000, days: 22, bonus: 52500, rating: 5 }
 ];
 
-// Данные новых назначений
-export const mockNewAssignments = [
+/**
+ * Мок-данные новых назначений
+ */
+export const newAssignmentsMockData = [
   { 
     id: 1, 
     name: 'ООО "ФинТрейд"', 
@@ -87,8 +92,10 @@ export const mockNewAssignments = [
   }
 ];
 
-// Данные по продажам
-export const mockSalesPerformance = {
+/**
+ * Мок-данные по продажам
+ */
+export const salesPerformanceMockData = {
   currentMonth: 'Март 2025',
   plan: 500000,
   actual: 365000,
@@ -108,8 +115,10 @@ export const mockSalesPerformance = {
   }
 };
 
-// Данные для рекомендаций по улучшению
-export const mockImprovements = [
+/**
+ * Мок-данные для рекомендаций по улучшению
+ */
+export const improvementsMockData = [
   {
     title: 'Увеличить скорость обработки лидов',
     current: 63,
@@ -130,8 +139,21 @@ export const mockImprovements = [
   }
 ];
 
-// Данные по сегментам продаж
-export const mockSalesSegments = {
+/**
+ * Мок-данные графика для метрик
+ */
+export const chartDataMockData = [
+  { date: '1 Мар', performance: 75, kpi: 72, quality: 82, work_volume: 68, speed: 71, plan_completion: 70 },
+  { date: '8 Мар', performance: 80, kpi: 77, quality: 87, work_volume: 72, speed: 76, plan_completion: 75 },
+  { date: '15 Мар', performance: 76, kpi: 73, quality: 83, work_volume: 68, speed: 72, plan_completion: 71 },
+  { date: '22 Мар', performance: 74, kpi: 71, quality: 81, work_volume: 66, speed: 70, plan_completion: 69 },
+  { date: '29 Мар', performance: 77, kpi: 74, quality: 84, work_volume: 69, speed: 73, plan_completion: 72 }
+];
+
+/**
+ * Мок-данные по сегментам продаж
+ */
+export const salesSegmentsMockData = {
   industries: [
     { name: 'IT-компании', conversion: 32, averageCheck: 155000 },
     { name: 'Строительство', conversion: 24, averageCheck: 175000 },
@@ -149,107 +171,43 @@ export const mockSalesSegments = {
   ]
 };
 
-// Данные графика для метрик
-export const mockChartData = [
-  { date: '1 Мар', performance: 75, kpi: 72, quality: 82, work_volume: 68, speed: 71, plan_completion: 70 },
-  { date: '8 Мар', performance: 80, kpi: 77, quality: 87, work_volume: 72, speed: 76, plan_completion: 75 },
-  { date: '15 Мар', performance: 76, kpi: 73, quality: 83, work_volume: 68, speed: 72, plan_completion: 71 },
-  { date: '22 Мар', performance: 74, kpi: 71, quality: 81, work_volume: 66, speed: 70, plan_completion: 69 },
-  { date: '29 Мар', performance: 77, kpi: 74, quality: 84, work_volume: 69, speed: 73, plan_completion: 72 }
-];
-
-// Взаимодействия с лидами
-export const mockLeadInteractions = leadInteractionsMockData;
-
 // Объединенный объект со всеми мок-данными
 const allMockData = {
-  employee: mockEmployee,
-  metrics: mockMetrics,
-  activeClients: mockActiveClients,
-  completedDeals: mockCompletedDeals,
-  newAssignments: mockNewAssignments,
-  salesPerformance: mockSalesPerformance,
-  improvements: mockImprovements,
-  salesSegments: mockSalesSegments,
-  chartData: mockChartData,
-  leadInteractions: mockLeadInteractions
+  employee: employeeMockData,
+  metrics: metricsMockData,
+  activeClients: activeClientsMockData,
+  completedDeals: completedDealsMockData,
+  newAssignments: newAssignmentsMockData,
+  salesPerformance: salesPerformanceMockData,
+  improvements: improvementsMockData,
+  chartData: chartDataMockData,
+  salesSegments: salesSegmentsMockData
 };
 
 /**
- * Функция для генерации мок-данных с задержкой для имитации API запроса
+ * Функция для получения мок-данных с имитацией API-запроса
  * @param {string} dataKey - Ключ запрашиваемых данных
  * @param {number} delay - Задержка в мс
- * @returns {Promise<any>} - Промис с данными
+ * @returns {Promise<any>} Промис с данными
  */
 export const fetchMockData = async (dataKey, delay = 500) => {
-  console.log(`fetchMockData: запрос мок-данных [${dataKey}]`);
+  console.log('fetchMockData: запрос мок-данных', { dataKey, delay });
   
-  if (!shouldUseMockData()) {
-    console.log('fetchMockData: мок-данные отключены, возвращаем null');
-    return null;
-  }
-  
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let result;
-      
-      switch (dataKey) {
-        case 'employee':
-          result = mockEmployee;
-          break;
-        case 'metrics':
-          result = mockMetrics;
-          break;
-        case 'activeClients':
-          result = mockActiveClients;
-          break;
-        case 'completedDeals':
-          result = mockCompletedDeals;
-          break;
-        case 'newAssignments':
-          result = mockNewAssignments;
-          break;
-        case 'salesPerformance':
-          result = mockSalesPerformance;
-          break;
-        case 'improvements':
-          result = mockImprovements;
-          break;
-        case 'salesSegments':
-          result = mockSalesSegments;
-          break;
-        case 'chartData':
-          result = mockChartData;
-          break;
-        case 'leadInteractions':
-          result = mockLeadInteractions;
-          break;
-        default:
-          console.warn(`fetchMockData: неизвестный ключ данных [${dataKey}]`);
-          result = null;
-      }
-      
-      console.log(`fetchMockData: получены данные для [${dataKey}]`, result ? 'данные получены' : 'данные отсутствуют');
-      resolve(result);
-    }, delay);
-  });
+  return getMockData(allMockData, dataKey, delay);
 };
 
+const mockApiCall = async (data, delay) => {
+    await new Promise(resolve => setTimeout(resolve, delay));
+    return data;
+  };
+  
 /**
  * Функция для получения всех мок-данных для дашборда
  * @param {number} delay - Задержка в мс
- * @returns {Promise<Object>} - Промис с объектом данных
+ * @returns {Promise<Object>} Промис с объектом данных
  */
 export const fetchAllMockData = async (delay = 500) => {
   console.log('fetchAllMockData: запрос всех мок-данных для дашборда');
   
-  if (!shouldUseMockData()) {
-    console.log('fetchAllMockData: мок-данные отключены, возвращаем null');
-    return null;
-  }
-  
   return mockApiCall(allMockData, delay);
 };
-
-// Экспорт функций анализа ИИ для взаимодействий с лидами
-export { processAIAnalysisMock };

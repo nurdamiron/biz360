@@ -1,11 +1,11 @@
 // src/hooks/use-sales-data.js
-import { useState, useEffect, useCallback } from 'react';
-import axiosInstance from 'src/lib/axios';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
+import { shouldUseMockData } from '../utils/mock-data-utils';
 import { 
-  shouldUseMockData, 
-  fetchMockData 
-} from 'src/sections/sales/_mock/sales-mock-data';
-import { useAuth } from 'src/auth/hooks/use-auth';
+  fetchMockData, 
+  fetchAllMockData 
+} from '../sections/sales/_mock/sales-mock-data';
 
 /**
  * Хук для работы с данными отдела продаж
@@ -14,115 +14,148 @@ import { useAuth } from 'src/auth/hooks/use-auth';
  */
 export function useSalesData(options = {}) {
   const { 
-    dataType = 'all', // Тип данных: all, activeClients, completedDeals, performance, etc.
-    employeeId = null, // ID сотрудника, если null - текущий пользователь
+    dataType = 'all', // Тип данных: all, activeClients, completedDeals, metrics, etc.
+    employeeId = null, // ID сотрудника (если null - текущий пользователь)
     fetchOnMount = true, // Загружать ли данные при монтировании компонента
-    mockDelay = 800 // Задержка для мок-данных (для имитации загрузки)
+    mockDelay = 800, // Задержка для мок-данных (для имитации загрузки)
+    apiUrl = '/api', // Базовый URL API
   } = options;
   
-  const { user, isAuthenticated } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(fetchOnMount);
   const [error, setError] = useState(null);
+  const isMounted = useRef(true);
+  
+  // Функция для получения ID сотрудника
+  const getEmployeeId = useCallback(() => {
+    // Если ID передан явно, используем его
+    if (employeeId) return employeeId;
+    
+    // Пытаемся получить ID из хранилища (localStorage/sessionStorage)
+    try {
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      return storedUser?.id || 'me';
+    } catch (err) {
+      console.error('Ошибка при получении ID сотрудника из хранилища:', err);
+      return 'me';
+    }
+  }, [employeeId]);
   
   // Функция для загрузки данных
   const fetchData = useCallback(async () => {
+    if (!isMounted.current) return;
+    
     try {
       setLoading(true);
       setError(null);
       
       // Определяем ID сотрудника
-      const targetId = employeeId || (user?.id || 'me');
+      const targetId = getEmployeeId();
+      console.log('useSalesData: загрузка данных для сотрудника', { targetId, dataType });
       
       // Проверяем, нужно ли использовать мок-данные
       if (shouldUseMockData()) {
-        // Загружаем мок-данные в зависимости от типа данных
+        console.log('useSalesData: используем мок-данные');
+        
         let mockResult;
         
         if (dataType === 'all') {
-          // Загрузка всех типов данных для дашборда
-          const employee = await fetchMockData('employee', mockDelay);
-          const metrics = await fetchMockData('metrics', mockDelay);
-          const activeClients = await fetchMockData('activeClients', mockDelay);
-          const completedDeals = await fetchMockData('completedDeals', mockDelay);
-          const salesPerformance = await fetchMockData('salesPerformance', mockDelay);
-          const improvements = await fetchMockData('improvements', mockDelay);
-          const chartData = await fetchMockData('chartData', mockDelay);
-          
-          mockResult = {
-            employee,
-            metrics,
-            activeClients,
-            completedDeals,
-            salesPerformance,
-            improvements,
-            chartData
-          };
+          // Загрузка всех мок-данных сразу
+          mockResult = await fetchAllMockData(mockDelay);
         } else {
           // Загрузка конкретного типа данных
           mockResult = await fetchMockData(dataType, mockDelay);
         }
         
-        setData(mockResult);
+        if (isMounted.current) {
+          setData(mockResult);
+          setLoading(false);
+        }
       } else {
-        // Используем реальное API
+        console.log('useSalesData: используем реальный API');
+        
+        // Формируем URL для API запроса
         let endpoint;
         
         switch (dataType) {
           case 'all':
-            // Запрос всех данных для дашборда
-            endpoint = `/api/sales/dashboard/${targetId}`;
+            endpoint = `${apiUrl}/sales/dashboard/${targetId}`;
             break;
           case 'activeClients':
-            endpoint = `/api/sales/clients/active/${targetId}`;
+            endpoint = `${apiUrl}/sales/clients/active/${targetId}`;
             break;
           case 'completedDeals':
-            endpoint = `/api/sales/deals/completed/${targetId}`;
+            endpoint = `${apiUrl}/sales/deals/completed/${targetId}`;
             break;
           case 'newAssignments':
-            endpoint = `/api/sales/assignments/new/${targetId}`;
+            endpoint = `${apiUrl}/sales/assignments/new/${targetId}`;
             break;
           case 'performance':
-            endpoint = `/api/sales/performance/${targetId}`;
+            endpoint = `${apiUrl}/sales/performance/${targetId}`;
             break;
           case 'metrics':
-            endpoint = `/api/metrics/employee/${targetId}`;
+            endpoint = `${apiUrl}/metrics/employee/${targetId}`;
             break;
           default:
-            endpoint = `/api/sales/${dataType}/${targetId}`;
+            endpoint = `${apiUrl}/sales/${dataType}/${targetId}`;
         }
         
-        const response = await axiosInstance.get(endpoint);
-        setData(response.data);
+        console.log('useSalesData: запрос к API', { endpoint });
+        
+        const response = await axios.get(endpoint);
+        
+        if (isMounted.current) {
+          setData(response.data);
+          setLoading(false);
+        }
       }
-      
-      setLoading(false);
     } catch (err) {
       console.error('Ошибка при загрузке данных отдела продаж:', err);
-      setError('Не удалось загрузить данные. ' + (err.response?.data?.error || err.message || 'Неизвестная ошибка'));
-      setLoading(false);
+      
+      if (isMounted.current) {
+        setError('Не удалось загрузить данные. ' + (err.response?.data?.error || err.message || 'Неизвестная ошибка'));
+        setLoading(false);
+      }
     }
-  }, [dataType, employeeId, user, mockDelay]);
+  }, [dataType, getEmployeeId, mockDelay, apiUrl]);
+  
+  // Очистка при размонтировании
+  useEffect(() => 
+    // ESLint рекомендует стрелочные функции без блоков
+    () => { isMounted.current = false; }
+  , []);
   
   // Загрузка данных при монтировании компонента
   useEffect(() => {
-    if (fetchOnMount && isAuthenticated) {
+    if (fetchOnMount) {
       fetchData();
     }
-  }, [fetchOnMount, fetchData, isAuthenticated]);
+  }, [fetchOnMount, fetchData]);
+  
+  // Вспомогательные геттеры для удобного доступа к данным
+  const employee = data?.employee || null;
+  const metrics = data?.metrics || null;
+  const activeClients = data?.activeClients || [];
+  const completedDeals = data?.completedDeals || [];
+  const newAssignments = data?.newAssignments || [];
+  const salesPerformance = data?.salesPerformance || null;
+  const improvements = data?.improvements || [];
+  const chartData = data?.chartData || [];
+  const leadInteractions = data?.leadInteractions || [];
   
   return {
     data,
     loading,
     error,
     refetch: fetchData,
-    // Вспомогательные функции для удобного доступа к данным
-    employee: data?.employee || null,
-    metrics: data?.metrics || null,
-    activeClients: data?.activeClients || [],
-    completedDeals: data?.completedDeals || [],
-    salesPerformance: data?.salesPerformance || null,
-    improvements: data?.improvements || [],
-    chartData: data?.chartData || []
+    employee,
+    metrics,
+    activeClients,
+    completedDeals,
+    newAssignments,
+    salesPerformance,
+    improvements,
+    chartData,
+    leadInteractions
   };
 }

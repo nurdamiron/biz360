@@ -1,39 +1,99 @@
 // src/sections/sales/components/DevelopmentPlan.jsx
-import PropTypes from 'prop-types';
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   Box,
   Grid,
+  Card,
+  Paper,
   Button,
-  Alert,
-  useMediaQuery
+  Container,
+  Typography,
+  LinearProgress,
+  Divider,
+  alpha
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-// Импорт подкомпонентов
+// Импортируем компоненты развития
 import { CompetenciesCard } from './development-plan/CompetenciesCard';
 import { EducationalPathCard } from './development-plan/EducationalPathCard';
 import { GrowthPlanCard } from './development-plan/GrowthPlanCard';
 
-// Основной компонент для отображения плана развития
-function DevelopmentPlan({ employee }) {
+export default function DevelopmentPlan({ employee }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [activeItems, setActiveItems] = useState([]);
   
-  // Функция для переключения статуса завершения курса
+  // Обработчик переключения завершенности курса
   const handleToggleCourseComplete = (courseId) => {
-    console.log('Toggle course completion', courseId);
-    // В реальном приложении здесь будет запрос к API для обновления статуса курса
+    console.log(`Toggle course completion: ${courseId}`);
+    // Здесь должен быть запрос к API для обновления статуса курса
+    
+    // Имитация изменения статуса (для демонстрации)
+    if (employee?.development_plan?.required_courses) {
+      const updatedCourses = employee.development_plan.required_courses.map(course => 
+        course.id === courseId ? { ...course, completed: !course.completed } : course
+      );
+      
+      // В реальном приложении здесь бы был запрос к API
+      console.log('Updated courses:', updatedCourses);
+    }
   };
+  
+  // Если данные сотрудника не загружены, показываем сообщение
+  if (!employee) {
+    return (
+      <Paper sx={{ p: 3, textAlign: 'center' }}>
+        <Typography variant="h6" color="text.secondary">
+          Данные сотрудника загружаются...
+        </Typography>
+        <LinearProgress sx={{ mt: 2 }} />
+      </Paper>
+    );
+  }
   
   return (
     <Grid container spacing={3}>
-      {/* Карточка компетенций */}
+      {/* Заголовок */}
+      <Grid item xs={12}>
+        <Paper
+          sx={{
+            p: 3,
+            mb: 2,
+            borderRadius: 2,
+            boxShadow: theme.customShadows?.z8
+          }}
+        >
+          <Typography variant="h5" gutterBottom>
+            План развития сотрудника
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Текущий уровень: <strong>{employee.level || 'Junior'}</strong> | 
+            Прогресс до <strong>{employee.next_level || 'Middle'}</strong>: {employee.progress_to_next_level || 0}%
+          </Typography>
+          
+          <LinearProgress 
+            variant="determinate" 
+            value={employee.progress_to_next_level || 0}
+            sx={{ 
+              mt: 2,
+              height: 10, 
+              borderRadius: 5,
+              bgcolor: alpha(theme.palette.primary.main, 0.15),
+              '& .MuiLinearProgress-bar': {
+                bgcolor: theme.palette.primary.main
+              }
+            }}
+          />
+        </Paper>
+      </Grid>
+      
+      {/* Компетенции */}
       <Grid item xs={12} md={6}>
         <CompetenciesCard competencies={employee.competencies} />
       </Grid>
       
-      {/* Карточка образовательной траектории */}
+      {/* Образовательная траектория */}
       <Grid item xs={12} md={6}>
         <EducationalPathCard 
           developmentPlan={employee.development_plan}
@@ -41,34 +101,36 @@ function DevelopmentPlan({ employee }) {
         />
       </Grid>
       
-      {/* Карточка плана роста */}
-      <Grid item xs={12}>
-        <GrowthPlanCard employee={employee} />
-      </Grid>
-      
-      {/* Уведомление о необходимости согласования плана развития */}
-      <Grid item xs={12}>
-        <Alert 
-          severity="info"
-          sx={{ 
-            borderRadius: 2,
-            boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)'
-          }}
-          action={
-            <Button color="info" size="small">
-              Запросить встречу
-            </Button>
-          }
-        >
-          Для более детального обсуждения вашего плана развития и согласования индивидуальной траектории роста рекомендуется запланировать встречу с руководителем.
-        </Alert>
-      </Grid>
+      {/* План роста (если есть компонент) */}
+      {typeof GrowthPlanCard !== 'undefined' && (
+        <Grid item xs={12}>
+          <GrowthPlanCard employee={employee} />
+        </Grid>
+      )}
     </Grid>
   );
 }
 
 DevelopmentPlan.propTypes = {
-  employee: PropTypes.object.isRequired
+  employee: PropTypes.object
 };
 
-export default DevelopmentPlan;
+// Добавляем значения по умолчанию для пропсов
+DevelopmentPlan.defaultProps = {
+  employee: {
+    level: 'Junior',
+    next_level: 'Middle',
+    progress_to_next_level: 0,
+    competencies: {
+      product_knowledge: 0,
+      sales_skills: 0,
+      objection_handling: 0,
+      documentation: 0
+    },
+    development_plan: {
+      completed_courses: 0,
+      total_courses: 0,
+      required_courses: []
+    }
+  }
+};
