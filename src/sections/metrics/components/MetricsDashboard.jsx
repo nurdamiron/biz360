@@ -15,7 +15,7 @@ import {
   Tooltip,
   useMediaQuery
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
 import { m } from 'framer-motion';
 
 // Import MetricCard component
@@ -153,23 +153,50 @@ export default function MetricsDashboard({
   const getGridSize = () => {
     const count = selectedMetrics.length;
     
-    if (count <= 4) return 3; // 4 cards per row on large screens
-    return 3; // 4 cards per row on large screens, regardless of count
+    if (isMobile) return 12; // Full width on mobile
+    if (count <= 2) return 6; // 2 cards per row
+    if (count <= 4) return 6; // 2 cards per row
+    return 4; // 3 cards per row for larger screens
   };
   
   return (
     <>
+      {/* Toggle Button */}
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+        <Button 
+          variant="outlined" 
+          size="small"
+          onClick={() => setShowSelector(!showSelector)}
+          startIcon={
+            <Box 
+              sx={{ 
+                fontSize: '1rem',
+                width: 20,
+                height: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              {showSelector ? '✖' : '⚙️'}
+            </Box>
+          }
+        >
+          {showSelector ? 'Скрыть настройки' : 'Настроить метрики'}
+        </Button>
+      </Box>
+      
       {/* Metrics Selector */}
       <Card 
         component={m.div}
         initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: showSelector ? 1 : 0, y: showSelector ? 0 : -20 }}
         transition={{ duration: 0.3 }}
         sx={{ 
           mb: 3,
           boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
           borderRadius: 2,
-          overflow: 'visible',
+          overflow: 'hidden',
           display: showSelector ? 'block' : 'none'
         }}
       >
@@ -182,9 +209,18 @@ export default function MetricsDashboard({
                 size="small" 
                 variant="outlined" 
                 onClick={handleReset}
-                sx={{ minWidth: 32, px: 1 }}
+                sx={{ 
+                  minWidth: 40, 
+                  width: 40,
+                  height: 40,
+                  p: 0,
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
-                ↺
+                <Box sx={{ fontSize: '1.2rem' }}>↺</Box>
               </Button>
             </Tooltip>
           }
@@ -205,20 +241,32 @@ export default function MetricsDashboard({
                   key={metric.key}
                   label={
                     <Stack direction="row" spacing={0.5} alignItems="center">
-                      <Box component="span" sx={{ fontSize: '1rem' }}>{metric.icon}</Box>
-                      <Typography variant="body2" component="span">{metric.title}</Typography>
+                      <Box 
+                        component="span" 
+                        sx={{ 
+                          fontSize: '1rem',
+                          width: 24,
+                          height: 24,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        {metric.icon}
+                      </Box>
+                      <Typography variant="body2" component="span">
+                        {metric.title}
+                      </Typography>
                     </Stack>
                   }
                   onClick={() => toggleMetric(metric.key)}
                   variant={isSelected ? "filled" : "outlined"}
                   sx={{ 
-                    bgcolor: isSelected ? theme.palette.mode === 'dark' 
-                      ? theme.palette.action.selected 
-                      : `${metric.bgColor}1A` : 'transparent',
+                    bgcolor: isSelected ? alpha(metric.bgColor, 0.1) : 'transparent',
                     color: isSelected ? metric.bgColor : 'text.primary',
-                    borderColor: isSelected ? `${metric.bgColor}4D` : 'divider',
+                    borderColor: isSelected ? alpha(metric.bgColor, 0.3) : 'divider',
                     '&:hover': {
-                      bgcolor: isSelected ? `${metric.bgColor}33` : theme.palette.action.hover,
+                      bgcolor: isSelected ? alpha(metric.bgColor, 0.2) : alpha(theme.palette.action.hover, 0.1),
                     },
                     '& .MuiChip-label': {
                       px: 1
@@ -236,18 +284,6 @@ export default function MetricsDashboard({
           )}
         </CardContent>
       </Card>
-      
-      {/* Toggle Button */}
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button 
-          variant="outlined" 
-          size="small"
-          onClick={() => setShowSelector(!showSelector)}
-          startIcon={<Box component="span" sx={{ fontSize: '1rem' }}>{showSelector ? '✖' : '⚙️'}</Box>}
-        >
-          {showSelector ? 'Скрыть настройки' : 'Настроить метрики'}
-        </Button>
-      </Box>
       
       {/* Metrics Dashboard */}
       <Grid 

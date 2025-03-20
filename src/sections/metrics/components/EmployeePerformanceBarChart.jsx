@@ -14,9 +14,8 @@ import {
   Typography,
   Stack,
   Chip,
-  alpha
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
 import { 
   BarChart, 
   Bar, 
@@ -85,11 +84,11 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
   
   // Список доступных метрик для сортировки
   const availableMetrics = [
-    { key: 'kpi', label: 'KPI' },
-    { key: 'work_volume', label: 'Объем работы' },
-    { key: 'quality', label: 'Качество работы' },
-    { key: 'speed', label: 'Скорость' },
-    { key: 'plan_completion', label: 'План' }
+    { key: 'kpi', label: 'KPI', color: theme.palette.primary.main },
+    { key: 'work_volume', label: 'Объем работы', color: theme.palette.info.main },
+    { key: 'quality', label: 'Качество работы', color: theme.palette.success.main },
+    { key: 'speed', label: 'Скорость', color: theme.palette.error.main },
+    { key: 'plan_completion', label: 'План', color: theme.palette.warning.main }
   ];
   
   // Сортировка сотрудников по выбранной метрике
@@ -127,9 +126,10 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
     <LazyMotion features={domAnimation}>
     <Card 
       component={m.div}
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5 }}
+      whileHover={{ y: -5, boxShadow: theme.customShadows?.z16 || '0 16px 32px 0 rgba(145, 158, 171, 0.24)' }}
       sx={{ 
         boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
         borderRadius: 2,
@@ -140,7 +140,7 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
         title={title || "Рейтинг сотрудников"}
         subheader={subheader || "Показатели эффективности по метрикам"}
         action={
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel id="sort-metric-label">Сортировать по</InputLabel>
             <Select
               labelId="sort-metric-label"
@@ -150,7 +150,19 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
               onChange={(e) => setSortMetric(e.target.value)}
             >
               {availableMetrics.map((metric) => (
-                <MenuItem key={metric.key} value={metric.key}>{metric.label}</MenuItem>
+                <MenuItem key={metric.key} value={metric.key}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Box 
+                      sx={{ 
+                        width: 12, 
+                        height: 12, 
+                        borderRadius: '50%', 
+                        bgcolor: metric.color 
+                      }}
+                    />
+                    <Typography variant="body2">{metric.label}</Typography>
+                  </Stack>
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -165,12 +177,25 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
           {availableMetrics.map((metric) => (
             <Chip 
               key={metric.key}
-              label={`${metric.label}: ${averages[metric.key]}%`}
+              label={
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Box
+                    sx={{ 
+                      width: 10, 
+                      height: 10, 
+                      borderRadius: '50%', 
+                      bgcolor: metric.color 
+                    }}
+                  />
+                  <Typography variant="caption">{metric.label}: {averages[metric.key]}%</Typography>
+                </Stack>
+              }
               size="small"
               sx={{ 
                 bgcolor: alpha(getAverageChipColor(metric.key), 0.1),
                 color: getAverageChipColor(metric.key),
-                border: `1px solid ${alpha(getAverageChipColor(metric.key), 0.2)}`
+                border: `1px solid ${alpha(getAverageChipColor(metric.key), 0.2)}`,
+                height: 28
               }}
             />
           ))}
@@ -180,7 +205,17 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
       <Divider />
       
       <CardContent>
-        <Box sx={{ height: 400 }}>
+        <Box 
+          component={m.div}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          sx={{ 
+            height: 400,
+            overflow: 'hidden',
+            borderRadius: 1 
+          }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               layout="vertical"
@@ -216,6 +251,8 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
                 radius={[0, 4, 4, 0]}
                 barSize={30}
                 minPointSize={2}
+                animationBegin={300}
+                animationDuration={1500}
               >
                 <LabelList 
                   dataKey={(record) => record.metrics[sortMetric] || 0} 
@@ -230,7 +267,6 @@ export default function EmployeePerformanceBarChart({ employees, departmentColor
       </CardContent>
     </Card>
     </LazyMotion>
-
   );
 }
 

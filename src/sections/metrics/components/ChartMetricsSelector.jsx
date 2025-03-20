@@ -7,9 +7,10 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Tooltip,
+  Typography,
   useMediaQuery
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useTheme, alpha } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 
 export default function ChartMetricsSelector({ 
@@ -99,57 +100,122 @@ export default function ChartMetricsSelector({
   };
   
   return (
-    <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-      <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
-        <Box sx={{ color: 'text.secondary', fontSize: '0.875rem', display: 'flex', alignItems: 'center', mr: 1 }}>
+    <Box sx={{ 
+      mb: 3, 
+      display: 'flex', 
+      flexDirection: isMobile ? 'column' : 'row',
+      justifyContent: 'space-between', 
+      alignItems: isMobile ? 'flex-start' : 'center', 
+      gap: 2 
+    }}>
+      <Stack direction="column" spacing={1} width={isMobile ? '100%' : 'auto'}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
           Отображаемые метрики:
-        </Box>
-        {availableMetrics.map((metric) => {
-          const isSelected = selectedMetrics.includes(metric.key);
-          return (
-            <Chip 
-              key={metric.key}
-              label={
-                <Stack direction="row" spacing={0.5} alignItems="center">
-                  <Box component="span" sx={{ fontSize: '1rem' }}>{metric.icon}</Box>
-                  <Box component="span">{metric.label}</Box>
-                </Stack>
-              }
-              onClick={() => toggleMetric(metric.key)}
-              variant={isSelected ? "filled" : "outlined"}
-              size="small"
-              sx={{ 
-                bgcolor: isSelected ? theme.alpha ? theme.alpha(metric.color, 0.1) : `${metric.color}1A` : 'transparent',
-                color: isSelected ? metric.color : 'text.primary',
-                borderColor: isSelected ? theme.alpha ? theme.alpha(metric.color, 0.3) : `${metric.color}4D` : 'divider',
-                '&:hover': {
-                  bgcolor: isSelected 
-                    ? theme.alpha ? theme.alpha(metric.color, 0.2) : `${metric.color}33` 
-                    : theme.alpha ? theme.alpha(theme.palette.action.hover, 0.1) : 'rgba(0, 0, 0, 0.04)',
-                },
-              }}
-            />
-          );
-        })}
+        </Typography>
+        
+        <Stack direction="row" flexWrap="wrap" gap={1}>
+          {availableMetrics.map((metric) => {
+            const isSelected = selectedMetrics.includes(metric.key);
+            return (
+              <Chip 
+                key={metric.key}
+                label={
+                  <Stack direction="row" spacing={0.5} alignItems="center">
+                    <Box 
+                      component="span" 
+                      sx={{ 
+                        fontSize: '1rem',
+                        width: 24,
+                        height: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {metric.icon}
+                    </Box>
+                    <Box component="span">{metric.label}</Box>
+                  </Stack>
+                }
+                onClick={() => toggleMetric(metric.key)}
+                variant={isSelected ? "filled" : "outlined"}
+                size="small"
+                sx={{ 
+                  height: 32,
+                  bgcolor: isSelected ? alpha(metric.color, 0.1) : 'transparent',
+                  color: isSelected ? metric.color : 'text.primary',
+                  borderColor: isSelected ? alpha(metric.color, 0.3) : 'divider',
+                  '&:hover': {
+                    bgcolor: isSelected 
+                      ? alpha(metric.color, 0.2)
+                      : alpha(theme.palette.action.hover, 0.1),
+                  },
+                  '& .MuiChip-label': {
+                    padding: '0 8px',
+                  }
+                }}
+              />
+            );
+          })}
+        </Stack>
       </Stack>
 
-      <ToggleButtonGroup
-        value={viewType}
-        exclusive
-        onChange={handleViewTypeChange}
-        size="small"
-        aria-label="chart type"
-      >
-        <ToggleButton value="line" aria-label="line chart">
-          <Box sx={{ fontSize: '1.1rem' }}>📈</Box>
-        </ToggleButton>
-        <ToggleButton value="bar" aria-label="bar chart">
-          <Box sx={{ fontSize: '1.1rem' }}>📊</Box>
-        </ToggleButton>
-        <ToggleButton value="area" aria-label="area chart">
-          <Box sx={{ fontSize: '1.1rem' }}>📶</Box>
-        </ToggleButton>
-      </ToggleButtonGroup>
+      <Box sx={{ mt: isMobile ? 1 : 0 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, display: isMobile ? 'block' : 'none' }}>
+          Тип графика:
+        </Typography>
+        
+        <ToggleButtonGroup
+          value={viewType}
+          exclusive
+          onChange={handleViewTypeChange}
+          size="small"
+          aria-label="chart type"
+        >
+          <ToggleButton value="line" aria-label="line chart">
+            <Box 
+              sx={{ 
+                fontSize: '1.1rem',
+                width: 24,
+                height: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              📈
+            </Box>
+          </ToggleButton>
+          <ToggleButton value="bar" aria-label="bar chart">
+            <Box 
+              sx={{ 
+                fontSize: '1.1rem',
+                width: 24,
+                height: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              📊
+            </Box>
+          </ToggleButton>
+          <ToggleButton value="area" aria-label="area chart">
+            <Box 
+              sx={{ 
+                fontSize: '1.1rem',
+                width: 24,
+                height: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              📶
+            </Box>
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
     </Box>
   );
 }
