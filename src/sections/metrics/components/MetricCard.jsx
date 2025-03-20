@@ -1,227 +1,265 @@
 // src/sections/metrics/components/MetricCard.jsx
 import PropTypes from 'prop-types';
-import { Box, Card, CardContent, Stack, Typography, Tooltip, CircularProgress } from '@mui/material';
-import { alpha, useTheme } from '@mui/material/styles';
-import { fPercent } from 'src/utils/format-number';
-import { LazyMotion, domAnimation, m, AnimatePresence } from 'framer-motion';
+import { 
+  Box, 
+  Card,
+  Typography,
+  CircularProgress,
+  Tooltip,
+  Stack,
+  alpha
+} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import { m } from 'framer-motion';
 
-// Получение цвета в зависимости от значения метрики
-const getMetricColor = (value, theme) => {
-  if (value >= 80) return theme.palette.success.main;
-  if (value >= 60) return theme.palette.warning.main;
-  return theme.palette.error.main;
-};
-
-const getMetricLabel = (value) => {
-  if (value >= 80) return 'Отлично';
-  if (value >= 60) return 'Хорошо';
-  return 'Требует улучшения';
-};
-
-export default function MetricCard({ 
-  title, 
-  value, 
-  trend, 
-  description, 
-  icon, 
-  bgColor, 
+export default function MetricCard({
+  title,
+  value,
+  trend,
+  description,
+  icon,
+  bgColor,
   showProgress = true,
-  tooltipTitle,
   extraValue,
-  extraLabel
+  extraLabel,
+  tooltipTitle
 }) {
   const theme = useTheme();
   
-  const metricColor = getMetricColor(value, theme);
+  // Determine status based on value
+  const getStatus = (val) => {
+    if (val >= 80) return 'Отлично';
+    if (val >= 65) return 'Хорошо';
+    if (val >= 50) return 'Удовлетворительно';
+    return 'Требует улучшения';
+  };
   
-  // Если иконки не импортированы, используем простые символы
-  const trendIcon = trend > 0 ? '↑' : trend < 0 ? '↓' : null;
-  const trendColor = trend > 0 ? theme.palette.success.main : trend < 0 ? theme.palette.error.main : 'inherit';
+  // Determine color for trend indicator
+  const getTrendColor = (val) => {
+    if (val > 0) return theme.palette.success.main;
+    if (val < 0) return theme.palette.error.main;
+    return theme.palette.text.secondary;
+  };
+  
+  // Determine sign for trend indicator
+  const getTrendSign = (val) => {
+    if (val > 0) return '↑';
+    if (val < 0) return '↓';
+    return '';
+  };
   
   return (
-    <AnimatePresence>
+    <Tooltip title={tooltipTitle || description} placement="top">
       <Card
         component={m.div}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        sx={{ 
-          height: '100%', 
+        whileHover={{ 
+          y: -8,
+          boxShadow: theme.customShadows?.z16 || '0 12px 24px 0 rgba(145, 158, 171, 0.24)',
+          transition: { duration: 0.3 }
+        }}
+        sx={{
+          p: 3,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          borderRadius: 3,
           position: 'relative',
           overflow: 'hidden',
           boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
-          borderRadius: 2,
-          '&:hover': {
-            boxShadow: theme.customShadows?.z16 || '0 16px 32px 0 rgba(145, 158, 171, 0.24)'
-          },
-          transition: 'box-shadow 0.3s'
+          bgcolor: theme.palette.background.paper,
+          transition: 'transform 0.3s, box-shadow 0.3s',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '4px',
+            background: bgColor,
+            opacity: 0.8
+          }
         }}
       >
-        {bgColor && (
+        {/* Background Gradient */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '40%',
+            height: '100%',
+            background: `linear-gradient(135deg, ${alpha(bgColor, 0.05)} 0%, ${alpha(bgColor, 0)} 50%)`,
+            zIndex: 0
+          }}
+        />
+        
+        {/* Title and Icon */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 3,
+          position: 'relative',
+          zIndex: 1
+        }}>
+          <Typography variant="h6" fontWeight="600" sx={{ color: bgColor }}>
+            {title}
+          </Typography>
+          
           <Box
+            component={m.div}
+            whileHover={{ scale: 1.1, rotate: 5 }}
             sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              background: `linear-gradient(135deg, ${alpha(bgColor, 0.12)} 0%, ${alpha(bgColor, 0.04)} 60%)`,
-              zIndex: 0
+              width: 44,
+              height: 44,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              bgcolor: alpha(bgColor, 0.12),
+              color: bgColor,
+              fontSize: '1.4rem',
+              boxShadow: `0 0 0 4px ${alpha(bgColor, 0.05)}`
             }}
-          />
-        )}
-        <CardContent sx={{ height: '100%', position: 'relative', zIndex: 1, p: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-            <Tooltip title={tooltipTitle || ''} arrow placement="top">
-              <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-                {title}
-              </Typography>
-            </Tooltip>
-            {icon && (
-              <Box 
-                sx={{ 
+          >
+            {icon}
+          </Box>
+        </Box>
+        
+        {/* Main Content */}
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          mb: 2,
+          position: 'relative',
+          zIndex: 1
+        }}>
+          {showProgress && (
+            <Box 
+              component={m.div}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              sx={{ position: 'relative', display: 'inline-flex', mr: 3 }}
+            >
+              <CircularProgress
+                variant="determinate"
+                value={100}
+                size={76}
+                thickness={4}
+                sx={{
+                  color: alpha(bgColor, 0.12),
+                  position: 'absolute'
+                }}
+              />
+              <CircularProgress
+                variant="determinate"
+                value={value}
+                size={76}
+                thickness={5}
+                sx={{
+                  color: bgColor,
+                  '& .MuiCircularProgress-circle': {
+                    strokeLinecap: 'round',
+                    transition: 'stroke-dashoffset 1s ease-in-out',
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  right: 0,
+                  position: 'absolute',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 40,
-                  height: 40,
-                  borderRadius: '50%',
-                  bgcolor: bgColor ? alpha(bgColor, 0.12) : theme.palette.grey[100],
-                  color: bgColor || theme.palette.primary.main
                 }}
               >
-                {icon}
+                <Typography
+                  variant="h5"
+                  component={m.div}
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  fontWeight="bold"
+                  sx={{ fontSize: '1.2rem' }}
+                >
+                  {value}%
+                </Typography>
               </Box>
-            )}
-          </Box>
+            </Box>
+          )}
           
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            {showProgress && (
-              <Box sx={{ position: 'relative', mr: 2, display: 'flex' }}>
-                <CircularProgress
-                  variant="determinate"
-                  value={100}
-                  size={56}
-                  thickness={4}
-                  sx={{ color: alpha(theme.palette.grey[500], 0.16) }}
-                />
-                <CircularProgress
-                  variant="determinate"
-                  value={value}
-                  size={56}
-                  thickness={4}
-                  sx={{ 
-                    color: metricColor,
-                    position: 'absolute',
-                    left: 0,
-                    top: 0
-                  }}
-                />
-                <Box
+          <Box>
+            <Typography 
+              variant="h4" 
+              component={m.div}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              fontWeight="bold"
+              color={showProgress ? 'text.primary' : bgColor}
+            >
+              {showProgress ? getStatus(value) : (extraValue || value)}
+            </Typography>
+            
+            {trend !== undefined && (
+              <Box 
+                component={m.div}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}
+              >
+                <Typography
+                  variant="body2"
+                  component="div"
                   sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
+                    color: getTrendColor(trend),
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    fontWeight: 500
                   }}
                 >
-                  <Typography variant="caption" component="div" sx={{ 
-                    fontWeight: 'bold', 
-                    color: metricColor
-                  }}>
-                    {Math.round(value)}%
-                  </Typography>
-                </Box>
+                  <Box 
+                    component={m.span}
+                    animate={{ 
+                      y: trend > 0 ? [0, -3, 0] : (trend < 0 ? [0, 3, 0] : 0) 
+                    }}
+                    transition={{ repeat: Infinity, repeatDelay: 2, duration: 0.5 }}
+                    sx={{ mr: 0.5, display: 'inline-block' }}
+                  >
+                    {getTrendSign(trend)}
+                  </Box> 
+                  {Math.abs(trend)}% за месяц
+                </Typography>
               </Box>
             )}
             
-            <Box>
-              <Typography variant={showProgress ? "h5" : "h3"} sx={{ 
-                color: metricColor,
-                fontWeight: 'bold',
-                mb: 0.5
-              }}>
-                {showProgress ? getMetricLabel(value) : fPercent(value / 100)}
+            {extraLabel && (
+              <Typography 
+                variant="body2" 
+                color="text.secondary" 
+                sx={{ mt: 0.5 }}
+              >
+                {extraLabel}
               </Typography>
-              
-              {trend !== undefined && (
-                <Stack direction="row" alignItems="center" spacing={0.5}>
-                  {trendIcon && (
-                    <Box 
-                      component={m.div}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                      sx={{ color: trendColor }}
-                    >
-                      {trendIcon}
-                    </Box>
-                  )}
-                  <Typography 
-                    variant="body2" 
-                    component={m.div}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    sx={{ 
-                      color: trendColor, 
-                      fontWeight: 'medium' 
-                    }}
-                  >
-                    {Math.abs(trend)}%
-                  </Typography>
-                  <Typography 
-                    variant="caption" 
-                    sx={{ color: 'text.secondary' }}
-                  >
-                    за месяц
-                  </Typography>
-                </Stack>
-              )}
-            </Box>
+            )}
           </Box>
-          
-          {extraValue && extraLabel && (
-            <Box sx={{ 
-              mt: 2, 
-              p: 1.5, 
-              borderRadius: 1, 
-              bgcolor: alpha(theme.palette.grey[500], 0.08) 
-            }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                  {extraLabel}
-                </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                  {extraValue}
-                </Typography>
-              </Box>
-            </Box>
-          )}
-          
-          {description && (
-            <Typography 
-              variant="caption" 
-              component={m.div}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              sx={{ 
-                color: 'text.secondary', 
-                display: 'block', 
-                mt: extraValue ? 0 : 2
-              }}
-            >
-              {description}
-            </Typography>
-          )}
-        </CardContent>
+        </Box>
+        
+        {/* Description */}
+        <Typography 
+          variant="body2" 
+          color="text.secondary" 
+          sx={{ mt: 'auto', position: 'relative', zIndex: 1 }}
+        >
+          {description}
+        </Typography>
       </Card>
-    </AnimatePresence>
+    </Tooltip>
   );
 }
 
@@ -233,10 +271,7 @@ MetricCard.propTypes = {
   icon: PropTypes.node,
   bgColor: PropTypes.string,
   showProgress: PropTypes.bool,
-  tooltipTitle: PropTypes.string,
-  extraValue: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]),
-  extraLabel: PropTypes.string
+  extraValue: PropTypes.string,
+  extraLabel: PropTypes.string,
+  tooltipTitle: PropTypes.string
 };
