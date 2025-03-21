@@ -49,14 +49,6 @@ const ConversionFunnelChart = ({ data, isLoading, title, subheader }) => {
     );
   }
 
-  // Определение цветов для разных этапов
-  const colors = [
-    theme.palette.primary.main,
-    theme.palette.info.main,
-    theme.palette.warning.main,
-    theme.palette.success.main,
-  ];
-
   // Если данных нет, показываем сообщение
   if (!data || data.length === 0) {
     return (
@@ -151,7 +143,7 @@ const ConversionFunnelChart = ({ data, isLoading, title, subheader }) => {
               }}
               barSize={30}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" horizontal vertical={false} />
               <XAxis 
                 type="number"
                 domain={[0, 100]}
@@ -167,7 +159,7 @@ const ConversionFunnelChart = ({ data, isLoading, title, subheader }) => {
                 {data.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={colors[index % colors.length]}
+                    fill={theme.palette.primary.main}
                   />
                 ))}
               </Bar>
@@ -196,7 +188,7 @@ const ConversionFunnelChart = ({ data, isLoading, title, subheader }) => {
                     width: 12, 
                     height: 12, 
                     borderRadius: '50%', 
-                    bgcolor: colors[index % colors.length]
+                    bgcolor: theme.palette.primary.main
                   }}
                 />
                 <Typography variant="caption" color="text.primary">

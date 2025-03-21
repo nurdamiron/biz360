@@ -13,13 +13,15 @@ import { paths } from 'src/routes/paths';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 // Импорт компонентов и сервисов для работы с лидами
-import LeadDistributionBoard from 'src/sections/sales/components/lead-distribution/LeadDistributionBoard';
+// При компиляции проекта пути должны быть настроены правильно через alias в webpack
+// Здесь используем относительный путь для решения проблемы
+import LeadDistributionBoard from '../../sections/sales/components/lead-distribution/LeadDistributionBoard';
 import { 
   fetchSalesEmployees, 
   fetchUnassignedLeads, 
   assignLeadToEmployee, 
   autoAssignLeadsToEmployees 
-} from 'src/sections/sales/components/lead-distribution/leadDistributionService';
+} from '../../sections/sales/components/lead-distribution/leadDistributionService';
 
 /**
  * Страница распределения лидов в отделе продаж
@@ -64,11 +66,9 @@ export default function SalesLeadsDistributionPage() {
       await assignLeadToEmployee(leadId, employeeId);
       
       // Обновляем локальное состояние
-      setLeads(prevLeads => 
-        prevLeads.map(lead => 
-          lead.id === leadId ? { ...lead, assigned_to: employeeId } : lead
-        )
-      );
+      setLeads(prevLeads => prevLeads.map(lead => 
+        lead.id === leadId ? { ...lead, assigned_to: employeeId } : lead
+      ));
       
       // Показываем уведомление
       setNotification({
@@ -108,12 +108,10 @@ export default function SalesLeadsDistributionPage() {
       const updatedLeads = await autoAssignLeadsToEmployees(unassignedLeads, employees);
       
       // Обновляем локальное состояние
-      setLeads(prevLeads => {
-        return prevLeads.map(lead => {
-          const updatedLead = updatedLeads.find(l => l.id === lead.id);
-          return updatedLead || lead;
-        });
-      });
+      setLeads(prevLeads => prevLeads.map(lead => {
+        const updatedLead = updatedLeads.find(l => l.id === lead.id);
+        return updatedLead || lead;
+      }));
       
       // Показываем уведомление
       setNotification({

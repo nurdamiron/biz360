@@ -15,7 +15,7 @@ export function useDevelopmentPlan(options = {}) {
     initialData = null, // Начальные данные (если есть)
     fetchOnMount = true, // Загружать ли данные при монтировании
     apiUrl = '/api', // Базовый URL API
-    mockDelay = 800, // Задержка мок-данных
+    mockDelay = 0, // Задержка мок-данных
   } = options;
   
   const [planData, setPlanData] = useState(initialData);
@@ -229,12 +229,9 @@ export function useDevelopmentPlan(options = {}) {
   }, [getEmployeeId, fetchPlanData, mockDelay, apiUrl]);
   
   // Очистка при размонтировании
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
+  useEffect(() => () => {
+    isMounted.current = false;
   }, []);
-  
   // Загрузка данных при монтировании
   useEffect(() => {
     if (fetchOnMount && !initialData) {

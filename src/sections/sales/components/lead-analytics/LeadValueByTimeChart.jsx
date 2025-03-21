@@ -30,14 +30,12 @@ import {
 import { useState } from 'react';
 
 // Функция для форматирования валюты
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(value);
-};
+const formatCurrency = (value) => new Intl.NumberFormat('ru-RU', {
+  style: 'currency',
+  currency: 'RUB',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0
+}).format(value);
 
 /**
  * Компонент для отображения динамики стоимости лидов во времени

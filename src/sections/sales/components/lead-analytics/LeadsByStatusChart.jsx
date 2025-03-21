@@ -238,9 +238,9 @@ const LeadsByStatusChart = ({ data, isLoading, title, subheader }) => {
           </Typography>
           
           <Typography variant="body2" color="text.secondary" paragraph>
-            Основная часть лидов находится в статусе "{
+            Основная часть лидов находится в статусе &quot;{
               data.sort((a, b) => b.value - a.value)[0]?.name || 'Новый'
-            }" ({data.sort((a, b) => b.value - a.value)[0]?.percent || 0}%). 
+            }&quot; ({data.sort((a, b) => b.value - a.value)[0]?.percent || 0}%). 
             Это говорит о том, что воронка продаж имеет {
               data.sort((a, b) => b.value - a.value)[0]?.value > data.reduce((sum, item) => sum + item.value, 0) / 2
                 ? 'потенциальные узкие места' 
@@ -249,9 +249,9 @@ const LeadsByStatusChart = ({ data, isLoading, title, subheader }) => {
           </Typography>
           
           <Typography variant="body2" color="text.secondary">
-            Рекомендуется обратить внимание на стадию перехода из статуса "{
+            Рекомендуется обратить внимание на стадию перехода из статуса &quot;{
               data.sort((a, b) => b.value - a.value)[0]?.name || 'Новый'
-            }" в следующий статус для оптимизации конверсии.
+            }&quot; в следующий статус для оптимизации конверсии.
           </Typography>
         </Box>
       </CardContent>
