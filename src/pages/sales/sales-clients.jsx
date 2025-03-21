@@ -1,32 +1,43 @@
 // src/pages/sales/sales-clients.jsx
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, CircularProgress } from '@mui/material';
 import { paths } from 'src/routes/paths';
-import { useSalesData } from 'src/hooks/use-sales-data';
 import { ClientsList } from 'src/sections/sales/components';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { LoadingScreen } from 'src/components/loading-screen';
+
+// Прямой импорт мок-данных
+import { 
+  mockActiveClients, 
+  mockCompletedDeals,
+  mockNewAssignments
+} from 'src/sections/sales/_mock/sales-mock-data';
 
 // ----------------------------------------------------------------------
 
 export default function SalesClientsPage() {
-  // Загрузка данных клиентов
-  const { 
-    data, 
-    activeClients,
-    completedDeals,
-    loading, 
-    error, 
-    refetch
-  } = useSalesData({
-    dataType: 'all',
-    fetchOnMount: true
+  // Локальное состояние вместо хука
+  const [loading, setLoading] = useState(true);
+  const [clients, setClients] = useState({
+    activeClients: [],
+    completedDeals: [],
+    newAssignments: []
   });
   
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  // Прямая установка мок-данных после монтирования
+  useEffect(() => {
+    // Имитация короткой задержки для плавности UI
+    const timer = setTimeout(() => {
+      setClients({
+        activeClients: mockActiveClients,
+        completedDeals: mockCompletedDeals,
+        newAssignments: mockNewAssignments
+      });
+      setLoading(false);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   return (
     <>
@@ -38,17 +49,23 @@ export default function SalesClientsPage() {
         <CustomBreadcrumbs
           heading="Мои клиенты"
           links={[
-            { name: 'Главная', href: paths.dashboard.root },
-            { name: 'Отдел продаж', href: paths.dashboard.sales?.root || '/dashboard/sales' },
+            { name: 'Мои показатели', href: paths.dashboard.sales.root },
             { name: 'Клиенты' }
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
         />
         
-        <ClientsList 
-          activeClients={activeClients || []} 
-          completedDeals={completedDeals || []}
-        />
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <ClientsList 
+            activeClients={clients.activeClients} 
+            completedDeals={clients.completedDeals}
+            newAssignments={clients.newAssignments}
+          />
+        )}
       </Container>
     </>
   );

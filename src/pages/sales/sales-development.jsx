@@ -1,33 +1,31 @@
 // src/pages/sales/sales-development.jsx
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Container, Typography, Box } from '@mui/material';
+import { Container, Typography, Box, CircularProgress } from '@mui/material';
 import { paths } from 'src/routes/paths';
-import { useAuth } from 'src/auth/hooks/use-auth';
-import { useSalesData } from 'src/hooks/use-sales-data';
 import { DevelopmentPlan } from 'src/sections/sales/components';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { LoadingScreen } from 'src/components/loading-screen';
+
+// Прямой импорт мок-данных
+import { mockEmployee } from 'src/sections/sales/_mock/sales-mock-data';
 
 // ----------------------------------------------------------------------
 
 export default function SalesDevelopmentPage() {
-  const { user } = useAuth();
+  // Локальное состояние вместо хука
+  const [loading, setLoading] = useState(true);
+  const [employee, setEmployee] = useState(null);
   
-  // Загрузка данных для плана развития
-  const { 
-    data, 
-    loading, 
-    error, 
-    refetch
-  } = useSalesData({
-    dataType: 'all',
-    fetchOnMount: true
-  });
-  
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  // Прямая установка мок-данных после монтирования
+  useEffect(() => {
+    // Имитация короткой задержки для плавности UI
+    const timer = setTimeout(() => {
+      setEmployee(mockEmployee);
+      setLoading(false);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   return (
     <>
@@ -39,15 +37,18 @@ export default function SalesDevelopmentPage() {
         <CustomBreadcrumbs
           heading="План развития"
           links={[
-            { name: 'Главная', href: paths.dashboard.root },
-            { name: 'Отдел продаж', href: paths.dashboard.sales?.root || '/dashboard/sales' },
+            { name: 'Мои показатели', href: paths.dashboard.sales.root },
             { name: 'План развития' }
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}
         />
         
-        {data?.employee && (
-          <DevelopmentPlan employee={data.employee} />
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 5 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <DevelopmentPlan employee={employee} />
         )}
       </Container>
     </>

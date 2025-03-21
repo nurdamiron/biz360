@@ -1,9 +1,11 @@
 // src/routes/sections/sales-routes.jsx
+
 import { lazy } from 'react';
 import { Loadable } from 'src/components/loadable/index.jsx';
 import { AuthGuard } from 'src/auth/guard';
 import RoleDepartmentGuard from 'src/auth/RoleDepartmentGuard';
 import { DashboardLayout } from 'src/layouts/dashboard';
+import { Navigate, Outlet } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -28,23 +30,33 @@ const SalesBonusesPage = Loadable(
   lazy(() => import('src/pages/sales/sales-bonuses'))
 );
 
+// Страница для распределения лидов
+const SalesLeadsDistributionPage = Loadable(
+  lazy(() => import('src/pages/sales/sales-leads-distribution'))
+);
+
+// Страница для работы с лидами
+const SalesLeadsPage = Loadable(
+  lazy(() => import('src/pages/sales/sales-leads'))
+);
+
 // ----------------------------------------------------------------------
 
 // Функция для проверки прав доступа к разделам отдела продаж
 const hasSalesAccess = (user) => {
   // Сотрудники с доступом:
   // 1. Администраторы и владельцы
-  if (user?.employee?.role === 'owner' || user?.employee?.role === 'admin') {
+  if (user?.role === 'owner' || user?.role === 'admin') {
     return true;
   }
   
   // 2. Руководитель отдела продаж
-  if (user?.employee?.role === 'head' && user?.employee?.department === 'sales') {
+  if (user?.role === 'head' && user?.department === 'sales') {
     return true;
   }
   
   // 3. Сотрудники отдела продаж
-  if (user?.employee?.department === 'sales') {
+  if (user?.department === 'sales') {
     return true;
   }
   
@@ -54,13 +66,27 @@ const hasSalesAccess = (user) => {
 // ----------------------------------------------------------------------
 
 export const salesRoutes = [
+  // Редирект с корневого пути /dashboard на /dashboard/sales для сотрудников отдела продаж
+  {
+    path: '',
+    element: (
+      <AuthGuard>
+        <RoleDepartmentGuard 
+          hasPermission={(user) => user?.department === 'sales' && user?.role !== 'admin' && user?.role !== 'head'}
+        >
+          <Navigate to="/dashboard/sales" replace />
+        </RoleDepartmentGuard>
+      </AuthGuard>
+    ),
+  },
+  // Основные маршруты отдела продаж
   {
     path: 'sales',
     element: (
       <AuthGuard>
         <RoleDepartmentGuard hasPermission={hasSalesAccess}>
           <DashboardLayout>
-            <SalesEmployeeDashboardPage />
+            <Outlet />
           </DashboardLayout>
         </RoleDepartmentGuard>
       </AuthGuard>
@@ -70,7 +96,9 @@ export const salesRoutes = [
       { path: 'clients', element: <SalesClientsPage /> },
       { path: 'client/:id', element: <SalesClientDetailPage /> },
       { path: 'development', element: <SalesDevelopmentPage /> },
-      { path: 'bonuses', element: <SalesBonusesPage /> }
+      { path: 'bonuses', element: <SalesBonusesPage /> },
+      { path: 'leads', element: <SalesLeadsPage /> },
+      { path: 'leads-distribution', element: <SalesLeadsDistributionPage /> }
     ]
   }
 ];

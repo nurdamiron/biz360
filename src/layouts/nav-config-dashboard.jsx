@@ -1,4 +1,4 @@
-// src/layouts/dashboard/config-navigation.js
+// src/layouts/dashboard/nav-config-navigation.js
 import { paths } from 'src/routes/paths';
 import { CONFIG } from 'src/global-config';
 import { SvgColor } from 'src/components/svg-color';
@@ -67,6 +67,64 @@ export const getFilteredNavData = (user) => {
   // Набор разделов для анализа
   const analysisSections = [];
   
+  // 1. Для обычного сотрудника отдела продаж - показываем пункты меню напрямую
+  if (isSalesEmployee) {
+    // Основные элементы навигации для сотрудника отдела продаж
+    analysisSections.push({ 
+      title: 'Мой дашборд', 
+      path: paths.dashboard.sales.root, 
+      icon: ICONS.dashboard 
+    });
+    
+    analysisSections.push({ 
+      title: 'Мои клиенты', 
+      path: paths.dashboard.sales.clients, 
+      icon: ICONS.ecommerce 
+    });
+    
+    analysisSections.push({ 
+      title: 'План развития', 
+      path: paths.dashboard.sales.development, 
+      icon: ICONS.chart 
+    });
+    
+    analysisSections.push({ 
+      title: 'Мотивационная программа', 
+      path: paths.dashboard.sales.bonuses, 
+      icon: ICONS.star 
+    });
+  } 
+
+  // 2. Для админов и руководителей - стандартная структура
+  else {
+    // Общий Дашборд - только для админов и руководителей отделов
+    if (isAdminUser || isHeadUser) {
+      analysisSections.push({ 
+        title: 'Общий Дашборд', 
+        path: paths.dashboard.root, 
+        icon: ICONS.dashboard 
+      });
+    }
+    
+    // Если пользователь относится к отделу продаж или админ/руководитель
+    if (isAdminUser || isHeadUser || department === 'sales') {
+      analysisSections.push({
+        title: 'Отдел продаж',
+        path: paths.dashboard.sales.root,
+        icon: ICONS.ecommerce,
+        children: [
+          { title: 'Мой дашборд', path: paths.dashboard.sales.root },
+          { title: 'Мои клиенты', path: paths.dashboard.sales.clients },
+          { title: 'План развития', path: paths.dashboard.sales.development },
+          { title: 'Мотивационная программа', path: paths.dashboard.sales.bonuses }
+        ]
+      });
+    }
+    
+    // Добавляем другие отделы по необходимости...
+  }
+
+
   // 1. Общий Дашборд - только для админов и руководителей отделов
   if (isAdminUser || isHeadUser) {
     analysisSections.push({ 
@@ -86,7 +144,7 @@ export const getFilteredNavData = (user) => {
       { title: 'Мой дашборд', path: paths.dashboard.sales.root },
       { title: 'Мои клиенты', path: paths.dashboard.sales.clients },
       { title: 'План развития', path: paths.dashboard.sales.development },
-      { title: 'Бонусы', path: paths.dashboard.sales.bonuses }
+      { title: 'Мотивационная программа', path: paths.dashboard.sales.bonuses }
     ]
   });
 }
@@ -122,7 +180,6 @@ export const getFilteredNavData = (user) => {
     // Свои метрики видят все
     { title: 'Мои показатели', path: paths.dashboard.metrics.employee('me') }
   ];
-  
   // Метрики отделов - показываем только метрики своего отдела
   if (isAdminUser || department === 'sales') {
     metricsChildren.push({ 

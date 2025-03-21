@@ -4,8 +4,14 @@ import { LoadingScreen } from '../loading-screen';
 
 // ----------------------------------------------------------------------
 
-export const Loadable = (Component) => (props) => (
-  <Suspense fallback={<LoadingScreen />}>
-    <Component {...props} />
-  </Suspense>
-);
+export const Loadable = (Component) => {
+  // Create a proper function component that can use hooks
+  const LoadableComponent = (props) => (
+    <Suspense fallback={<LoadingScreen />}>
+      <Component {...props} />
+    </Suspense>
+  );
+  
+  // Return the wrapped component
+  return LoadableComponent;
+};
