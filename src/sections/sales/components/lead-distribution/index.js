@@ -23,5 +23,5 @@ export {
   // Экспорт вспомогательных компонентов
   export { default as DistributionStats } from './DistributionStats';
   export { default as FilterDialog } from './FilterDialog';
-  export { default as AutoAssignSettingsDialog } from './AutoAssignSettingsDialog';
+  export { default as SmartAssignSettingsDialog } from './SmartAssignSettingsDialog';
   export { default as AddLeadDialog } from './AddLeadDialog';

@@ -32,7 +32,7 @@ export {
   UnassignedLeadsColumn,
   DistributionStats,
   FilterDialog,
-  AutoAssignSettingsDialog,
+  SmartAssignSettingsDialog,
   AddLeadDialog,
   // Сервисы
   leadDistributionService,

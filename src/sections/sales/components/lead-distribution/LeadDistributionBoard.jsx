@@ -1,4 +1,4 @@
-// src/sections/sales/components/lead-distribution/LeadDistributionBoard.jsx
+// src/sections/sales/components/lead-distribution/SmartLeadDistributionBoard.jsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -14,33 +14,45 @@ import {
   CircularProgress,
   useMediaQuery,
   Snackbar,
-  Alert
+  Alert,
+  Tooltip,
+  IconButton,
+  Badge,
+  alpha
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Импортируем сервис для работы с лидами
+// Импортируем иконки (заменить на подходящую библиотеку, например Material Icons)
+import AddIcon from '@mui/icons-material/Add';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import CategoryIcon from '@mui/icons-material/Category';
+import InfoIcon from '@mui/icons-material/Info';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import SettingsIcon from '@mui/icons-material/Settings';
+
+// Импортируем сервисы и подкомпоненты
 import { 
   leadDistributionService, 
-  assignLead, 
-  autoAssignLeads 
+  assignLead,
 } from './leadDistributionService';
 
-// Импортируем подкомпоненты
+import {
+  initializeSmartDistribution,
+  smartAssignLeads,
+  getExtendedEmployeeStats
+} from './leadDistributionService';
+
+// Импортируем улучшенные подкомпоненты
 import UnassignedLeadsColumn from './UnassignedLeadsColumn';
 import EmployeeColumn from './EmployeeColumn';
 import DistributionStats from './DistributionStats';
 import FilterDialog from './FilterDialog';
-import AutoAssignSettingsDialog from './AutoAssignSettingsDialog';
+import AssignSettingsDialog from './AssignSettingsDialog';
 import AddLeadDialog from './AddLeadDialog';
-
-// Заглушки для иконок
-const Icons = {
-  Add: '➕',
-  Filter: '🔍',
-  AutoAssign: '🔄',
-  Refresh: '🔄',
-};
+import EmployeePerformanceModal from './EmployeePerformanceModal';
 
 // Анимации для framer-motion
 const containerVariants = {
@@ -67,7 +79,7 @@ const itemVariants = {
 };
 
 /**
- * Основной компонент доски распределения лидов
+ * Улучшенный компонент доски распределения лидов с интеллектуальным распределением
  */
 export default function LeadDistributionBoard({ onRefreshData }) {
   const theme = useTheme();
@@ -78,31 +90,47 @@ export default function LeadDistributionBoard({ onRefreshData }) {
   const [employees, setEmployees] = useState([]);
   const [leads, setLeads] = useState([]);
   const [stats, setStats] = useState(null);
+  const [extendedStats, setExtendedStats] = useState(null);
   
   // Состояние UI
   const [isLoading, setIsLoading] = useState(true);
-  const [isAutoAssigning, setIsAutoAssigning] = useState(false);
+  const [isSmartAssigning, setIsSmartAssigning] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   
   // Состояние диалогов
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [autoAssignSettingsOpen, setAutoAssignSettingsOpen] = useState(false);
+  const [smartAssignSettingsOpen, setSmartAssignSettingsOpen] = useState(false);
   const [addLeadDialogOpen, setAddLeadDialogOpen] = useState(false);
+  const [employeePerformanceOpen, setEmployeePerformanceOpen] = useState(false);
   
   // Состояние фильтров и настроек
   const [filters, setFilters] = useState({
     priority: 'all',
     minAmount: '',
     maxAmount: '',
-    source: 'all'
+    source: 'all',
+    industry: 'all'
   });
   
-  const [autoAssignSettings, setAutoAssignSettings] = useState({
+  // Расширенные настройки для интеллектуального распределения
+  const [smartAssignSettings, setSmartAssignSettings] = useState({
     priorityFirst: true,
     balanceLoad: true,
     considerExperience: true,
+    considerSpecialization: true,
+    preserveHistory: true,
+    considerPerformance: true,
     maxLeadsPerEmployee: ''
+  });
+  
+  // Опции отображения
+  const [viewOptions, setViewOptions] = useState({
+    showEmployeeMetrics: true,
+    showLeadDetails: true,
+    showAssignmentScores: true,
+    compactView: false
   });
   
   // Загрузка данных
@@ -111,19 +139,26 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       setIsLoading(true);
       setError(null);
       
+      // Инициализируем интеллектуальный сервис распределения
+      await initializeSmartDistribution();
+      
       // Загрузка сотрудников и лидов
       const employeeData = await leadDistributionService.fetchEmployees(true);
       const leadData = await leadDistributionService.fetchLeads(true);
       
-      // Загрузка статистики
+      // Загрузка базовой статистики
       const statsData = await leadDistributionService.getDistributionStats();
+      
+      // Загрузка расширенной статистики
+      const extendedStatsData = await getExtendedEmployeeStats();
       
       setEmployees(employeeData);
       setLeads(leadData);
       setStats(statsData);
+      setExtendedStats(extendedStatsData);
     } catch (err) {
-      console.error('Error fetching data:', error);
-      setError('Ошибка при загрузке данных: ' + error.message);
+      console.error('Error fetching data:', err);
+      setError('Ошибка при загрузке данных: ' + err.message);
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +178,11 @@ export default function LeadDistributionBoard({ onRefreshData }) {
     
     // Фильтр по источнику
     if (filters.source !== 'all' && lead.source !== filters.source) {
+      return false;
+    }
+    
+    // Фильтр по отрасли
+    if (filters.industry !== 'all' && lead.industry !== filters.industry) {
       return false;
     }
     
@@ -187,6 +227,21 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       : parseInt(destination.droppableId.split('-')[1], 10);
     
     try {
+      // Находим перетаскиваемый лид и сотрудника
+      const draggedLead = leads.find(lead => lead.id === leadId);
+      const targetEmployee = employees.find(emp => emp.id === employeeId);
+      
+      // Анимированное сообщение о перетаскивании
+      let assignmentMessage = `${draggedLead?.name || `Лид #${leadId}`} `;
+      
+      if (employeeId) {
+        assignmentMessage += `назначен ${targetEmployee?.name || `Сотруднику #${employeeId}`}`;
+      } else {
+        assignmentMessage += 'перемещен в нераспределенные';
+      }
+      
+      setSuccessMessage(assignmentMessage);
+      
       // Вызываем API для обновления данных на сервере
       const updatedLead = await assignLead(leadId, employeeId);
       
@@ -199,27 +254,27 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       const statsData = await leadDistributionService.getDistributionStats();
       setStats(statsData);
       
-      // Показываем сообщение об успехе
-      const leadName = leads.find(lead => lead.id === leadId)?.name || `Лид #${leadId}`;
-      const employeeName = employeeId 
-        ? employees.find(emp => emp.id === employeeId)?.name || `Сотрудник #${employeeId}`
-        : 'нераспределенные';
+      // Обновляем расширенную статистику
+      const extendedStatsData = await getExtendedEmployeeStats();
+      setExtendedStats(extendedStatsData);
       
-      setSuccessMessage(`${leadName} перемещен к ${employeeName}`);
     } catch (err) {
-      console.error('Error assigning lead:', error);
-      setError('Ошибка при назначении лида: ' + error.message);
+      console.error('Error assigning lead:', err);
+      setError('Ошибка при назначении лида: ' + err.message);
     }
   }, [leads, employees]);
   
-  // Обработчик автоматического распределения
-  const handleAutoAssign = useCallback(async (settings) => {
+  // Обработчик интеллектуального распределения
+  const handleSmartAssign = useCallback(async (settings) => {
     try {
-      setIsAutoAssigning(true);
+      setIsSmartAssigning(true);
       setError(null);
       
-      // Вызываем API для автоматического распределения
-      const updatedLeads = await autoAssignLeads(settings);
+      // Анимированное сообщение о процессе
+      setSuccessMessage('Выполняется интеллектуальное распределение...');
+      
+      // Вызываем API для интеллектуального распределения
+      const updatedLeads = await smartAssignLeads(settings);
       
       // Обновляем локальное состояние
       setLeads(updatedLeads);
@@ -228,16 +283,20 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       const statsData = await leadDistributionService.getDistributionStats();
       setStats(statsData);
       
+      // Обновляем расширенную статистику
+      const extendedStatsData = await getExtendedEmployeeStats();
+      setExtendedStats(extendedStatsData);
+      
       // Показываем сообщение об успехе
-      setSuccessMessage('Лиды автоматически распределены');
+      setSuccessMessage('Лиды интеллектуально распределены');
       
       // Закрываем диалог настроек
-      setAutoAssignSettingsOpen(false);
+      setSmartAssignSettingsOpen(false);
     } catch (err) {
-      console.error('Error auto-assigning leads:', error);
-      setError('Ошибка при автоматическом распределении: ' + error.message);
+      console.error('Error smart-assigning leads:', err);
+      setError('Ошибка при интеллектуальном распределении: ' + err.message);
     } finally {
-      setIsAutoAssigning(false);
+      setIsSmartAssigning(false);
     }
   }, []);
   
@@ -257,15 +316,24 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       const statsData = await leadDistributionService.getDistributionStats();
       setStats(statsData);
       
+      // Обновляем расширенную статистику при необходимости
+      if (viewOptions.showAssignmentScores) {
+        const extendedStatsData = await getExtendedEmployeeStats();
+        setExtendedStats(extendedStatsData);
+      }
+      
       // Показываем сообщение об успехе
       setSuccessMessage(`Новый лид "${newLead.name}" добавлен`);
+      
+      // Закрываем диалог
+      setAddLeadDialogOpen(false);
     } catch (err) {
-      console.error('Error adding lead:', error);
-      setError('Ошибка при добавлении лида: ' + error.message);
+      console.error('Error adding lead:', err);
+      setError('Ошибка при добавлении лида: ' + err.message);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [viewOptions.showAssignmentScores]);
   
   // Обработчик обновления данных
   const handleRefreshData = useCallback(async () => {
@@ -283,10 +351,30 @@ export default function LeadDistributionBoard({ onRefreshData }) {
     setFilters(newFilters);
   }, []);
   
-  // Обработчик применения настроек автораспределения
-  const handleApplyAutoAssignSettings = useCallback((newSettings) => {
-    setAutoAssignSettings(newSettings);
+  // Обработчик применения настроек интеллектуального распределения
+  const handleApplySmartAssignSettings = useCallback((newSettings) => {
+    setSmartAssignSettings(newSettings);
   }, []);
+  
+  // Обработчик клика по сотруднику для просмотра детальной информации
+  const handleViewEmployeeDetails = useCallback((employeeId) => {
+    setSelectedEmployeeId(employeeId);
+    setEmployeePerformanceOpen(true);
+  }, []);
+  
+  // Получение сотрудника по ID
+  const getSelectedEmployee = useCallback(() => {
+    employees.find(emp => emp.id === selectedEmployeeId);
+  }, [employees, selectedEmployeeId]);
+  
+  // Получение расширенной статистики сотрудника
+  const getSelectedEmployeeStats = useCallback(() => {
+    if (!extendedStats || !selectedEmployeeId) return null;
+    
+    return extendedStats.employeeDetails?.find(
+      empStats => empStats.id === selectedEmployeeId
+    );
+  }, [extendedStats, selectedEmployeeId]);
   
   // Компонент для отображения состояния загрузки
   const renderLoadingState = () => (
@@ -308,7 +396,13 @@ export default function LeadDistributionBoard({ onRefreshData }) {
         variants={containerVariants}
       >
         {/* Статистика распределения */}
-        <DistributionStats stats={stats} isLoading={isLoading} />
+        <DistributionStats 
+          stats={stats} 
+          extendedStats={extendedStats}
+          isLoading={isLoading} 
+          showExtendedStats={viewOptions.showAssignmentScores}
+          onEmployeeClick={handleViewEmployeeDetails}
+        />
         
         {/* Основная карточка с доской */}
         <Card
@@ -316,7 +410,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
           variants={itemVariants}
           sx={{ 
             borderRadius: 2,
-            boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
+            boxShadow: theme.shadows[4],
             mb: 3,
             overflow: 'hidden'
           }}
@@ -325,8 +419,13 @@ export default function LeadDistributionBoard({ onRefreshData }) {
             title={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="h6" component="span">
-                  Распределение лидов
+                  Интеллектуальное распределение лидов
                 </Typography>
+                <Tooltip title="Автоматически находит лучшее соответствие между лидами и сотрудниками на основе истории взаимодействий, специализации, опыта и текущей нагрузки">
+                  <IconButton size="small" sx={{ ml: 0.5 }}>
+                    <HelpOutlineIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
                 <Chip
                   label={`${unassignedLeads.length} нераспределенных`}
                   color={unassignedLeads.length > 0 ? 'warning' : 'success'}
@@ -337,40 +436,61 @@ export default function LeadDistributionBoard({ onRefreshData }) {
             }
             action={
               <Stack direction="row" spacing={1}>
-                <Button
-                  variant="outlined"
-                  startIcon={Icons.Filter}
-                  size="small"
-                  onClick={() => setFiltersOpen(true)}
-                >
-                  Фильтры
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={Icons.Add}
-                  size="small"
-                  onClick={() => setAddLeadDialogOpen(true)}
-                >
-                  Новый лид
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={Icons.AutoAssign}
-                  onClick={() => setAutoAssignSettingsOpen(true)}
-                  disabled={isAutoAssigning || unassignedLeads.length === 0}
-                  size="small"
-                >
-                  {isAutoAssigning ? 'Распределение...' : 'Автораспределение'}
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={Icons.Refresh}
-                  onClick={handleRefreshData}
-                  disabled={isLoading}
-                  size="small"
-                >
-                  Обновить
-                </Button>
+                <Tooltip title="Настроить фильтры">
+                  <Button
+                    variant="outlined"
+                    startIcon={<FilterAltIcon />}
+                    size="small"
+                    onClick={() => setFiltersOpen(true)}
+                  >
+                    Фильтры
+                  </Button>
+                </Tooltip>
+                
+                <Tooltip title="Добавить нового лида">
+                  <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    size="small"
+                    onClick={() => setAddLeadDialogOpen(true)}
+                  >
+                    Новый лид
+                  </Button>
+                </Tooltip>
+                
+                <Tooltip title="Интеллектуальное распределение с учетом множества факторов">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AutorenewIcon />}
+                    onClick={() => setSmartAssignSettingsOpen(true)}
+                    disabled={isSmartAssigning || unassignedLeads.length === 0}
+                    size="small"
+                  >
+                    {isSmartAssigning ? 'Распределение...' : 'Умное распределение'}
+                  </Button>
+                </Tooltip>
+                
+                <Tooltip title="Обновить данные">
+                  <IconButton
+                    color="primary"
+                    onClick={handleRefreshData}
+                    disabled={isLoading}
+                    size="small"
+                  >
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+                
+                <Tooltip title="Настройки отображения">
+                  <IconButton
+                    color="primary"
+                    onClick={() => {/* Можно добавить диалог настроек отображения */}}
+                    size="small"
+                  >
+                    <SettingsIcon />
+                  </IconButton>
+                </Tooltip>
               </Stack>
             }
           />
@@ -379,33 +499,45 @@ export default function LeadDistributionBoard({ onRefreshData }) {
             renderLoadingState()
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
-              <Grid container spacing={2} sx={{ p: 2 }}>
-                {/* Колонка нераспределенных лидов */}
-                <Grid item xs={12} md={4} lg={3}>
-                  <UnassignedLeadsColumn leads={unassignedLeads} />
-                </Grid>
-                
-                {/* Колонки сотрудников */}
-                {employees.map(employee => (
-                  <Grid item xs={12} md={4} lg={3} key={employee.id}>
-                    <EmployeeColumn
-                      employee={employee}
-                      leads={getEmployeeLeads(employee.id)}
-                      isDropDisabled={false}
+              <AnimatePresence>
+                <Grid container spacing={2} sx={{ p: 2 }}>
+                  {/* Колонка нераспределенных лидов */}
+                  <Grid item xs={12} md={4} lg={3}>
+                    <UnassignedLeadsColumn 
+                      leads={unassignedLeads} 
+                      compactView={viewOptions.compactView}
+                      showDetails={viewOptions.showLeadDetails}
+                      onAddClick={() => setAddLeadDialogOpen(true)}
                     />
                   </Grid>
-                ))}
-                
-                {employees.length === 0 && !isLoading && (
-                  <Grid item xs={12}>
-                    <Box sx={{ p: 4, textAlign: 'center' }}>
-                      <Typography variant="body1" color="text.secondary">
-                        Нет активных сотрудников для распределения лидов
-                      </Typography>
-                    </Box>
-                  </Grid>
-                )}
-              </Grid>
+                  
+                  {/* Колонки сотрудников */}
+                  {employees.map(employee => (
+                    <Grid item xs={12} md={4} lg={3} key={employee.id}>
+                      <EmployeeColumn
+                        employee={employee}
+                        leads={getEmployeeLeads(employee.id)}
+                        metrics={extendedStats?.employeeDetails?.find(e => e.id === employee.id)}
+                        isDropDisabled={false}
+                        compactView={viewOptions.compactView}
+                        showMetrics={viewOptions.showEmployeeMetrics}
+                        showAssignmentScore={viewOptions.showAssignmentScores}
+                        onEmployeeClick={() => handleViewEmployeeDetails(employee.id)}
+                      />
+                    </Grid>
+                  ))}
+                  
+                  {employees.length === 0 && !isLoading && (
+                    <Grid item xs={12}>
+                      <Box sx={{ p: 4, textAlign: 'center' }}>
+                        <Typography variant="body1" color="text.secondary">
+                          Нет активных сотрудников для распределения лидов
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  )}
+                </Grid>
+              </AnimatePresence>
             </DragDropContext>
           )}
         </Card>
@@ -418,18 +550,26 @@ export default function LeadDistributionBoard({ onRefreshData }) {
           onApplyFilters={handleApplyFilters}
         />
         
-        <AutoAssignSettingsDialog
-          open={autoAssignSettingsOpen}
-          onClose={() => setAutoAssignSettingsOpen(false)}
-          settings={autoAssignSettings}
-          onApplySettings={handleApplyAutoAssignSettings}
-          onAutoAssign={handleAutoAssign}
+        <AssignSettingsDialog
+          open={smartAssignSettingsOpen}
+          onClose={() => setSmartAssignSettingsOpen(false)}
+          settings={smartAssignSettings}
+          onApplySettings={handleApplySmartAssignSettings}
+          onSmartAssign={handleSmartAssign}
         />
         
         <AddLeadDialog
           open={addLeadDialogOpen}
           onClose={() => setAddLeadDialogOpen(false)}
           onAddLead={handleAddLead}
+        />
+        
+        <EmployeePerformanceModal
+          open={employeePerformanceOpen}
+          onClose={() => setEmployeePerformanceOpen(false)}
+          employee={getSelectedEmployee()}
+          stats={getSelectedEmployeeStats()}
+          leads={getEmployeeLeads(selectedEmployeeId)}
         />
         
         {/* Snackbar для сообщений об ошибках и успехе */}
@@ -439,7 +579,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
           onClose={() => setError(null)}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          <Alert onClose={() => setError(null)} severity="error">
+          <Alert onClose={() => setError(null)} severity="error" variant="filled">
             {error}
           </Alert>
         </Snackbar>
@@ -450,7 +590,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
           onClose={() => setSuccessMessage(null)}
           anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          <Alert onClose={() => setSuccessMessage(null)} severity="success">
+          <Alert onClose={() => setSuccessMessage(null)} severity="success" variant="filled">
             {successMessage}
           </Alert>
         </Snackbar>

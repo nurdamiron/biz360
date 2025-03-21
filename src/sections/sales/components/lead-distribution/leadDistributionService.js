@@ -1,155 +1,101 @@
-// src/sections/sales/components/lead-distribution/leadDistributionService.js
+// src/sections/sales/components/lead-distribution/smartLeadDistributionService.js
 import { shouldUseMockData, mockApiCall } from '../../../../utils/mock-data-utils';
+import { leadDistributionService } from './leadDistributionService';
 
 /**
- * Класс сервиса для распределения лидов
- * Обеспечивает функционал для работы с лидами и их назначением менеджерам
+ * Класс для интеллектуального распределения лидов с учетом множества факторов
+ * Расширяет базовый сервис распределения лидов
  */
-class LeadDistributionService {
+class SmartLeadDistributionService {
   constructor() {
+    this._leadDistributionService = leadDistributionService;
     this._employees = [];
     this._leads = [];
+    this._clientHistory = [];
+    this._employeeSpecializations = {};
+    this._employeePerformanceMetrics = {};
     this._isLoading = false;
     this._error = null;
   }
 
   /**
-   * Загрузка данных о сотрудниках
-   * @param {boolean} forceFetch - Принудительно запросить данные с сервера
-   * @returns {Promise<Array>} - Массив сотрудников
+   * Инициализация сервиса и загрузка необходимых данных
    */
-  async fetchEmployees(forceFetch = false) {
+  async initialize() {
     try {
       this._isLoading = true;
       this._error = null;
-
-      // Если данные уже загружены и не требуется принудительная загрузка
-      if (this._employees.length > 0 && !forceFetch) {
-        this._isLoading = false;
-        return this._employees;
-      }
-
-      // Запрос к API или мок-данным
-      if (shouldUseMockData()) {
-        const mockEmployees = await this._getMockEmployees();
-        this._employees = mockEmployees;
-      } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch('/api/sales/employees');
-        const data = await response.json();
-        this._employees = data;
-      }
-
+      
+      // Загружаем сотрудников и лидов из базового сервиса
+      this._employees = await this._leadDistributionService.fetchEmployees(true);
+      this._leads = await this._leadDistributionService.fetchLeads(true);
+      
+      // Загружаем дополнительные данные
+      await this._loadClientHistory();
+      await this._loadEmployeeSpecializations();
+      await this._loadEmployeePerformanceMetrics();
+      
       this._isLoading = false;
-      return this._employees;
+      return true;
     } catch (error) {
       this._isLoading = false;
-      this._error = error.message || 'Ошибка при загрузке сотрудников';
-      console.error('Error fetching employees:', error);
+      this._error = error.message || 'Ошибка при инициализации сервиса';
+      console.error('Error initializing smart service:', error);
       throw new Error(this._error);
     }
   }
 
   /**
-   * Загрузка данных о лидах
-   * @param {boolean} forceFetch - Принудительно запросить данные с сервера
-   * @returns {Promise<Array>} - Массив лидов
+   * Загрузка истории взаимодействия с клиентами
+   * @private
    */
-  async fetchLeads(forceFetch = false) {
-    try {
-      this._isLoading = true;
-      this._error = null;
-
-      // Если данные уже загружены и не требуется принудительная загрузка
-      if (this._leads.length > 0 && !forceFetch) {
-        this._isLoading = false;
-        return this._leads;
-      }
-
-      // Запрос к API или мок-данным
-      if (shouldUseMockData()) {
-        const mockLeads = await this._getMockLeads();
-        this._leads = mockLeads;
-      } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch('/api/sales/leads');
-        const data = await response.json();
-        this._leads = data;
-      }
-
-      this._isLoading = false;
-      return this._leads;
-    } catch (error) {
-      this._isLoading = false;
-      this._error = error.message || 'Ошибка при загрузке лидов';
-      console.error('Error fetching leads:', error);
-      throw new Error(this._error);
+  async _loadClientHistory() {
+    if (shouldUseMockData()) {
+      // Имитация загрузки истории клиентов
+      this._clientHistory = await this._getMockClientHistory();
+    } else {
+      // Реальный API запрос для получения истории клиентов
+      const response = await fetch('/api/sales/client-history');
+      this._clientHistory = await response.json();
     }
   }
 
   /**
-   * Назначить лида сотруднику
-   * @param {number} leadId - ID лида
-   * @param {number|null} employeeId - ID сотрудника (null для отмены назначения)
-   * @returns {Promise<Object>} - Обновленный лид
+   * Загрузка специализаций сотрудников
+   * @private
    */
-  async assignLead(leadId, employeeId) {
-    try {
-      this._isLoading = true;
-      this._error = null;
-
-      // Обновление локальных данных
-      const leadIndex = this._leads.findIndex(lead => lead.id === leadId);
-      if (leadIndex === -1) {
-        throw new Error(`Лид с ID ${leadId} не найден`);
-      }
-
-      // Подготовка обновленного лида
-      const updatedLead = { 
-        ...this._leads[leadIndex], 
-        assigned_to: employeeId,
-        last_updated: new Date().toISOString()
-      };
-
-      // Запрос к API или обновление мок-данных
-      if (shouldUseMockData()) {
-        // Имитация задержки API
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Обновление в локальном массиве
-        this._leads[leadIndex] = updatedLead;
-      } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch(`/api/sales/leads/${leadId}/assign`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ employeeId }),
-        });
-        
-        const data = await response.json();
-        
-        // Обновление в локальном массиве
-        this._leads[leadIndex] = data;
-      }
-
-      this._isLoading = false;
-      return this._leads[leadIndex];
-    } catch (error) {
-      this._isLoading = false;
-      this._error = error.message || 'Ошибка при назначении лида';
-      console.error('Error assigning lead:', error);
-      throw new Error(this._error);
+  async _loadEmployeeSpecializations() {
+    if (shouldUseMockData()) {
+      // Имитация загрузки специализаций
+      this._employeeSpecializations = await this._getMockEmployeeSpecializations();
+    } else {
+      // Реальный API запрос для получения специализаций
+      const response = await fetch('/api/sales/employee-specializations');
+      this._employeeSpecializations = await response.json();
     }
   }
 
   /**
-   * Автоматическое распределение лидов
+   * Загрузка метрик производительности сотрудников
+   * @private
+   */
+  async _loadEmployeePerformanceMetrics() {
+    if (shouldUseMockData()) {
+      // Имитация загрузки метрик
+      this._employeePerformanceMetrics = await this._getMockEmployeePerformanceMetrics();
+    } else {
+      // Реальный API запрос для получения метрик
+      const response = await fetch('/api/sales/employee-metrics');
+      this._employeePerformanceMetrics = await response.json();
+    }
+  }
+
+  /**
+   * Интеллектуальное распределение лидов с учетом множества факторов
    * @param {Object} options - Опции распределения
    * @returns {Promise<Array>} - Обновленный массив лидов
    */
-  async autoAssignLeads(options = {}) {
+  async smartAssignLeads(options = {}) {
     try {
       this._isLoading = true;
       this._error = null;
@@ -158,12 +104,16 @@ class LeadDistributionService {
         priorityFirst = true,
         balanceLoad = true,
         considerExperience = true,
+        considerSpecialization = true,
+        preserveHistory = true,
+        considerPerformance = true,
         maxLeadsPerEmployee = null,
       } = options;
 
-      // Получение актуальных данных
-      await this.fetchEmployees();
-      await this.fetchLeads();
+      // Инициализация сервиса, если это еще не сделано
+      if (this._employees.length === 0 || this._leads.length === 0) {
+        await this.initialize();
+      }
 
       // Получение нераспределенных лидов
       const unassignedLeads = this._leads.filter(lead => !lead.assigned_to);
@@ -186,8 +136,12 @@ class LeadDistributionService {
         // Имитация задержки API
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Логика распределения для мок-данных
-        const updatedLeads = await this._mockAutoAssignLeads(unassignedLeads, availableEmployees, options);
+        // Расширенная логика распределения для мок-данных
+        const updatedLeads = await this._smartAssignLeadsMock(
+          unassignedLeads, 
+          availableEmployees, 
+          options
+        );
         
         // Обновление локальных данных
         updatedLeads.forEach(updatedLead => {
@@ -196,9 +150,12 @@ class LeadDistributionService {
             this._leads[index] = updatedLead;
           }
         });
+
+        // Обновляем данные в базовом сервисе
+        this._leadDistributionService._leads = this._leads;
       } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch('/api/sales/leads/auto-assign', {
+        // Реальный API запрос
+        const response = await fetch('/api/sales/leads/smart-assign', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -208,441 +165,229 @@ class LeadDistributionService {
         
         const data = await response.json();
         this._leads = data;
+        
+        // Обновляем данные в базовом сервисе
+        this._leadDistributionService._leads = this._leads;
       }
 
       this._isLoading = false;
       return this._leads;
     } catch (error) {
       this._isLoading = false;
-      this._error = error.message || 'Ошибка при автоматическом распределении';
-      console.error('Error auto-assigning leads:', error);
+      this._error = error.message || 'Ошибка при интеллектуальном распределении';
+      console.error('Error smart-assigning leads:', error);
       throw new Error(this._error);
     }
   }
 
   /**
-   * Добавление нового лида
-   * @param {Object} leadData - Данные нового лида
-   * @returns {Promise<Object>} - Созданный лид
+   * Поиск наиболее подходящего сотрудника для конкретного лида
+   * @param {Object} lead - Данные лида
+   * @param {Array} availableEmployees - Массив доступных сотрудников
+   * @param {Object} options - Опции распределения
+   * @returns {Object|null} - Наиболее подходящий сотрудник или null
    */
-  async addLead(leadData) {
-    try {
-      this._isLoading = true;
-      this._error = null;
-
-      // Запрос к API или обновление мок-данных
-      if (shouldUseMockData()) {
-        // Имитация задержки API
-        await new Promise(resolve => setTimeout(resolve, 500));
+  findBestEmployeeMatch(lead, availableEmployees, options) {
+    const {
+      considerExperience = true,
+      considerSpecialization = true,
+      preserveHistory = true,
+      considerPerformance = true
+    } = options;
+    
+    // Копируем сотрудников чтобы не менять исходный массив
+    let employees = [...availableEmployees];
+    
+    // Считаем очки для каждого сотрудника
+    const employeeScores = employees.map(employee => {
+      let score = 0;
+      
+      // 1. Проверяем историю взаимодействия с клиентом
+      if (preserveHistory) {
+        const hasHistory = this._clientHistory.some(
+          history => history.clientId === lead.client_id && history.employeeId === employee.id
+        );
         
-        // Создание нового лида
-        const newLead = {
-          id: Math.max(0, ...this._leads.map(l => l.id)) + 1,
-          ...leadData,
-          created_at: new Date().toISOString(),
-          last_updated: new Date().toISOString()
-        };
-        
-        // Добавление в массив
-        this._leads.push(newLead);
-        
-        this._isLoading = false;
-        return newLead;
-      } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch('/api/sales/leads', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(leadData),
-        });
-        
-        const data = await response.json();
-        
-        // Добавление в массив
-        this._leads.push(data);
-        
-        this._isLoading = false;
-        return data;
+        if (hasHistory) {
+          score += 100; // Большой бонус за историю взаимодействия
+        }
       }
-    } catch (error) {
-      this._isLoading = false;
-      this._error = error.message || 'Ошибка при добавлении лида';
-      console.error('Error adding lead:', error);
-      throw new Error(this._error);
-    }
-  }
-
-  /**
-   * Обновление данных лида
-   * @param {number} leadId - ID лида
-   * @param {Object} leadData - Новые данные лида
-   * @returns {Promise<Object>} - Обновленный лид
-   */
-  async updateLead(leadId, leadData) {
-    try {
-      this._isLoading = true;
-      this._error = null;
-
-      // Поиск лида в массиве
-      const leadIndex = this._leads.findIndex(lead => lead.id === leadId);
-      if (leadIndex === -1) {
-        throw new Error(`Лид с ID ${leadId} не найден`);
+      
+      // 2. Проверяем соответствие опыта
+      if (considerExperience) {
+        // VIP клиенты должны назначаться опытным сотрудникам
+        if (lead.priority === 'Высокий' && employee.level === 'Senior') {
+          score += 30;
+        } else if (lead.priority === 'Средний' && employee.level === 'Middle') {
+          score += 20;
+        } else if (lead.priority === 'Низкий' && employee.level === 'Junior') {
+          score += 10;
+        }
+        
+        // Бонус за высокий потенциальный чек и опыт сотрудника
+        if (lead.potential_amount > 500000 && ['Senior', 'Team Lead'].includes(employee.level)) {
+          score += 25;
+        }
       }
-
-      // Запрос к API или обновление мок-данных
-      if (shouldUseMockData()) {
-        // Имитация задержки API
-        await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // 3. Проверяем соответствие специализации
+      if (considerSpecialization && this._employeeSpecializations[employee.id]) {
+        const specializations = this._employeeSpecializations[employee.id];
         
-        // Обновление лида
-        const updatedLead = {
-          ...this._leads[leadIndex],
-          ...leadData,
-          last_updated: new Date().toISOString()
-        };
+        // Проверяем соответствие отрасли клиента
+        if (lead.industry && specializations.industries.includes(lead.industry)) {
+          score += 20;
+        }
         
-        // Обновление в массиве
-        this._leads[leadIndex] = updatedLead;
+        // Проверяем соответствие размера бизнеса
+        if (lead.business_size && specializations.businessSizes.includes(lead.business_size)) {
+          score += 15;
+        }
         
-        this._isLoading = false;
-        return updatedLead;
-      } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch(`/api/sales/leads/${leadId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(leadData),
-        });
-        
-        const data = await response.json();
-        
-        // Обновление в массиве
-        this._leads[leadIndex] = data;
-        
-        this._isLoading = false;
-        return data;
+        // Проверяем соответствие источника лида
+        if (lead.source && specializations.leadSources.includes(lead.source)) {
+          score += 10;
+        }
       }
-    } catch (error) {
-      this._isLoading = false;
-      this._error = error.message || 'Ошибка при обновлении лида';
-      console.error('Error updating lead:', error);
-      throw new Error(this._error);
-    }
-  }
-
-  /**
-   * Удаление лида
-   * @param {number} leadId - ID лида
-   * @returns {Promise<boolean>} - Результат удаления
-   */
-  async deleteLead(leadId) {
-    try {
-      this._isLoading = true;
-      this._error = null;
-
-      // Поиск лида в массиве
-      const leadIndex = this._leads.findIndex(lead => lead.id === leadId);
-      if (leadIndex === -1) {
-        throw new Error(`Лид с ID ${leadId} не найден`);
+      
+      // 4. Учитываем метрики производительности
+      if (considerPerformance && this._employeePerformanceMetrics[employee.id]) {
+        const metrics = this._employeePerformanceMetrics[employee.id];
+        
+        // Учитываем KPI
+        score += metrics.kpi * 0.2;
+        
+        // Учитываем конверсию
+        score += metrics.conversion * 0.3;
+        
+        // Учитываем скорость закрытия
+        const speedBonus = (100 - metrics.averageClosingDays) * 0.05;
+        score += speedBonus > 0 ? speedBonus : 0;
       }
-
-      // Запрос к API или обновление мок-данных
-      if (shouldUseMockData()) {
-        // Имитация задержки API
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Удаление из массива
-        this._leads.splice(leadIndex, 1);
-        
-        this._isLoading = false;
-        return true;
-      } else {
-        // Реальный API запрос (будет реализован позже)
-        const response = await fetch(`/api/sales/leads/${leadId}`, {
-          method: 'DELETE',
-        });
-        
-        // Удаление из массива
-        this._leads.splice(leadIndex, 1);
-        
-        this._isLoading = false;
-        return response.ok;
+      
+      // 5. Учитываем текущую нагрузку
+      const currentLoad = this._leads.filter(l => l.assigned_to === employee.id).length;
+      const capacityPercent = currentLoad / (employee.capacity || 10);
+      
+      // Уменьшаем счет, если сотрудник уже сильно загружен
+      if (capacityPercent > 0.9) {
+        score -= 40;
+      } else if (capacityPercent > 0.7) {
+        score -= 20;
+      } else if (capacityPercent > 0.5) {
+        score -= 10;
+      } else if (capacityPercent < 0.3) {
+        score += 10; // Бонус за низкую загрузку
       }
-    } catch (error) {
-      this._isLoading = false;
-      this._error = error.message || 'Ошибка при удалении лида';
-      console.error('Error deleting lead:', error);
-      throw new Error(this._error);
-    }
-  }
-
-  /**
-   * Получение статистики по распределению лидов
-   * @returns {Promise<Object>} - Статистика распределения
-   */
-  async getDistributionStats() {
-    try {
-      this._isLoading = true;
-      this._error = null;
-
-      // Получение актуальных данных
-      await this.fetchEmployees();
-      await this.fetchLeads();
-
-      // Расчет статистики
-      const stats = {
-        total: this._leads.length,
-        assigned: this._leads.filter(lead => lead.assigned_to).length,
-        unassigned: this._leads.filter(lead => !lead.assigned_to).length,
-        byPriority: {
-          high: this._leads.filter(lead => lead.priority === 'Высокий').length,
-          medium: this._leads.filter(lead => lead.priority === 'Средний').length,
-          low: this._leads.filter(lead => lead.priority === 'Низкий').length
-        },
-        byEmployee: this._employees.map(employee => ({
-          id: employee.id,
-          name: employee.name,
-          count: this._leads.filter(lead => lead.assigned_to === employee.id).length,
-          capacity: employee.capacity || 10,
-          utilization: this._leads.filter(lead => lead.assigned_to === employee.id).length / (employee.capacity || 10)
-        }))
+      
+      return {
+        employee,
+        score,
+        currentLoad
       };
+    });
+    
+    // Сортируем по оценке (от высокой к низкой)
+    employeeScores.sort((a, b) => b.score - a.score);
+    
+    // Возвращаем лучшего сотрудника
+    return employeeScores.length > 0 ? employeeScores[0].employee : null;
+  }
 
-      this._isLoading = false;
-      return stats;
+  /**
+   * Получить и рассчитать статистику сотрудников для интеллектуального распределения
+   * @returns {Promise<Array>} - Расширенная статистика по сотрудникам
+   */
+  async getEmployeeStats() {
+    try {
+      // Получаем базовую статистику
+      const baseStats = await this._leadDistributionService.getDistributionStats();
+      
+      // Расширяем статистику дополнительными данными
+      const enhancedStats = {
+        ...baseStats,
+        employeeDetails: await Promise.all(
+          baseStats.byEmployee.map(async (employee) => {
+            // Получаем историю клиентов для этого сотрудника
+            const clientHistory = this._clientHistory.filter(h => h.employeeId === employee.id);
+            
+            // Получаем метрики производительности
+            const metrics = this._employeePerformanceMetrics[employee.id] || {};
+            
+            // Получаем специализации
+            const specializations = this._employeeSpecializations[employee.id] || {};
+            
+            // Расширяем статистику
+            return {
+              ...employee,
+              clientsCount: clientHistory.length,
+              returnClientRate: metrics.returnClientRate || 0,
+              avgDealValue: metrics.averageDealValue || 0,
+              conversionRate: metrics.conversion || 0,
+              specializations: specializations.industries || [],
+              leadAssignmentScore: this._calculateAssignmentScore(employee.id)
+            };
+          })
+        )
+      };
+      
+      return enhancedStats;
     } catch (error) {
-      this._isLoading = false;
-      this._error = error.message || 'Ошибка при получении статистики';
-      console.error('Error getting distribution stats:', error);
-      throw new Error(this._error);
+      console.error('Error getting enhanced employee stats:', error);
+      throw new Error('Ошибка при получении расширенной статистики сотрудников');
     }
   }
 
   /**
-   * Получение мок-данных о сотрудниках
-   * @returns {Promise<Array>} - Массив сотрудников
+   * Рассчитать оценку для назначения лидов сотруднику
+   * @param {number} employeeId - ID сотрудника
+   * @returns {number} - Оценка от 0 до 100
    * @private
    */
-  async _getMockEmployees() {
-    // Имитация задержки API
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Мок-данные о сотрудниках
-    return [
-      {
-        id: 1,
-        name: 'Иванов Иван',
-        role: 'Старший менеджер',
-        level: 'Senior',
-        avatar: null, // URL аватара
-        color: '#4CAF50',
-        capacity: 12,
-        active: true
-      },
-      {
-        id: 2,
-        name: 'Петрова Елена',
-        role: 'Менеджер',
-        level: 'Middle',
-        avatar: null,
-        color: '#2196F3',
-        capacity: 8,
-        active: true
-      },
-      {
-        id: 3,
-        name: 'Сидоров Алексей',
-        role: 'Менеджер',
-        level: 'Middle',
-        avatar: null,
-        color: '#FF9800',
-        capacity: 8,
-        active: true
-      },
-      {
-        id: 4,
-        name: 'Козлова Мария',
-        role: 'Младший менеджер',
-        level: 'Junior',
-        avatar: null,
-        color: '#9C27B0',
-        capacity: 5,
-        active: true
-      },
-      {
-        id: 5,
-        name: 'Соколов Дмитрий',
-        role: 'Стажер',
-        level: 'Trainee',
-        avatar: null,
-        color: '#795548',
-        capacity: 3,
-        active: true
-      }
-    ];
+  _calculateAssignmentScore(employeeId) {
+    // Находим сотрудника
+    const employee = this._employees.find(e => e.id === employeeId);
+    if (!employee) return 0;
+    
+    // Получаем метрики
+    const metrics = this._employeePerformanceMetrics[employeeId] || {};
+    
+    // Базовый балл зависит от уровня сотрудника
+    let score = employee.level === 'Senior' ? 80 : 
+               employee.level === 'Middle' ? 60 : 
+               employee.level === 'Junior' ? 40 : 20;
+    
+    // Корректируем в зависимости от KPI
+    if (metrics.kpi) {
+      score += (metrics.kpi - 50) * 0.2; // Бонус или штраф в зависимости от KPI
+    }
+    
+    // Корректируем в зависимости от конверсии
+    if (metrics.conversion) {
+      score += (metrics.conversion - 20) * 0.5; // Бонус или штраф в зависимости от конверсии
+    }
+    
+    // Корректируем в зависимости от нагрузки
+    const currentLoad = this._leads.filter(l => l.assigned_to === employeeId).length;
+    const capacity = employee.capacity || 10;
+    const loadFactor = 1 - (currentLoad / capacity);
+    score += loadFactor * 10; // Максимальный бонус 10 при нулевой загрузке
+    
+    // Ограничиваем оценку диапазоном 0-100
+    return Math.max(0, Math.min(100, score));
   }
 
   /**
-   * Получение мок-данных о лидах
-   * @returns {Promise<Array>} - Массив лидов
-   * @private
-   */
-  async _getMockLeads() {
-    // Имитация задержки API
-    await new Promise(resolve => setTimeout(resolve, 700));
-
-    // Мок-данные о лидах
-    return [
-      {
-        id: 1001,
-        name: 'ООО "Технопром"',
-        contact: 'Иванов А.А.',
-        status: 'Новый',
-        priority: 'Высокий',
-        potential_amount: 450000,
-        contact_deadline: '25.03.2025',
-        source: 'Сайт',
-        created_at: '2025-03-19T10:30:00',
-        last_updated: '2025-03-19T10:30:00',
-        assigned_to: null
-      },
-      {
-        id: 1002,
-        name: 'ИП Сергеев',
-        contact: 'Сергеев И.П.',
-        status: 'Новый',
-        priority: 'Средний',
-        potential_amount: 120000,
-        contact_deadline: '24.03.2025',
-        source: 'Звонок',
-        created_at: '2025-03-19T12:15:00',
-        last_updated: '2025-03-19T12:15:00',
-        assigned_to: 2
-      },
-      {
-        id: 1003,
-        name: 'АО "МегаСтрой"',
-        contact: 'Петрова О.С.',
-        status: 'Новый',
-        priority: 'Высокий',
-        potential_amount: 780000,
-        contact_deadline: '23.03.2025',
-        source: 'Выставка',
-        created_at: '2025-03-19T14:45:00',
-        last_updated: '2025-03-19T14:45:00',
-        assigned_to: null
-      },
-      {
-        id: 1004,
-        name: 'ООО "ФинТрейд"',
-        contact: 'Смирнов Д.В.',
-        status: 'Новый',
-        priority: 'Низкий',
-        potential_amount: 85000,
-        contact_deadline: '26.03.2025',
-        source: 'Рекомендация',
-        created_at: '2025-03-20T09:10:00',
-        last_updated: '2025-03-20T09:10:00',
-        assigned_to: 3
-      },
-      {
-        id: 1005,
-        name: 'ЗАО "ИнноТех"',
-        contact: 'Кузнецов А.В.',
-        status: 'Новый',
-        priority: 'Средний',
-        potential_amount: 320000,
-        contact_deadline: '24.03.2025',
-        source: 'Email-рассылка',
-        created_at: '2025-03-20T11:30:00',
-        last_updated: '2025-03-20T11:30:00',
-        assigned_to: null
-      },
-      {
-        id: 1006,
-        name: 'ООО "ЭкоТранс"',
-        contact: 'Никитина Е.А.',
-        status: 'Новый',
-        priority: 'Высокий',
-        potential_amount: 550000,
-        contact_deadline: '23.03.2025',
-        source: 'Сайт',
-        created_at: '2025-03-20T13:20:00',
-        last_updated: '2025-03-20T13:20:00',
-        assigned_to: 1
-      },
-      {
-        id: 1007,
-        name: 'ИП Васильев',
-        contact: 'Васильев С.П.',
-        status: 'Новый',
-        priority: 'Низкий',
-        potential_amount: 95000,
-        contact_deadline: '27.03.2025',
-        source: 'Звонок',
-        created_at: '2025-03-20T15:45:00',
-        last_updated: '2025-03-20T15:45:00',
-        assigned_to: null
-      },
-      {
-        id: 1008,
-        name: 'ООО "СтройИнвест"',
-        contact: 'Морозов И.Д.',
-        status: 'Новый',
-        priority: 'Средний',
-        potential_amount: 275000,
-        contact_deadline: '25.03.2025',
-        source: 'Партнер',
-        created_at: '2025-03-21T08:30:00',
-        last_updated: '2025-03-21T08:30:00',
-        assigned_to: 4
-      },
-      {
-        id: 1009,
-        name: 'АО "ТехМаш"',
-        contact: 'Соколов П.Р.',
-        status: 'Новый',
-        priority: 'Высокий',
-        potential_amount: 620000,
-        contact_deadline: '24.03.2025',
-        source: 'Выставка',
-        created_at: '2025-03-21T10:15:00',
-        last_updated: '2025-03-21T10:15:00',
-        assigned_to: null
-      },
-      {
-        id: 1010,
-        name: 'ООО "МедТех"',
-        contact: 'Козлова А.С.',
-        status: 'Новый',
-        priority: 'Средний',
-        potential_amount: 190000,
-        contact_deadline: '26.03.2025',
-        source: 'Сайт',
-        created_at: '2025-03-21T11:45:00',
-        last_updated: '2025-03-21T11:45:00',
-        assigned_to: 2
-      }
-    ];
-  }
-
-  /**
-   * Логика автоматического распределения лидов для мок-данных
+   * Логика интеллектуального распределения лидов для мок-данных
    * @param {Array} unassignedLeads - Нераспределенные лиды
    * @param {Array} availableEmployees - Доступные сотрудники
    * @param {Object} options - Опции распределения
    * @returns {Promise<Array>} - Обновленные лиды
    * @private
    */
-  async _mockAutoAssignLeads(unassignedLeads, availableEmployees, options) {
+  async _smartAssignLeadsMock(unassignedLeads, availableEmployees, options) {
     const {
       priorityFirst = true,
-      balanceLoad = true,
-      considerExperience = true,
       maxLeadsPerEmployee = null
     } = options;
 
@@ -663,39 +408,35 @@ class LeadDistributionService {
     // Учет максимального количества лидов на сотрудника (если указано)
     if (maxLeadsPerEmployee) {
       employeeLoads.forEach(emp => {
-        emp.remainingCapacity = Math.min(emp.remainingCapacity, maxLeadsPerEmployee);
+        emp.remainingCapacity = Math.min(emp.remainingCapacity, maxLeadsPerEmployee - emp.currentLoad);
       });
     }
 
-    // Распределение лидов
+    // Распределение лидов по умному алгоритму
     const updatedLeads = leadsToAssign.map(lead => {
       // Если нет сотрудников с оставшейся емкостью, пропускаем
       if (!employeeLoads.some(emp => emp.remainingCapacity > 0)) {
         return lead;
       }
 
-      // Сортировка сотрудников по оставшейся емкости (если включена балансировка нагрузки)
-      let sortedEmployees = [...employeeLoads];
-      if (balanceLoad) {
-        sortedEmployees.sort((a, b) => b.remainingCapacity - a.remainingCapacity);
-      }
-
-      // Учет опыта сотрудников (если включена соответствующая опция)
-      // Здесь можно добавить логику, учитывающую опыт сотрудников для разных типов лидов
-      // Например, назначать VIP-клиентов только старшим менеджерам
+      // Находим лучшее соответствие
+      const bestMatch = this.findBestEmployeeMatch(lead, 
+        employeeLoads.filter(e => e.remainingCapacity > 0), 
+        options
+      );
       
-      // Выбор подходящего сотрудника
-      const selectedEmployee = sortedEmployees.find(emp => emp.remainingCapacity > 0);
-      
-      if (selectedEmployee) {
-        // Обновление оставшейся емкости сотрудника
-        selectedEmployee.currentLoad += 1;
-        selectedEmployee.remainingCapacity -= 1;
+      if (bestMatch) {
+        // Обновляем оставшуюся емкость сотрудника
+        const empLoad = employeeLoads.find(e => e.id === bestMatch.id);
+        if (empLoad) {
+          empLoad.currentLoad += 1;
+          empLoad.remainingCapacity -= 1;
+        }
         
         // Возвращаем обновленного лида
         return { 
           ...lead, 
-          assigned_to: selectedEmployee.id,
+          assigned_to: bestMatch.id,
           last_updated: new Date().toISOString()
         };
       }
@@ -704,6 +445,115 @@ class LeadDistributionService {
     });
 
     return updatedLeads;
+  }
+
+  /**
+   * Получение мок-данных истории клиентов
+   * @returns {Promise<Array>} - История взаимодействия с клиентами
+   * @private
+   */
+  async _getMockClientHistory() {
+    // Имитация задержки API
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    return [
+      // Связи между клиентами и сотрудниками
+      { clientId: 1001, employeeId: 1, lastInteraction: '2025-03-10', interactionsCount: 3 },
+      { clientId: 1002, employeeId: 2, lastInteraction: '2025-03-12', interactionsCount: 2 },
+      { clientId: 1003, employeeId: 1, lastInteraction: '2025-03-05', interactionsCount: 5 },
+      { clientId: 1004, employeeId: 3, lastInteraction: '2025-03-08', interactionsCount: 1 },
+      { clientId: 1006, employeeId: 1, lastInteraction: '2025-03-15', interactionsCount: 4 },
+      { clientId: 1008, employeeId: 4, lastInteraction: '2025-03-01', interactionsCount: 2 },
+      { clientId: 1010, employeeId: 2, lastInteraction: '2025-03-18', interactionsCount: 3 }
+    ];
+  }
+
+  /**
+   * Получение мок-данных специализаций сотрудников
+   * @returns {Promise<Object>} - Специализации по сотрудникам
+   * @private
+   */
+  async _getMockEmployeeSpecializations() {
+    // Имитация задержки API
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    return {
+      // ID сотрудника: его специализации
+      1: {
+        industries: ['IT', 'Финансы', 'Телекоммуникации'],
+        businessSizes: ['Крупный', 'Средний'],
+        leadSources: ['Выставка', 'Рекомендация', 'Партнер']
+      },
+      2: {
+        industries: ['Розничная торговля', 'Образование', 'Здравоохранение'],
+        businessSizes: ['Средний', 'Малый'],
+        leadSources: ['Сайт', 'Email-рассылка']
+      },
+      3: {
+        industries: ['Производство', 'Строительство', 'Логистика'],
+        businessSizes: ['Крупный', 'Средний'],
+        leadSources: ['Звонок', 'Партнер']
+      },
+      4: {
+        industries: ['Гостиничный бизнес', 'Общественное питание', 'Розничная торговля'],
+        businessSizes: ['Малый', 'Средний'],
+        leadSources: ['Сайт', 'Звонок']
+      },
+      5: {
+        industries: ['Образование', 'Некоммерческие организации'],
+        businessSizes: ['Малый'],
+        leadSources: ['Сайт', 'Email-рассылка']
+      }
+    };
+  }
+
+  /**
+   * Получение мок-данных метрик производительности сотрудников
+   * @returns {Promise<Object>} - Метрики по сотрудникам
+   * @private
+   */
+  async _getMockEmployeePerformanceMetrics() {
+    // Имитация задержки API
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    return {
+      // ID сотрудника: его метрики
+      1: {
+        kpi: 85,
+        conversion: 28,
+        averageDealValue: 450000,
+        averageClosingDays: 18,
+        returnClientRate: 68
+      },
+      2: {
+        kpi: 76,
+        conversion: 22,
+        averageDealValue: 220000,
+        averageClosingDays: 22,
+        returnClientRate: 52
+      },
+      3: {
+        kpi: 82,
+        conversion: 25,
+        averageDealValue: 380000,
+        averageClosingDays: 20,
+        returnClientRate: 60
+      },
+      4: {
+        kpi: 65,
+        conversion: 18,
+        averageDealValue: 180000,
+        averageClosingDays: 25,
+        returnClientRate: 45
+      },
+      5: {
+        kpi: 60,
+        conversion: 15,
+        averageDealValue: 120000,
+        averageClosingDays: 28,
+        returnClientRate: 35
+      }
+    };
   }
 
   /**
@@ -721,36 +571,12 @@ class LeadDistributionService {
   get error() {
     return this._error;
   }
-
-  /**
-   * Получение текущего списка сотрудников
-   * @returns {Array} - Массив сотрудников
-   */
-  get employees() {
-    return this._employees;
-  }
-
-  /**
-   * Получение текущего списка лидов
-   * @returns {Array} - Массив лидов
-   */
-  get leads() {
-    return this._leads;
-  }
 }
 
 // Экспорт единственного экземпляра сервиса (Singleton)
-export const leadDistributionService = new LeadDistributionService();
+export const smartLeadDistributionService = new SmartLeadDistributionService();
 
-// Экспорт классов и функций для тестирования и других целей
-export { LeadDistributionService };
-
-// Для удобства можно экспортировать функции-обертки
-export const fetchEmployees = (forceFetch) => leadDistributionService.fetchEmployees(forceFetch);
-export const fetchLeads = (forceFetch) => leadDistributionService.fetchLeads(forceFetch);
-export const assignLead = (leadId, employeeId) => leadDistributionService.assignLead(leadId, employeeId);
-export const autoAssignLeads = (options) => leadDistributionService.autoAssignLeads(options);
-export const addLead = (leadData) => leadDistributionService.addLead(leadData);
-export const updateLead = (leadId, leadData) => leadDistributionService.updateLead(leadId, leadData);
-export const deleteLead = (leadId) => leadDistributionService.deleteLead(leadId);
-export const getDistributionStats = () => leadDistributionService.getDistributionStats();
+// Экспорт функций-оберток для удобства использования
+export const initializeSmartDistribution = () => smartLeadDistributionService.initialize();
+export const smartAssignLeads = (options) => smartLeadDistributionService.smartAssignLeads(options);
+export const getExtendedEmployeeStats = () => smartLeadDistributionService.getEmployeeStats();
