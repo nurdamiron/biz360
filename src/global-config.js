@@ -8,8 +8,12 @@ import packageJson from '../package.json';
 export const CONFIG = {
   appName: 'BIZ360',
   appVersion: packageJson.version,  
-  serverUrl: import.meta.env.VITE_SERVER_URL ?? 'http://localhost:5000',
+  apiUrl: import.meta.env.VITE_SERVER_URL ?? 'http://localhost:5000',
   assetsDir: import.meta.env.VITE_ASSETS_DIR ?? '',
+
+  
+  useMockData: import.meta.env.VITE_USE_MOCK_DATA === 'true' || true,
+  
   /**
    * Auth
    * @method jwt
@@ -24,4 +28,17 @@ export const CONFIG = {
    */
   mapboxApiKey: import.meta.env.VITE_MAPBOX_API_KEY ?? '',
 
+};
+
+export const USE_MOCK_DATA = CONFIG.useMockData;
+export const API_URL = CONFIG.apiUrl;
+
+export const shouldUseMockData = () => {
+  // В production всегда используем реальное API
+  if (import.meta.env.PROD) {
+    return false;
+  }
+  
+  // В остальных случаях используем настройку
+  return USE_MOCK_DATA;
 };

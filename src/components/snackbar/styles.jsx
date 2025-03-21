@@ -1,3 +1,4 @@
+// src/components/snackbar/styles.jsx
 import { Toaster } from 'sonner';
 import { varAlpha } from 'minimal-shared/utils';
 

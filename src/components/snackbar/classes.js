@@ -1,3 +1,4 @@
+// src/components/snackbar/classes.js
 import { createClasses } from 'src/theme/create-classes';
 
 // ----------------------------------------------------------------------

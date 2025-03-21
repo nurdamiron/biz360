@@ -37,7 +37,7 @@ export default function SalesBonusesPage() {
   // Проверяем принадлежность к отделу продаж или наличие прав админа
   const isSalesEmployee = user.department === 'sales' || user.role === 'admin' || user.role === 'owner' || user.role === 'head';
   if (!isSalesEmployee) {
-    return <Navigate to={paths.dashboard.root} replace />;
+    return <Navigate to={paths.dashboard.root} replace />;  
   }
   
   return (

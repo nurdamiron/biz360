@@ -1,3 +1,4 @@
+// src/components/snackbar/snackbar.jsx
 import Portal from '@mui/material/Portal';
 
 import { Iconify } from '../iconify';

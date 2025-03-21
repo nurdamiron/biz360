@@ -7,7 +7,7 @@ import { CONFIG } from 'src/global-config';
 
 const BASE_API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5000'  // <-- Локальный бэкенд
-  : CONFIG.serverUrl || 'https://biz360-backend.onrender.com';
+  : CONFIG.apiUrl || 'https://biz360-backend.onrender.com';
 
 
   const axiosInstance = axios.create({ 

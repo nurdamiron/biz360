@@ -1,4 +1,4 @@
-// src/sections/sales/SalesEmployeeDashboard.jsx
+// src/sections/sales/SalesEmployeeDashboardUpdated.jsx
 import { useState, useEffect } from 'react';
 import {
   Box,
@@ -13,13 +13,12 @@ import {
   alpha,
   Card,
   CardContent,
-  CardHeader,
   Button,
   Divider,
   Stack,
-  IconButton,
   LinearProgress,
-  Alert
+  Alert,
+  IconButton
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
@@ -35,28 +34,108 @@ import {
 
 // Импорт компонентов отдела продаж
 import { 
-  ClientsList,
+  ClientsList, 
   SalesPerformance,
   PotentialBonuses,
   DevelopmentPlan
 } from './components';
 
+// Импорт новых компонентов
+import ClientHistoryTable from './components/client-history/ClientHistoryTable';
+import ClientDetailsCard from './components/client-history/ClientDetailsCard';
+import CallHistoryTable from './components/calls/CallHistoryTable';
+import SalesPlanDashboard from './components/sales-plans/SalesPlanDashboard';
+
 // Импорт хуков
 import { useEmployeeData } from 'src/hooks/use-employee-data';
 import { useEmployeeMetrics } from 'src/hooks/use-employee-metrics';
+import { useSalesData } from 'src/hooks/use-sales-data';
+import { useClientHistory } from 'src/hooks/useClientHistory';
+import { useSalesPlans } from 'src/hooks/useSalesPlans';
+
+// Заглушки для иконок
+const Icons = {
+  Dashboard: '📊',
+  Clients: '👥',
+  Performance: '📈',
+  Development: '📝',
+  Bonuses: '💰',
+  History: '📋',
+  Calls: '📞',
+  Plans: '🎯',
+};
 
 export function SalesEmployeeDashboard() {
   const theme = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+  const [clientDetailsOpen, setClientDetailsOpen] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState(null);
   
   // Получаем данные сотрудника и метрики
   const { employeeData } = useEmployeeData();
   const { metrics, loading, error } = useEmployeeMetrics();
+  const { 
+    data: salesData,
+    loading: loadingSalesData,
+    error: salesError,
+    activeClients,
+    completedDeals,
+    newAssignments,
+    salesPerformance,
+    improvements,
+    chartData
+  } = useSalesData({ fetchOnMount: true });
+  
+  // Использование хуков для истории и планов
+  const { 
+    clients,
+    calls,
+    loading: loadingHistory,
+    error: historyError,
+    getClientById,
+    selectClient
+  } = useClientHistory({ fetchOnMount: true });
+  
+  const {
+    salesPlans,
+    loading: loadingPlans,
+    error: plansError
+  } = useSalesPlans({ fetchOnMount: true });
   
   // Обработчик переключения вкладок
   const handleTabChange = (_, newValue) => {
     setActiveTab(newValue);
+  };
+  
+  // Обработчик открытия деталей клиента
+  const handleOpenClientDetails = (clientId) => {
+    setSelectedClientId(clientId);
+    selectClient(clientId);
+    setClientDetailsOpen(true);
+  };
+  
+  // Обработчик закрытия деталей клиента
+  const handleCloseClientDetails = () => {
+    setClientDetailsOpen(false);
+  };
+  
+  // Обработчик звонка клиенту
+  const handleCallClient = (clientId) => {
+    console.log('Звонок клиенту:', clientId);
+    // Будет реализована функциональность звонка
+  };
+  
+  // Обработчик отправки email клиенту
+  const handleEmailClient = (clientId) => {
+    console.log('Отправка email клиенту:', clientId);
+    // Будет реализована функциональность отправки email
+  };
+  
+  // Обработчик редактирования клиента
+  const handleEditClient = (clientId) => {
+    console.log('Редактирование клиента:', clientId);
+    // Будет реализована функциональность редактирования
   };
   
   // Получение цвета для аватара на основе роли
@@ -137,72 +216,10 @@ export function SalesEmployeeDashboard() {
     }
   };
   
-  // Данные активных клиентов
-  const activeClients = [
-    { id: 1, name: 'ООО "Технопром"', status: 'Переговоры', potential_amount: 450000, probability: 65, urgency: 'Высокая' },
-    { id: 2, name: 'ИП Иванов', status: 'Первичный контакт', potential_amount: 120000, probability: 25, urgency: 'Средняя' },
-    { id: 3, name: 'АО "СтройИнвест"', status: 'Согласование КП', potential_amount: 780000, probability: 40, urgency: 'Низкая' }
-  ];
+  const isLoading = loading || loadingSalesData || loadingHistory || loadingPlans;
+  const hasError = error || salesError || historyError || plansError;
   
-  // Данные завершенных сделок
-  const completedDeals = [
-    { id: 1, client: 'ООО "ТехноЛаб"', close_date: '12.03.2025', amount: 350000, days: 18, bonus: 24500, rating: 4 },
-    { id: 2, client: 'ИП Петров', close_date: '05.03.2025', amount: 85000, days: 7, bonus: 5950, rating: 3 }
-  ];
-  
-  // Данные по продажам
-  const salesPerformance = {
-    currentMonth: 'Март 2025',
-    plan: 500000,
-    actual: 365000,
-    conversion: 22,
-    contacts: 45,
-    closed: 10,
-    averageCheck: 142500,
-    departmentAverage: 127000,
-    rank: {
-      position: 4,
-      total: 12,
-      topPerformers: [
-        { id: 105, kpi: 89 },
-        { id: 217, kpi: 85 },
-        { id: 142, kpi: 82 }
-      ]
-    }
-  };
-  
-  // Данные графика
-  const chartData = [
-    { date: '1 Мар', performance: 75, kpi: 72, quality: 82, work_volume: 68, speed: 71, plan_completion: 70 },
-    { date: '8 Мар', performance: 80, kpi: 77, quality: 87, work_volume: 72, speed: 76, plan_completion: 75 },
-    { date: '15 Мар', performance: 76, kpi: 73, quality: 83, work_volume: 68, speed: 72, plan_completion: 71 },
-    { date: '22 Мар', performance: 74, kpi: 71, quality: 81, work_volume: 66, speed: 70, plan_completion: 69 },
-    { date: '29 Мар', performance: 77, kpi: 74, quality: 84, work_volume: 69, speed: 73, plan_completion: 72 }
-  ];
-  
-  // Рекомендации по улучшению
-  const improvements = [
-    {
-      title: 'Увеличить скорость обработки лидов',
-      current: 63,
-      target: '75-80%',
-      description: 'Это поможет вам быстрее обрабатывать поступающие заявки и увеличить конверсию'
-    },
-    {
-      title: 'Повысить конверсию переговоров в сделки',
-      current: 22,
-      target: '25%',
-      description: 'Фокусируйтесь на работе с возражениями и более качественной проработке потребностей клиента'
-    },
-    {
-      title: 'Увеличить количество активных клиентов',
-      current: 7,
-      target: '9-10',
-      description: 'Оптимальная загрузка поможет вам максимизировать эффективность и выполнить план'
-    }
-  ];
-  
-  if (loading) {
+  if (isLoading && !employee) {
     return (
       <Container maxWidth="xl">
         <Box sx={{ my: 5, display: 'flex', justifyContent: 'center' }}>
@@ -212,11 +229,11 @@ export function SalesEmployeeDashboard() {
     );
   }
   
-  if (error) {
+  if (hasError) {
     return (
       <Container maxWidth="xl">
         <Alert severity="error" sx={{ mt: 3 }}>
-          {error}
+          {error || salesError || historyError || plansError}
         </Alert>
       </Container>
     );
@@ -228,6 +245,9 @@ export function SalesEmployeeDashboard() {
   const employeeLevel = employee?.level || 'Junior';
   const employeeNextLevel = employee?.next_level || 'Middle';
   const employeeProgress = employee?.progress_to_next_level || 0;
+  
+  // Получаем выбранного клиента
+  const selectedClient = getClientById(selectedClientId);
   
   return (
     <Container maxWidth="xl">
@@ -351,11 +371,46 @@ export function SalesEmployeeDashboard() {
                   }
                 }}
               >
-                <Tab label="Обзор" />
-                <Tab label="Мои клиенты" />
-                <Tab label="Эффективность" />
-                <Tab label="Развитие" />
-                <Tab label="Бонусы" />
+                <Tab 
+                  label="Обзор" 
+                  icon={Icons.Dashboard}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Мои клиенты" 
+                  icon={Icons.Clients}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Эффективность" 
+                  icon={Icons.Performance}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Развитие" 
+                  icon={Icons.Development}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Бонусы" 
+                  icon={Icons.Bonuses}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="История клиентов" 
+                  icon={Icons.History}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Звонки" 
+                  icon={Icons.Calls}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Планы продаж" 
+                  icon={Icons.Plans}
+                  iconPosition="start"
+                />
               </Tabs>
             </Paper>
           </Grid>
@@ -449,12 +504,15 @@ export function SalesEmployeeDashboard() {
                     height: '100%'
                   }}
                 >
-                  <CardHeader 
-                    title="Моя нагрузка" 
-                    subheader="Текущая загрузка и оптимальные значения"
-                  />
-                  <Divider />
                   <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Моя нагрузка
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      Текущая загрузка и оптимальные значения
+                    </Typography>
+                    <Divider sx={{ mb: 3 }} />
+                    
                     <Stack spacing={3}>
                       <Box>
                         <Typography variant="h5" gutterBottom>
@@ -507,19 +565,22 @@ export function SalesEmployeeDashboard() {
                     height: '100%'
                   }}
                 >
-                  <CardHeader 
-                    title="Потенциальные бонусы" 
-                    subheader="Текущие и прогнозируемые бонусы"
-                  />
-                  <Divider />
                   <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      Потенциальные бонусы
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      Текущие и прогнозируемые бонусы
+                    </Typography>
+                    <Divider sx={{ mb: 3 }} />
+                    
                     <Stack spacing={3}>
                       <Box>
                         <Typography variant="body1" gutterBottom fontWeight="medium">
                           Подтвержденные бонусы:
                         </Typography>
                         <Typography variant="h5" color="success.main" fontWeight="bold">
-                          45,000 ₸
+                          {metricsData.bonuses.summary.total_confirmed.toLocaleString()} ₸
                         </Typography>
                       </Box>
                       
@@ -528,7 +589,7 @@ export function SalesEmployeeDashboard() {
                           Потенциальные бонусы:
                         </Typography>
                         <Typography variant="h5" color="warning.main" fontWeight="bold">
-                          78,000 ₸
+                          {metricsData.bonuses.summary.total_potential.toLocaleString()} ₸
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Зависят от закрытия текущих сделок
@@ -540,7 +601,7 @@ export function SalesEmployeeDashboard() {
                           Прогнозируемый бонус месяца:
                         </Typography>
                         <Typography variant="h5" color="primary.main" fontWeight="bold">
-                          123,000 ₸
+                          {(metricsData.bonuses.summary.total_confirmed + metricsData.bonuses.summary.total_potential).toLocaleString()} ₸
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           При выполнении текущего плана продаж
@@ -559,6 +620,7 @@ export function SalesEmployeeDashboard() {
               <ClientsList 
                 activeClients={activeClients} 
                 completedDeals={completedDeals} 
+                newAssignments={newAssignments}
               />
             </Grid>
           )}
@@ -588,6 +650,42 @@ export function SalesEmployeeDashboard() {
               <PotentialBonuses 
                 bonuses={metricsData.bonuses}
               />
+            </Grid>
+          )}
+          
+          {/* Вкладка "История клиентов" */}
+          {activeTab === 5 && (
+            <Grid item xs={12}>
+              <ClientHistoryTable 
+                clients={clients}
+                onViewDetails={handleOpenClientDetails}
+                onCallClient={handleCallClient}
+                onEmailClient={handleEmailClient}
+                onEditClient={handleEditClient}
+              />
+              
+              <ClientDetailsCard
+                client={selectedClient}
+                open={clientDetailsOpen}
+                onClose={handleCloseClientDetails}
+              />
+            </Grid>
+          )}
+          
+          {/* Вкладка "Звонки" */}
+          {activeTab === 6 && (
+            <Grid item xs={12}>
+              <CallHistoryTable 
+                calls={calls}
+                isLoading={loadingHistory}
+              />
+            </Grid>
+          )}
+          
+          {/* Вкладка "Планы продаж" */}
+          {activeTab === 7 && (
+            <Grid item xs={12}>
+              <SalesPlanDashboard salesPlans={salesPlans || {}} />
             </Grid>
           )}
         </Grid>
