@@ -1,9 +1,8 @@
 // src/hooks/use-development-plan.js
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { shouldUseMockData } from '../utils/mock-data-utils';
 import { fetchMockData } from '../sections/sales/_mock/sales-mock-data';
-
 /**
  * Хук для работы с планом развития сотрудника
  * @param {Object} options - Настройки хука

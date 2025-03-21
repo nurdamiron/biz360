@@ -1,52 +1,42 @@
-// src/sections/sales/SalesEmployeeDashboardUpdated.jsx
+// src/sections/sales/SalesEmployeeDashboard.jsx
 import { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
-  Paper,
-  Avatar,
-  Chip,
   Typography,
   Tabs,
   Tab,
   Container,
   alpha,
   Card,
-  CardContent,
-  Button,
-  Divider,
   Stack,
   LinearProgress,
   Alert,
-  IconButton
+  Chip,
+  Avatar,
+  Button,
+  Divider
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-
-// Импорт компонентов метрик
-import { 
-  MetricCard, 
-  PerformanceChart, 
-  FinancialMetricsCard, 
-  OperationalMetricsCard 
-} from '../metrics/components';
 
 // Импорт компонентов отдела продаж
 import { 
   ClientsList, 
   SalesPerformance,
   PotentialBonuses,
-  DevelopmentPlan
+  DevelopmentPlan,
+  LeadInteractionTracker,
+  ClientHistoryTable,
+  ClientDetailsCard,
+  CallHistoryTable,
+  SalesPlanDashboard,
+  // Новые компоненты распределения лидов
+  LeadDistributionBoard
 } from './components';
 
-// Импорт новых компонентов
-import ClientHistoryTable from './components/client-history/ClientHistoryTable';
-import ClientDetailsCard from './components/client-history/ClientDetailsCard';
-import CallHistoryTable from './components/calls/CallHistoryTable';
-import SalesPlanDashboard from './components/sales-plans/SalesPlanDashboard';
-
-// Импорт хуков
+// Импорт хуков данных
 import { useEmployeeData } from 'src/hooks/use-employee-data';
 import { useEmployeeMetrics } from 'src/hooks/use-employee-metrics';
 import { useSalesData } from 'src/hooks/use-sales-data';
@@ -63,6 +53,8 @@ const Icons = {
   History: '📋',
   Calls: '📞',
   Plans: '🎯',
+  Distribution: '🔄',
+  Interactions: '🤝',
 };
 
 export function SalesEmployeeDashboard() {
@@ -255,7 +247,7 @@ export function SalesEmployeeDashboard() {
         <Grid container spacing={3}>
           {/* Информация о сотруднике */}
           <Grid item xs={12}>
-            <Paper
+            <Card
               component={m.div}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -347,12 +339,12 @@ export function SalesEmployeeDashboard() {
                   План развития
                 </Button>
               </Box>
-            </Paper>
+            </Card>
           </Grid>
           
           {/* Навигация по вкладкам */}
           <Grid item xs={12}>
-            <Paper 
+            <Card 
               sx={{ 
                 borderRadius: 2,
                 boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
@@ -411,8 +403,19 @@ export function SalesEmployeeDashboard() {
                   icon={Icons.Plans}
                   iconPosition="start"
                 />
+                {/* Новая вкладка для распределения лидов */}
+                <Tab 
+                  label="Распределение лидов" 
+                  icon={Icons.Distribution}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Взаимодействия" 
+                  icon={Icons.Interactions}
+                  iconPosition="start"
+                />
               </Tabs>
-            </Paper>
+            </Card>
           </Grid>
           
           {/* Вкладка "Обзор" */}
@@ -504,7 +507,7 @@ export function SalesEmployeeDashboard() {
                     height: '100%'
                   }}
                 >
-                  <CardContent>
+                  <Box sx={{ p: 3 }}>
                     <Typography variant="h6" gutterBottom>
                       Моя нагрузка
                     </Typography>
@@ -552,7 +555,7 @@ export function SalesEmployeeDashboard() {
                         Рекомендуется взять в работу еще 1-2 клиента для оптимальной загрузки
                       </Alert>
                     </Stack>
-                  </CardContent>
+                  </Box>
                 </Card>
               </Grid>
               
@@ -565,7 +568,7 @@ export function SalesEmployeeDashboard() {
                     height: '100%'
                   }}
                 >
-                  <CardContent>
+                  <Box sx={{ p: 3 }}>
                     <Typography variant="h6" gutterBottom>
                       Потенциальные бонусы
                     </Typography>
@@ -608,7 +611,7 @@ export function SalesEmployeeDashboard() {
                         </Typography>
                       </Box>
                     </Stack>
-                  </CardContent>
+                  </Box>
                 </Card>
               </Grid>
             </>
@@ -688,8 +691,122 @@ export function SalesEmployeeDashboard() {
               <SalesPlanDashboard salesPlans={salesPlans || {}} />
             </Grid>
           )}
+          
+          {/* Новая вкладка "Распределение лидов" */}
+          {activeTab === 8 && (
+            <Grid item xs={12}>
+              <LeadDistributionBoard />
+            </Grid>
+          )}
+          
+          {/* Вкладка "Взаимодействия с лидами" */}
+          {activeTab === 9 && (
+            <Grid item xs={12}>
+              <LeadInteractionTracker 
+                interactions={salesData?.leadInteractions || []}
+                isLoading={isLoading}
+              />
+            </Grid>
+          )}
         </Grid>
       </LazyMotion>
     </Container>
   );
 }
+
+// Компонент метрики для обзора
+const MetricCard = ({ title, value, trend, description, icon, bgColor }) => {
+  const theme = useTheme();
+  
+  return (
+    <Card
+      component={m.div}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      sx={{
+        borderRadius: 2,
+        boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)',
+        height: '100%',
+        transition: 'transform 0.3s',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: theme.customShadows?.z16 || '0 12px 24px 0 rgba(145, 158, 171, 0.24)'
+        }
+      }}
+    >
+      <Box sx={{ p: 3 }}>
+        <Stack
+          direction="row"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          spacing={2}
+        >
+          <Box>
+            <Typography variant="subtitle2" color="text.secondary">
+              {title}
+            </Typography>
+            <Typography variant="h3" sx={{ mt: 1, mb: 0.5 }} fontWeight="bold">
+              {value}
+            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Chip 
+                label={`${trend > 0 ? '+' : ''}${trend}%`}
+                size="small"
+                color={trend >= 0 ? 'success' : 'error'}
+                sx={{ height: 20, fontSize: '0.7rem' }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {description}
+              </Typography>
+            </Stack>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              bgcolor: alpha(bgColor, 0.1),
+              color: bgColor,
+              fontSize: '1.5rem'
+            }}
+          >
+            {icon}
+          </Box>
+        </Stack>
+      </Box>
+    </Card>
+  );
+};
+
+// Компонент графика производительности
+const PerformanceChart = ({ data, title, subheader, chartId }) => {
+  const theme = useTheme();
+  
+  return (
+    <Card
+      component={m.div}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.1 }}
+      sx={{ 
+        borderRadius: 2,
+        boxShadow: theme.customShadows?.z8 || '0 8px 16px 0 rgba(145, 158, 171, 0.16)'
+      }}
+    >
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6">{title}</Typography>
+        <Typography variant="body2" color="text.secondary">{subheader}</Typography>
+        <Box sx={{ height: 360, mt: 3 }}>
+          {/* В реальной имплементации здесь будет компонент графика */}
+          <Alert severity="info">
+            Здесь будет отображаться динамический график с метриками производительности
+          </Alert>
+        </Box>
+      </Box>
+    </Card>
+  );
+};
