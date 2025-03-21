@@ -1,18 +1,19 @@
-// src/pages/sales/sales-client-detail.jsx
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Container, Typography, Box, Paper, Alert, CircularProgress } from '@mui/material';
+import { Navigate } from 'react-router-dom';
 import { paths } from 'src/routes/paths';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import { useAuth } from 'src/auth/hooks/use-auth';
 
 // ----------------------------------------------------------------------
-
 export default function SalesClientDetailPage() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   
-  // Имитация загрузки данных с имитированной задержкой
+  // All hooks first, before any conditions
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -20,6 +21,17 @@ export default function SalesClientDetailPage() {
     
     return () => clearTimeout(timer);
   }, []);
+  
+  // Если пользователь не аутентифицирован, перенаправляем на страницу входа
+  if (!user) {
+    return <Navigate to={paths.auth.login} replace />;
+  }
+  
+  // Проверяем принадлежность к отделу продаж или наличие прав админа
+  const isSalesEmployee = user.department === 'sales' || user.role === 'admin' || user.role === 'owner' || user.role === 'head';
+  if (!isSalesEmployee) {
+    return <Navigate to={paths.dashboard.root} replace />;
+  }
   
   return (
     <>
@@ -31,8 +43,9 @@ export default function SalesClientDetailPage() {
         <CustomBreadcrumbs
           heading="Информация о клиенте"
           links={[
-            { name: 'Мои показатели', href: paths.dashboard.sales.root },
-            { name: 'Клиенты', href: paths.dashboard.sales.clients },
+            { name: 'Главная', href: paths.dashboard.root },
+            { name: 'Мой дашборд', href: paths.dashboard.sales.root },
+            { name: 'Мои клиенты', href: paths.dashboard.sales.clients },
             { name: 'Детали клиента' }
           ]}
           sx={{ mb: { xs: 3, md: 5 } }}

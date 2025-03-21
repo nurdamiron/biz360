@@ -122,9 +122,9 @@ const BusinessOwnerDashboard = () => {
         setTimeout(() => {
           const mockData = {
             summaryMetrics: {
-              revenue: { value: '₽ 5,632,420', trend: 12.3 },
+              revenue: { value: '₸ 5,632,420', trend: 12.3 },
               ordersCount: { value: '2,145', trend: 8.7 },
-              averageCheck: { value: '₽ 2,625', trend: 3.4 },
+              averageCheck: { value: '₸ 2,625', trend: 3.4 },
               profitMargin: { value: '24.5%', trend: -1.2 }
             },
             departmentMetrics: {
@@ -259,7 +259,7 @@ const BusinessOwnerDashboard = () => {
         <MetricCard 
           title="Общая выручка" 
           value={businessMetrics.summaryMetrics.revenue.value}
-          icon="₽"
+          icon="₸"
           trend={businessMetrics.summaryMetrics.revenue.trend}
           color="bg-blue-100 text-blue-600"
         />

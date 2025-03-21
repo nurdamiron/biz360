@@ -343,7 +343,7 @@ function AdditionalBonuses() {
   const additionalBonusTypes = [
     {
       title: 'Наставничество',
-      description: '+2,000 ₽ / месяц за стажера',
+      description: '+2,000 ₸ / месяц за стажера',
       icon: Icons.Target
     },
     {
@@ -353,7 +353,7 @@ function AdditionalBonuses() {
     },
     {
       title: 'Качество обслуживания',
-      description: '+5,000 ₽ при рейтинге >4.8/5.0',
+      description: '+5,000 ₸ при рейтинге >4.8/5.0',
       icon: Icons.CheckCircle
     }
   ];

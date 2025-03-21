@@ -121,7 +121,7 @@ const LeadSourcesPieChart = ({ data, isLoading, showDetails = false, title, subh
           </Typography>
           {value && (
             <Typography variant="body2" color="text.secondary">
-              Стоимость: <strong>₽{value.toLocaleString()}</strong>
+              Стоимость: <strong>₸{value.toLocaleString()}</strong>
             </Typography>
           )}
         </Box>

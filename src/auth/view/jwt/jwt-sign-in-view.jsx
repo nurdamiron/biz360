@@ -261,11 +261,24 @@ export function JwtSignInView() {
       await checkEmployeeSession?.();
 
       // Получаем параметр returnTo из query, если он существует
-      const returnTo = new URLSearchParams(window.location.search).get('returnTo') || paths.dashboard.root;
+      const department = data.department || 'sales'; // Получаем отдел пользователя
+      let redirectPath;
 
+      if (department === 'sales') {
+        redirectPath = paths.dashboard.departmentRoutes.sales.employee('me');
+      } else if (department === 'accounting') {
+        redirectPath = paths.dashboard.departmentRoutes.accounting.employee('me');
+      } else if (department === 'logistics') {
+        redirectPath = paths.dashboard.departmentRoutes.logistics.employee('me');
+      } else if (department === 'manufacture') {
+        redirectPath = paths.dashboard.departmentRoutes.manufacture.employee('me');
+      } else {
+        // Запасной вариант
+        redirectPath = paths.dashboard.sales.root;
+      }
   
       console.log('Redirecting to:', paths.dashboard.root);
-      router.push(returnTo); // Используйте router.replace(), если хотите перезаписать историю
+      router.push(redirectPath);
     } catch (error) {
       console.error('❌ Login failed:', error);
       setErrorMessage(error.message || 'Произошла ошибка при входе');

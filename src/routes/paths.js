@@ -76,6 +76,20 @@ export const paths = {
     calendar: `${ROOTS.DASHBOARD}/calendar`,
     fileManager: `${ROOTS.DASHBOARD}/file-manager`,
     permission: `${ROOTS.DASHBOARD}/permission`,
+    departmentRoutes: {
+      sales: {
+        employee: (id) => `/dashboard/sales/employee/${id}`,
+      },
+      accounting: {
+        employee: (id) => `/dashboard/accounting/employee/${id}`,
+      },
+      logistics: {
+        employee: (id) => `/dashboard/logistics/employee/${id}`,
+      },
+      manufacture: {
+        employee: (id) => `/dashboard/manufacture/employee/${id}`,
+      }
+    },
     general: {
       app: `${ROOTS.DASHBOARD}/app`,
       ecommerce: `${ROOTS.DASHBOARD}/ecommerce`,

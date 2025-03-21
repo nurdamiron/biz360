@@ -1,4 +1,4 @@
-// src/layouts/dashboard/nav-config-navigation.js
+// src/layouts/dashboard/nav-config-dashboard.jsx
 import { paths } from 'src/routes/paths';
 import { CONFIG } from 'src/global-config';
 import { SvgColor } from 'src/components/svg-color';
@@ -40,6 +40,8 @@ const ICONS = {
   dashboard: icon('ic-dashboard'),
   parameter: icon('ic-parameter'),
   notifications: icon('ic-mail'),
+  star: icon('ic-star'),  // Иконка для бонусов
+  chart: icon('ic-chart'), // Иконка для плана развития
 };
 
 // ----------------------------------------------------------------------
@@ -72,7 +74,7 @@ export const getFilteredNavData = (user) => {
     // Основные элементы навигации для сотрудника отдела продаж
     analysisSections.push({ 
       title: 'Мой дашборд', 
-      path: paths.dashboard.sales.root, 
+      path: paths.dashboard.departmentRoutes.sales.employee('me'), // Новый путь
       icon: ICONS.dashboard 
     });
     
@@ -94,7 +96,6 @@ export const getFilteredNavData = (user) => {
       icon: ICONS.star 
     });
   } 
-
   // 2. Для админов и руководителей - стандартная структура
   else {
     // Общий Дашборд - только для админов и руководителей отделов
@@ -121,104 +122,12 @@ export const getFilteredNavData = (user) => {
       });
     }
     
-    // Добавляем другие отделы по необходимости...
-  }
-
-
-  // 1. Общий Дашборд - только для админов и руководителей отделов
-  if (isAdminUser || isHeadUser) {
-    analysisSections.push({ 
-      title: 'Общий Дашборд', 
-      path: paths.dashboard.root, 
-      icon: ICONS.dashboard 
-    });
+    // Другие отделы - по необходимости можно добавить здесь
   }
   
-  // Если пользователь относится к отделу продаж или админ
-  if (isAdminUser || department === 'sales') {
-  analysisSections.push({
-    title: 'Отдел продаж',
-    path: paths.dashboard.sales.root,
-    icon: ICONS.ecommerce,
-    children: [
-      { title: 'Мой дашборд', path: paths.dashboard.sales.root },
-      { title: 'Мои клиенты', path: paths.dashboard.sales.clients },
-      { title: 'План развития', path: paths.dashboard.sales.development },
-      { title: 'Мотивационная программа', path: paths.dashboard.sales.bonuses }
-    ]
-  });
-}
-  // 3. Бухгалтерия - только для отдела бухгалтерии и админов
-  // if (isAdminUser || (department === 'accounting' && !isSalesEmployee)) {
-  //   analysisSections.push({ 
-  //     title: 'Бухгалтерия', 
-  //     path: paths.dashboard.general.banking, 
-  //     icon: ICONS.banking 
-  //   });
-  // }
-  
-  // // 4. Логистика - только для отдела логистики и админов
-  // if (isAdminUser || (department === 'logistics' && !isSalesEmployee)) {
-  //   analysisSections.push({ 
-  //     title: 'Логистика', 
-  //     path: paths.dashboard.general.course, 
-  //     icon: ICONS.course 
-  //   });
-  // }
-  
-  // // 5. Производство - только для отдела производства и админов
-  // if (isAdminUser || (department === 'manufacture' && !isSalesEmployee)) {
-  //   analysisSections.push({ 
-  //     title: 'Производство', 
-  //     path: paths.dashboard.general.file, 
-  //     icon: ICONS.file 
-  //   });
-  // }
-  
-  // Элементы подменю метрик
-  const metricsChildren = [
-    // Свои метрики видят все
-    { title: 'Мои показатели', path: paths.dashboard.metrics.employee('me') }
-  ];
-  // Метрики отделов - показываем только метрики своего отдела
-  if (isAdminUser || department === 'sales') {
-    metricsChildren.push({ 
-      title: 'Метрики отдела продаж', 
-      path: paths.dashboard.metrics.department('sales') 
-    });
-  }
-  
-  // Другие отделы видны только админам и руководителям
-  if (isAdminUser || (department === 'accounting' && !isSalesEmployee)) {
-    metricsChildren.push({ 
-      title: 'Метрики бухгалтерии', 
-      path: paths.dashboard.metrics.department('accounting') 
-    });
-  }
-  
-  if (isAdminUser || (department === 'manufacture' && !isSalesEmployee)) {
-    metricsChildren.push({ 
-      title: 'Метрики производства', 
-      path: paths.dashboard.metrics.department('manufacture') 
-    });
-  }
-  
-  if (isAdminUser || (department === 'logistics' && !isSalesEmployee)) {
-    metricsChildren.push({ 
-      title: 'Метрики логистики', 
-      path: paths.dashboard.metrics.department('logistics') 
-    });
-  }
-  
-  // Добавляем раздел метрик, если есть дочерние элементы
-  if (metricsChildren.length > 0) {
-    analysisSections.push({
-      title: 'Показатели',
-      path: paths.dashboard.metrics.root,
-      icon: ICONS.analytics,
-      children: metricsChildren
-    });
-  }
+  // ВАЖНО: Удаляем весь блок с метриками для обычных сотрудников отдела продаж
+  // Если необходимо оставить метрики для администраторов и руководителей, то можно
+  // использовать эту проверку: if (!isSalesEmployee) { ... }
   
   // Элементы для управления
   const managementItems = [];
@@ -272,7 +181,7 @@ export const getFilteredNavData = (user) => {
   // Добавляем раздел анализа, если в нем есть элементы
   if (analysisSections.length > 0) {
     navigations.push({
-      subheader: 'Анализ',
+      subheader: isSalesEmployee ? 'Меню' : 'Анализ',
       items: analysisSections
     });
   }
@@ -306,7 +215,7 @@ export const getFilteredNavData = (user) => {
   return navigations;
 };
 
-// Экспортируем полную навигацию для администраторов (для совместимости)
+// Полная навигация для администраторов (обновлено название метрик)
 export const navData = [
   {
     subheader: 'Анализ',
@@ -321,8 +230,7 @@ export const navData = [
         path: paths.dashboard.metrics.root,
         icon: ICONS.analytics,
         children: [
-          { title: 'Мои показатели', path: paths.dashboard.metrics.employee('me') },
-          { title: 'Показатели отдела продаж', path: paths.dashboard.metrics.department('sales') },
+          { title: 'Показатели отделов', path: paths.dashboard.metrics.department('sales') },
           { title: 'Метрики бухгалтерии', path: paths.dashboard.metrics.department('accounting') },
           { title: 'Метрики производства', path: paths.dashboard.metrics.department('manufacture') },
           { title: 'Метрики логистики', path: paths.dashboard.metrics.department('logistics') },

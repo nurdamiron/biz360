@@ -101,7 +101,7 @@ export function AccountBillingPlan({ cardList, addressBook, plans }) {
           </Box>
 
           <Box sx={{ display: 'flex', typography: 'h4', alignItems: 'center' }}>
-            {plan.price ? `${plan.price} ₽` : 'Бесплатно'}
+            {plan.price ? `${plan.price} ₸` : 'Бесплатно'}
 
             {!!plan.price && (
               <Box component="span" sx={{ typography: 'body2', color: 'text.disabled', ml: 0.5 }}>

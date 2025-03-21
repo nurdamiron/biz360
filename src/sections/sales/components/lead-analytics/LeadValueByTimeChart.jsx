@@ -30,9 +30,9 @@ import {
 import { useState } from 'react';
 
 // Функция для форматирования валюты
-const formatCurrency = (value) => new Intl.NumberFormat('ru-RU', {
+const formatCurrency = (value) => new Intl.NumberFormat('kk-KZ', {
   style: 'currency',
-  currency: 'RUB',
+  currency: 'KZT',
   minimumFractionDigits: 0,
   maximumFractionDigits: 0
 }).format(value);

@@ -450,9 +450,8 @@ export default function LeadDistributionBoard({
   }, [employees, unassignedLeads]);
   
   // Получение лидов для конкретного сотрудника
-  const getEmployeeLeads = (employeeId) => {
-    return localUnassignedLeads.filter(lead => lead.assigned_to === employeeId);
-  };
+  const getEmployeeLeads = (employeeId) => 
+    localUnassignedLeads.filter(lead => lead.assigned_to === employeeId);
   
   // Обработчик перетаскивания
   const handleDragEnd = (result) => {

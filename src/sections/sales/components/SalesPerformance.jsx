@@ -56,8 +56,19 @@ const Icons = {
 function CurrentPeriod({ salesData }) {
   const theme = useTheme();
   
+  if (!salesData) {
+    return (
+      <Card sx={{ height: '100%', borderRadius: 2 }}>
+        <CardHeader title="Текущий период" />
+        <CardContent>
+          <Alert severity="warning">Данные не доступны</Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   // Расчет процента выполнения плана
-  const planPercentage = (salesData.actual / salesData.plan) * 100;
+  const planPercentage = salesData.plan > 0 ? (salesData.actual / salesData.plan) * 100 : 0;
   
   return (
     <Card sx={{ 
@@ -189,26 +200,46 @@ function CurrentPeriod({ salesData }) {
 }
 
 CurrentPeriod.propTypes = {
-  salesData: PropTypes.object.isRequired
+  salesData: PropTypes.object
 };
 
 // Компонент для сравнения с коллегами
 function ColleagueComparison({ rankData }) {
   const theme = useTheme();
   
+  // Проверка на наличие данных
+  if (!rankData || !rankData.topPerformers || !Array.isArray(rankData.topPerformers) || rankData.topPerformers.length === 0) {
+    return (
+      <Card sx={{ height: '100%', borderRadius: 2 }}>
+        <CardHeader title="Сравнение с коллегами" />
+        <CardContent>
+          <Alert severity="info">Данные о коллегах недоступны</Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Безопасное получение данных
+  const position = rankData.position || 'Н/Д';
+  const total = rankData.total || rankData.topPerformers.length;
+  
+  // Формируем данные для графика с проверкой
+  const lastPerformerKpi = rankData.topPerformers[rankData.topPerformers.length - 1]?.kpi || 50;
+  const currentUserKpi = Math.max(lastPerformerKpi - 13, 10); // Гарантируем минимальное значение
+  
   // Данные для графика
   const chartData = [
     ...rankData.topPerformers.map(performer => ({
-      id: performer.id,
-      name: performer.name || `Сотрудник #${performer.id}`,
-      kpi: performer.kpi,
+      id: performer.id || 'unknown',
+      name: performer.name || `Сотрудник #${performer.id || 'unknown'}`,
+      kpi: performer.kpi || 0,
       color: theme.palette.success.main,
       isCurrentUser: false
     })),
     {
       id: 'current',
       name: 'Ваш показатель',
-      kpi: rankData.topPerformers[rankData.topPerformers.length - 1].kpi - 13, // Для примера
+      kpi: currentUserKpi,
       color: theme.palette.primary.main,
       isCurrentUser: true
     }
@@ -222,7 +253,7 @@ function ColleagueComparison({ rankData }) {
     }}>
       <CardHeader 
         title="Сравнение с коллегами" 
-        subheader={`Ваша позиция в рейтинге: ${rankData.position} из ${rankData.total}`}
+        subheader={`Ваша позиция в рейтинге: ${position} из ${total}`}
       />
       <Divider />
       <CardContent>
@@ -257,12 +288,24 @@ function ColleagueComparison({ rankData }) {
 }
 
 ColleagueComparison.propTypes = {
-  rankData: PropTypes.object.isRequired
+  rankData: PropTypes.object
 };
 
 // Компонент для рекомендаций по улучшению
 function ImprovementRecommendations({ improvements }) {
   const theme = useTheme();
+  
+  // Проверяем наличие данных
+  if (!improvements || !Array.isArray(improvements) || improvements.length === 0) {
+    return (
+      <Card sx={{ borderRadius: 2 }}>
+        <CardHeader title="Рекомендации по улучшению" />
+        <CardContent>
+          <Alert severity="info">Нет доступных рекомендаций</Alert>
+        </CardContent>
+      </Card>
+    );
+  }
   
   return (
     <Card sx={{ 
@@ -341,13 +384,17 @@ function ImprovementRecommendations({ improvements }) {
 }
 
 ImprovementRecommendations.propTypes = {
-  improvements: PropTypes.array.isRequired
+  improvements: PropTypes.array
 };
 
 // Основной компонент для отображения эффективности продаж
 function SalesPerformance({ salesData, improvements }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  // Проверяем наличие данных
+  const hasSalesData = !!salesData;
+  const hasRankData = !!(salesData && salesData.rank);
   
   return (
     <Grid container spacing={3}>
@@ -356,7 +403,7 @@ function SalesPerformance({ salesData, improvements }) {
       </Grid>
       
       <Grid item xs={12} md={6}>
-        <ColleagueComparison rankData={salesData.rank} />
+        <ColleagueComparison rankData={salesData?.rank} />
       </Grid>
       
       <Grid item xs={12}>
@@ -367,8 +414,8 @@ function SalesPerformance({ salesData, improvements }) {
 }
 
 SalesPerformance.propTypes = {
-  salesData: PropTypes.object.isRequired,
-  improvements: PropTypes.array.isRequired
+  salesData: PropTypes.object,
+  improvements: PropTypes.array
 };
 
 export default SalesPerformance;

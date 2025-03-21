@@ -98,7 +98,13 @@ export const salesRoutes = [
       { path: 'development', element: <SalesDevelopmentPage /> },
       { path: 'bonuses', element: <SalesBonusesPage /> },
       { path: 'leads', element: <SalesLeadsPage /> },
-      { path: 'leads-distribution', element: <SalesLeadsDistributionPage /> }
+      { path: 'leads-distribution', element: <SalesLeadsDistributionPage /> },
+      
+      // Новый маршрут для персонализированного дашборда сотрудника
+      { 
+        path: 'employee/:id', 
+        element: <SalesEmployeeDashboardPage /> 
+      }
     ]
   }
 ];

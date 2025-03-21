@@ -519,7 +519,7 @@ export function SalesEmployeeDashboard() {
                           Подтвержденные бонусы:
                         </Typography>
                         <Typography variant="h5" color="success.main" fontWeight="bold">
-                          45,000 ₽
+                          45,000 ₸
                         </Typography>
                       </Box>
                       
@@ -528,7 +528,7 @@ export function SalesEmployeeDashboard() {
                           Потенциальные бонусы:
                         </Typography>
                         <Typography variant="h5" color="warning.main" fontWeight="bold">
-                          78,000 ₽
+                          78,000 ₸
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Зависят от закрытия текущих сделок
@@ -540,7 +540,7 @@ export function SalesEmployeeDashboard() {
                           Прогнозируемый бонус месяца:
                         </Typography>
                         <Typography variant="h5" color="primary.main" fontWeight="bold">
-                          123,000 ₽
+                          123,000 ₸
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           При выполнении текущего плана продаж
