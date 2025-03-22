@@ -1,4 +1,4 @@
-// src/sections/sales/components/lead-distribution/EnhancedEmployeeColumn.jsx
+// src/sections/sales/components/lead-distribution/EmployeeColumn.jsx
 import PropTypes from 'prop-types';
 import { Droppable } from 'react-beautiful-dnd';
 import {
@@ -20,18 +20,16 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Импортируем иконки
+// Material UI иконки
 import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
-import SettingsIcon from '@mui/icons-material/Settings';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import MoneyIcon from '@mui/icons-material/Money';
 import SpeedIcon from '@mui/icons-material/Speed';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 
 // Импортируем улучшенную карточку лида
 import LeadCard from './LeadCard';
@@ -57,11 +55,6 @@ const itemVariants = {
 };
 
 /**
- * Компонент для отображения рейтинга в виде звезд
- */
-
-
-/**
  * Улучшенная колонка для сотрудника с дополнительными метриками и визуализацией
  */
 export default function EmployeeColumn({ 
@@ -72,9 +65,14 @@ export default function EmployeeColumn({
   compactView = false,
   showMetrics = true,
   showAssignmentScore = true,
-  onEmployeeClick
+  onEmployeeClick,
+  onActionLead
 }) {
   const theme = useTheme();
+  
+  /**
+   * Компонент для отображения рейтинга в виде звезд
+   */
   const StarRating = ({ value, max = 5 }) => {
     const stars = [];
     
@@ -96,6 +94,7 @@ export default function EmployeeColumn({
     value: PropTypes.number.isRequired,
     max: PropTypes.number
   };
+  
   // Расчет нагрузки
   const calculatedLoad = leads.length;
   const maxLoad = employee.capacity || 10;
@@ -417,7 +416,7 @@ export default function EmployeeColumn({
                 }}
               >
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                  <MoneyIcon fontSize="small" sx={{ mr: 0.5, color: theme.palette.success.main }} />
+                  <AttachMoneyIcon fontSize="small" sx={{ mr: 0.5, color: theme.palette.success.main }} />
                   Потенциал:
                 </Typography>
                 <Typography 
@@ -457,6 +456,7 @@ export default function EmployeeColumn({
                     index={index} 
                     isDragging={snapshot.isDraggingOver}
                     compactView={compactView}
+                    onAction={onActionLead}
                   />
                 ))}
               </AnimatePresence>
@@ -493,3 +493,15 @@ export default function EmployeeColumn({
     </Droppable>
   );
 }
+
+EmployeeColumn.propTypes = {
+  employee: PropTypes.object.isRequired,
+  leads: PropTypes.array.isRequired,
+  metrics: PropTypes.object,
+  isDropDisabled: PropTypes.bool,
+  compactView: PropTypes.bool,
+  showMetrics: PropTypes.bool,
+  showAssignmentScore: PropTypes.bool,
+  onEmployeeClick: PropTypes.func,
+  onActionLead: PropTypes.func
+};

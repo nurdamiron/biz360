@@ -20,14 +20,13 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Импортируем иконки (Material Icons)
+// Material UI иконки
 import AddIcon from '@mui/icons-material/Add';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
-import WarningIcon from '@mui/icons-material/Warning';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import SortIcon from '@mui/icons-material/Sort';
+import WarningIcon from '@mui/icons-material/Warning';
 
 // Импортируем улучшенную карточку лида
 import LeadCard from './LeadCard';
