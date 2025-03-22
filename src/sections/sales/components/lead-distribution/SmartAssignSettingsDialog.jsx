@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-// Импортируем иконки
+// Material UI иконки
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoIcon from '@mui/icons-material/Info';
 import AutorenewIcon from '@mui/icons-material/Autorenew';

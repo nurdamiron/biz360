@@ -120,7 +120,7 @@ export default function LeadCard({ lead, index, isDragging, compactView = false,
   
   // Форматирование суммы
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ru-RU', {
+    new Intl.NumberFormat('ru-RU', {
       style: 'currency',
       currency: 'KZT',
       maximumFractionDigits: 0

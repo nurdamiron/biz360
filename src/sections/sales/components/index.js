@@ -20,13 +20,12 @@ export { default as SalesPlanDashboard } from './sales-plans/SalesPlanDashboard'
 export { default as CompetenciesCard } from './development-plan/CompetenciesCard';
 export { default as EducationalPathCard } from './development-plan/EducationalPathCard';
 export { default as GrowthPlanCard } from './development-plan/GrowthPlanCard';
-
+export { default as LeadDistributionBoard } from './lead-distribution/LeadDistributionBoard';
 // Экспорт подкомпонентов для взаимодействия с лидами
 export * from './lead-interaction';
 
 // Экспорт новых улучшенных компонентов распределения лидов
 export { 
-  LeadDistributionBoard,
   LeadCard,
   EmployeeColumn,
   UnassignedLeadsColumn,
@@ -45,3 +44,9 @@ export {
   deleteLead,
   getDistributionStats
 } from './lead-distribution';
+
+export {
+    initializeSmartDistribution,
+    smartAssignLeads,
+    getExtendedEmployeeStats
+  } from './lead-distribution/smartLeadDistributionService';

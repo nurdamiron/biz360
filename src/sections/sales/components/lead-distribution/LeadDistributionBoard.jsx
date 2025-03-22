@@ -1,4 +1,4 @@
-// src/sections/sales/components/lead-distribution/SmartLeadDistributionBoard.jsx
+// src/sections/sales/components/lead-distribution/LeadDistributionBoard.jsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -18,41 +18,49 @@ import {
   Tooltip,
   IconButton,
   Badge,
-  alpha
+  alpha,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Импортируем иконки (заменить на подходящую библиотеку, например Material Icons)
+// Material UI иконки
 import AddIcon from '@mui/icons-material/Add';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import CategoryIcon from '@mui/icons-material/Category';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewCompactIcon from '@mui/icons-material/ViewCompact';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import InfoIcon from '@mui/icons-material/Info';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import SettingsIcon from '@mui/icons-material/Settings';
 
-// Импортируем сервисы и подкомпоненты
-import { 
-  leadDistributionService, 
-  assignLead,
-} from './leadDistributionService';
-
-import {
-  initializeSmartDistribution,
-  smartAssignLeads,
-  getExtendedEmployeeStats
-} from './leadDistributionService';
-
-// Импортируем улучшенные подкомпоненты
+// Импортируем компоненты
 import UnassignedLeadsColumn from './UnassignedLeadsColumn';
 import EmployeeColumn from './EmployeeColumn';
 import DistributionStats from './DistributionStats';
 import FilterDialog from './FilterDialog';
-import AssignSettingsDialog from './AssignSettingsDialog';
+import SmartAssignSettingsDialog from './SmartAssignSettingsDialog';
 import AddLeadDialog from './AddLeadDialog';
 import EmployeePerformanceModal from './EmployeePerformanceModal';
+
+// Импортируем сервисы и утилиты
+import { 
+  leadDistributionService, 
+  fetchEmployees, 
+  fetchLeads, 
+  assignLead,
+  addLead,
+  getDistributionStats
+} from './leadDistributionService';
+import {
+  initializeSmartDistribution,
+  smartAssignLeads,
+  getExtendedEmployeeStats
+} from './smartLeadDistributionService';
 
 // Анимации для framer-motion
 const containerVariants = {
@@ -79,7 +87,7 @@ const itemVariants = {
 };
 
 /**
- * Улучшенный компонент доски распределения лидов с интеллектуальным распределением
+ * Основной компонент доски распределения лидов
  */
 export default function LeadDistributionBoard({ onRefreshData }) {
   const theme = useTheme();
@@ -114,7 +122,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
     industry: 'all'
   });
   
-  // Расширенные настройки для интеллектуального распределения
+  // Настройки для интеллектуального распределения
   const [smartAssignSettings, setSmartAssignSettings] = useState({
     priorityFirst: true,
     balanceLoad: true,
@@ -133,6 +141,29 @@ export default function LeadDistributionBoard({ onRefreshData }) {
     compactView: false
   });
   
+  // Состояние режима мок-данных
+  const [mockMode, setMockMode] = useState(() => {
+    localStorage.getItem('useMockData') === 'true';
+  });
+  
+  // Обработчик изменения режима мок-данных
+  const handleToggleMockMode = (event) => {
+    const newMockMode = event.target.checked;
+    setMockMode(newMockMode);
+    localStorage.setItem('useMockData', newMockMode ? 'true' : 'false');
+    
+    // Обновляем данные с новым режимом
+    fetchData();
+  };
+  
+  // Обработчик переключения опций отображения
+  const handleToggleViewOption = (option) => {
+    setViewOptions(prev => ({
+      ...prev,
+      [option]: !prev[option]
+    }));
+  };
+  
   // Загрузка данных
   const fetchData = useCallback(async () => {
     try {
@@ -143,11 +174,11 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       await initializeSmartDistribution();
       
       // Загрузка сотрудников и лидов
-      const employeeData = await leadDistributionService.fetchEmployees(true);
-      const leadData = await leadDistributionService.fetchLeads(true);
+      const employeeData = await fetchEmployees(true);
+      const leadData = await fetchLeads(true);
       
       // Загрузка базовой статистики
-      const statsData = await leadDistributionService.getDistributionStats();
+      const statsData = await getDistributionStats();
       
       // Загрузка расширенной статистики
       const extendedStatsData = await getExtendedEmployeeStats();
@@ -251,7 +282,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       );
       
       // Обновляем статистику
-      const statsData = await leadDistributionService.getDistributionStats();
+      const statsData = await getDistributionStats();
       setStats(statsData);
       
       // Обновляем расширенную статистику
@@ -280,7 +311,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       setLeads(updatedLeads);
       
       // Обновляем статистику
-      const statsData = await leadDistributionService.getDistributionStats();
+      const statsData = await getDistributionStats();
       setStats(statsData);
       
       // Обновляем расширенную статистику
@@ -307,13 +338,13 @@ export default function LeadDistributionBoard({ onRefreshData }) {
       setError(null);
       
       // Вызываем API для добавления нового лида
-      const newLead = await leadDistributionService.addLead(leadData);
+      const newLead = await addLead(leadData);
       
       // Обновляем локальное состояние
       setLeads(prevLeads => [...prevLeads, newLead]);
       
       // Обновляем статистику
-      const statsData = await leadDistributionService.getDistributionStats();
+      const statsData = await getDistributionStats();
       setStats(statsData);
       
       // Обновляем расширенную статистику при необходимости
@@ -362,6 +393,29 @@ export default function LeadDistributionBoard({ onRefreshData }) {
     setEmployeePerformanceOpen(true);
   }, []);
   
+  // Обработчик действий с лидом
+  const handleLeadAction = useCallback((leadId, action) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead) return;
+    
+    switch (action) {
+      case 'call':
+        setSuccessMessage(`Звонок клиенту ${lead.name}`);
+        break;
+      case 'email':
+        setSuccessMessage(`Отправка email клиенту ${lead.name}`);
+        break;
+      case 'edit':
+        setSuccessMessage(`Редактирование лида ${lead.name}`);
+        break;
+      case 'delete':
+        setSuccessMessage(`Удаление лида ${lead.name}`);
+        break;
+      default:
+        break;
+    }
+  }, [leads]);
+  
   // Получение сотрудника по ID
   const getSelectedEmployee = useCallback(() => {
     employees.find(emp => emp.id === selectedEmployeeId);
@@ -395,6 +449,65 @@ export default function LeadDistributionBoard({ onRefreshData }) {
         animate="visible"
         variants={containerVariants}
       >
+        {/* Панель настроек режима работы */}
+        <Card sx={{ mb: 3, p: 2, borderRadius: 2 }}>
+          <Stack 
+            direction={isMobile ? 'column' : 'row'} 
+            justifyContent="space-between" 
+            alignItems={isMobile ? 'stretch' : 'center'}
+            spacing={2}
+          >
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={mockMode}
+                  onChange={handleToggleMockMode}
+                  color="primary"
+                />
+              }
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ mr: 1 }}>
+                    Режим мок-данных
+                  </Typography>
+                  <Tooltip title="В этом режиме используются тестовые данные вместо обращения к API. Удобно для демонстрации и тестирования.">
+                    <InfoIcon fontSize="small" color="action" />
+                  </Tooltip>
+                </Box>
+              }
+            />
+            
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Tooltip title={viewOptions.compactView ? 'Стандартный вид' : 'Компактный вид'}>
+                <IconButton 
+                  color="primary" 
+                  onClick={() => handleToggleViewOption('compactView')}
+                >
+                  {viewOptions.compactView ? <ViewModuleIcon /> : <ViewCompactIcon />}
+                </IconButton>
+              </Tooltip>
+              
+              <Tooltip title={viewOptions.showEmployeeMetrics ? 'Скрыть метрики' : 'Показать метрики'}>
+                <IconButton 
+                  color="primary"
+                  onClick={() => handleToggleViewOption('showEmployeeMetrics')}
+                >
+                  {viewOptions.showEmployeeMetrics ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                </IconButton>
+              </Tooltip>
+              
+              <Tooltip title={viewOptions.showAssignmentScores ? 'Скрыть оценки назначения' : 'Показать оценки назначения'}>
+                <IconButton 
+                  color="primary"
+                  onClick={() => handleToggleViewOption('showAssignmentScores')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Stack>
+        </Card>
+        
         {/* Статистика распределения */}
         <DistributionStats 
           stats={stats} 
@@ -508,6 +621,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
                       compactView={viewOptions.compactView}
                       showDetails={viewOptions.showLeadDetails}
                       onAddClick={() => setAddLeadDialogOpen(true)}
+                      onActionLead={handleLeadAction}
                     />
                   </Grid>
                   
@@ -523,6 +637,7 @@ export default function LeadDistributionBoard({ onRefreshData }) {
                         showMetrics={viewOptions.showEmployeeMetrics}
                         showAssignmentScore={viewOptions.showAssignmentScores}
                         onEmployeeClick={() => handleViewEmployeeDetails(employee.id)}
+                        onActionLead={handleLeadAction}
                       />
                     </Grid>
                   ))}
@@ -550,18 +665,20 @@ export default function LeadDistributionBoard({ onRefreshData }) {
           onApplyFilters={handleApplyFilters}
         />
         
-        <AssignSettingsDialog
+        <SmartAssignSettingsDialog
           open={smartAssignSettingsOpen}
           onClose={() => setSmartAssignSettingsOpen(false)}
           settings={smartAssignSettings}
           onApplySettings={handleApplySmartAssignSettings}
           onSmartAssign={handleSmartAssign}
+          isAssigning={isSmartAssigning}
         />
         
         <AddLeadDialog
           open={addLeadDialogOpen}
           onClose={() => setAddLeadDialogOpen(false)}
           onAddLead={handleAddLead}
+          isAdding={isLoading}
         />
         
         <EmployeePerformanceModal

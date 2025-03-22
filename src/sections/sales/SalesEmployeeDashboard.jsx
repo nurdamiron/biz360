@@ -33,7 +33,9 @@ import {
   CallHistoryTable,
   SalesPlanDashboard,
   // Новые компоненты распределения лидов
-  LeadDistributionBoard
+  LeadDistributionBoard,
+  leadDistributionService,
+  initializeSmartDistribution
 } from './components';
 
 // Импорт хуков данных
@@ -152,6 +154,12 @@ export function SalesEmployeeDashboard() {
       'employee': 'Сотрудник'
     };
     return roles[role] || role;
+  };
+  
+  const handleRefreshData = () => {
+    // Add your refresh logic here, e.g.:
+    // fetchLeadDistributionData();
+    console.log('Refreshing lead distribution data');
   };
   
   // Данные метрик (используем мок-данные, если нет настоящих)
@@ -695,7 +703,9 @@ export function SalesEmployeeDashboard() {
           {/* Новая вкладка "Распределение лидов" */}
           {activeTab === 8 && (
             <Grid item xs={12}>
-              <LeadDistributionBoard />
+              <LeadDistributionBoard 
+                onRefreshData={handleRefreshData}
+              />
             </Grid>
           )}
           

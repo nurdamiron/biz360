@@ -255,7 +255,7 @@ EmployeeStatCard.propTypes = {
 };
 
 /**
- * Улучшенный компонент для отображения статистики распределения
+ * Основной компонент для отображения статистики распределения
  */
 export default function DistributionStats({ 
   stats, 

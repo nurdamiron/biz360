@@ -73,7 +73,7 @@ export default function EmployeePerformanceModal({ open, onClose, employee, stat
   
   // Форматирование суммы
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ru-RU', {
+    new Intl.NumberFormat('ru-RU', {
       style: 'currency',
       currency: 'KZT',
       maximumFractionDigits: 0

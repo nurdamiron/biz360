@@ -7,7 +7,7 @@
 // Функция для определения, нужно ли использовать мок-данные
 export const shouldUseMockData = () => {
     // Можно настроить через переменную окружения или localStorage
-    return process.env.REACT_APP_USE_MOCK_DATA === 'true' || localStorage.getItem('useMockData') === 'true';
+    process.env.REACT_APP_USE_MOCK_DATA === 'true' || localStorage.getItem('useMockData') === 'true';
   };
   
   /**

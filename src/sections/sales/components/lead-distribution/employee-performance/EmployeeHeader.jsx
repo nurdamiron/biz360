@@ -18,8 +18,8 @@ const LevelStars = ({ level, max = 4, theme }) => {
   const stars = [];
   
   // Определение количества звезд на основе уровня
-  const getStarsCount = (level) => {
-    switch(level) {
+  const getStarsCount = (employeeLevel) => {
+    switch(employeeLevel) {
       case 'Senior':
         return 3;
       case 'Middle':
