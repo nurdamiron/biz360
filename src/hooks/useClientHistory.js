@@ -118,8 +118,14 @@ export function useClientHistory(options = {}) {
   
   // Получение данных клиента по ID
   const getClientById = useCallback((clientId) => {
-    const foundClient = clients.find(client => client.id === clientId);
-    return foundClient || null;
+    // Проверяем, что clients - массив 
+    if (!Array.isArray(clients)) {
+      console.warn('Clients is not an array:', clients);
+      return null;
+    }
+
+    // Безопасный поиск клиента
+    return clients.find(client => client.id === clientId) || null;
   }, [clients]);
   
   // Установка выбранного клиента

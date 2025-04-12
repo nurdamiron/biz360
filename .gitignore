@@ -18,3 +18,4 @@ yarn.lock
 # Кеши и сборочные файлы
 dist/
 .cache/
+sections/components

@@ -1,200 +1,187 @@
-// src/auth/context/auth-provider.js
-import { useState, useCallback } from 'react';
-import PropTypes from 'prop-types';
+// src/auth/context/auth-provider.jsx 
+
+import { useReducer, useCallback, useEffect } from 'react';
+import axios from 'axios';
 import { AuthContext } from './auth-context';
-import { setSession, isValidToken } from '../utils';
 
-// Если у вас есть реальные API-запросы, используйте их
-// import apiService from '../../api/auth';
+// Получаем базовый URL из переменных окружения
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'https://biz360-backend.onrender.com';
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+const initialState = {
+  authenticated: false,
+  employee: null,
+  loading: true, // Состояние загрузки
+};
 
-  // Функция определения начальной страницы в зависимости от роли/отдела
-  const getInitialRoute = (userData) => {
-    // По умолчанию - перенаправляем на личный дашборд
-    if (!userData) return '/dashboard';
-    
-    // Для сотрудников отдела продаж - на дашборд продаж
-    if (userData.department === 'sales') {
-      return '/dashboard/sales';
-    }
-    
-    // Для руководителей и администраторов - на общий дашборд
-    if (userData.role === 'admin' || userData.role === 'head' || userData.role === 'owner') {
-      return '/dashboard';
-    }
-    
-    // Для сотрудников других отделов - на страницу их метрик
-    return '/dashboard/metrics/employee/me';
-  };
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'INITIAL': 
+      return {
+        ...action.payload,
+        loading: false,
+      };
+    case 'LOGIN':
+      return {
+        authenticated: true,
+        employee: action.payload,
+        loading: false,
+      };
+    case 'LOGOUT':
+      return {
+        authenticated: false,
+        employee: null,
+        loading: false,
+      };
+    default:
+      return state;
+  }
+};
 
-  // Инициализация при загрузке страницы
+export function AuthProvider({ children }) {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Инициализация - проверка авторизации при загрузке
   const initialize = useCallback(async () => {
     try {
-      setLoading(true);
-
-      const token = localStorage.getItem('accessToken');
-
-      if (token && isValidToken(token)) {
-        setSession(token);
-
-        // Здесь должен быть запрос к API для получения данных пользователя
-        // const response = await apiService.getProfile();
-        // const { user } = response.data;
+      const accessToken = localStorage.getItem('JWT_ACCESS_KEY');
+      
+      if (accessToken) {
+        // Настраиваем axios для всех последующих запросов
+        axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
         
-        // Для примера используем мок-данные
-        const userMock = {
-          id: '12345',
-          name: 'Иван Петров',
-          email: 'ivan@example.com',
-          role: 'manager',
-          department: 'sales',
-          avatar: null,
-        };
-
-        setUser(userMock);
+        // Получаем данные пользователя
+        const response = await axios.get(`${SERVER_URL}/api/auth/me`);
+        console.log('User data loaded:', response.data);
+        
+        // Обновляем состояние
+        dispatch({
+          type: 'INITIAL',
+          payload: {
+            authenticated: true,
+            employee: response.data,
+          },
+        });
       } else {
-        setSession(null);
-        setUser(null);
+        dispatch({
+          type: 'INITIAL',
+          payload: {
+            authenticated: false,
+            employee: null,
+          },
+        });
       }
-    } catch (err) {
-      console.error('Auth initialize error:', err);
-      setSession(null);
-      setUser(null);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      
+      // В случае ошибки (например, срок действия токена истек)
+      localStorage.removeItem('JWT_ACCESS_KEY');
+      delete axios.defaults.headers.common.Authorization;
+      
+      dispatch({
+        type: 'INITIAL',
+        payload: {
+          authenticated: false,
+          employee: null,
+        },
+      });
     }
   }, []);
 
-  // Аутентификация пользователя
+  // Вызываем инициализацию при загрузке приложения
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
+  // Настраиваем базовый URL для axios
+  useEffect(() => {
+    axios.defaults.baseURL = SERVER_URL;
+  }, []);
+
+  // Функция входа
   const login = useCallback(async (email, password) => {
     try {
-      setLoading(true);
-      setError(null);
-
-      // Здесь должен быть запрос к API для аутентификации
-      // const response = await apiService.login({ email, password });
-      // const { token, user } = response.data;
-      
-      // Для примера используем мок-данные
-      const token = 'mock-jwt-token';
-      const userData = {
-        id: '12345',
-        name: 'Иван Петров',
+      const response = await axios.post(`${SERVER_URL}/api/auth/login`, {
         email,
-        role: 'manager',
-        department: 'sales',
-        avatar: null,
-      };
+        password,
+      });
+  
+      console.log('Login API response:', response.data);
+      
+      // Важно! Убедитесь, что вы сохраняете правильную структуру данных
+      const { access, user } = response.data;
+      
+      localStorage.setItem('JWT_ACCESS_KEY', access);
+      axios.defaults.headers.common.Authorization = `Bearer ${access}`;
+      
+      // Передаем весь объект user как есть, не модифицируя его структуру
+      dispatch({
+        type: 'LOGIN',
+        payload: user,
+      });
+  
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  }, []);
 
-      setSession(token);
-      setUser(userData);
+  // Функция выхода
+  const logout = useCallback(async () => {
+    try {
+      // Только если пользователь авторизован, отправляем запрос на выход
+      if (state.authenticated) {
+        await axios.post(`${SERVER_URL}/api/auth/logout`);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Всегда удаляем локальные данные и обновляем состояние
+      localStorage.removeItem('JWT_ACCESS_KEY');
+      delete axios.defaults.headers.common.Authorization;
+      dispatch({ type: 'LOGOUT' });
+    }
+  }, [state.authenticated]);
 
-      // Возвращаем путь для перенаправления в зависимости от роли
-      return getInitialRoute(userData);
-    } catch (err) {
-      console.error('Login error:', err);
-      setError('Неверный логин или пароль');
+  // Функция обновления данных пользователя
+  const refreshUserData = useCallback(async () => {
+    try {
+      const response = await axios.get(`${SERVER_URL}/api/auth/me`);
+      
+      dispatch({
+        type: 'LOGIN',
+        payload: response.data,
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
       return null;
-    } finally {
-      setLoading(false);
     }
   }, []);
 
-  // Выход пользователя
-  const logout = useCallback(() => {
-    setSession(null);
-    setUser(null);
-  }, []);
-
-  // Регистрация нового пользователя (если поддерживается)
-  const register = useCallback(async (email, password, firstName, lastName) => {
+  // Проверка сессии сотрудника - алиас для initialize
+  const checkEmployeeSession = useCallback(async () => {
     try {
-      setLoading(true);
-      setError(null);
-
-      // Здесь должен быть запрос к API для регистрации
-      // const response = await apiService.register({
-      //   email,
-      //   password,
-      //   firstName,
-      //   lastName,
-      // });
-      
-      // Имитация успешной регистрации
-      return true;
-    } catch (err) {
-      console.error('Register error:', err);
-      setError(err.message || 'Ошибка при регистрации');
-      return false;
-    } finally {
-      setLoading(false);
+      await initialize();
+      return { success: true };
+    } catch (error) {
+      console.error('Session check error:', error);
+      return { success: false, error: error.message || 'Ошибка проверки сессии' };
     }
-  }, []);
+  }, [initialize]);
 
-  // Восстановление пароля (если поддерживается)
-  const resetPassword = useCallback(async (email) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Здесь должен быть запрос к API для восстановления пароля
-      // await apiService.resetPassword({ email });
-      
-      // Имитация успешного восстановления
-      return true;
-    } catch (err) {
-      console.error('Reset password error:', err);
-      setError(err.message || 'Ошибка при восстановлении пароля');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Обновление профиля пользователя (если поддерживается)
-  const updateProfile = useCallback(async (data) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Здесь должен быть запрос к API для обновления профиля
-      // const response = await apiService.updateProfile(data);
-      // const { user: updatedUser } = response.data;
-      
-      // Имитация обновления данных пользователя
-      const updatedUser = { ...user, ...data };
-      setUser(updatedUser);
-      
-      return true;
-    } catch (err) {
-      console.error('Update profile error:', err);
-      setError(err.message || 'Ошибка при обновлении профиля');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const contextValue = {
-    user,
-    loading,
-    error,
-    initialize,
+  // Формируем значение контекста
+  const value = {
+    authenticated: state.authenticated,
+    employee: state.employee,
+    loading: state.loading,
     login,
     logout,
-    register,
-    resetPassword,
-    updateProfile,
-    getInitialRoute,
+    initialize,
+    refreshUserData,
+    checkEmployeeSession
   };
 
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
-};
-
-AuthProvider.propTypes = {
-  children: PropTypes.node,
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}

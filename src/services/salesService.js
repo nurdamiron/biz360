@@ -11,6 +11,25 @@ const SALES_API_PATH = `${API_BASE_URL}/api/${API_VERSION}/sales`;
 /**
  * Класс для работы с API отдела продаж
  */
+
+const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal  
+    });
+    
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
 class SalesService {
   /**
    * Конструктор сервиса

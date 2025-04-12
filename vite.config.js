@@ -9,7 +9,11 @@ const PORT = 3030;
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+      // Configure JSX in JS files
+      include: "**/*.{jsx,js}",
+    }),
     checker({
       eslint: {
         useFlatConfig: true,
@@ -34,9 +38,22 @@ export default defineConfig({
       },
     ],
   },
-  server: { port: PORT, host: true },
-  preview: { port: PORT, host: true },
+  server: { 
+    port: PORT, 
+    host: true 
+  },
+  preview: { 
+    port: PORT, 
+    host: true 
+  },
   define: {
     'process.env': process.env
+  },
+  esbuild: {
+    // Enable JSX in .js files
+    loader: {
+      '.js': 'jsx',
+    },
+    jsx: 'automatic',
   }
 });

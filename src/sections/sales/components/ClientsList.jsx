@@ -26,13 +26,17 @@ import {
   alpha,
   Tab,
   Tabs,
-  Link
+  Link,
+  TextField,
+  CircularProgress,
+  Skeleton
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { fCurrency } from 'src/utils/format-number';
 import { fDate } from 'src/utils/format-time';
 import { paths } from 'src/routes/paths';
+import useCustomers from 'src/hooks/useCustomers';
 
 // Заглушки для иконок, в реальном проекте заменить на компонент Iconify или IconButton
 const Icons = {
@@ -56,7 +60,8 @@ const Icons = {
 // Компонент для цветового индикатора срочности
 const UrgencyIndicator = ({ urgency }) => {
   const theme = useTheme();
-  
+  const [error, setError] = useState(null);
+
   let color;
   switch (urgency) {
     case 'Высокая':
@@ -319,55 +324,133 @@ NewAssignmentCard.propTypes = {
 };
 
 // Основной компонент списка клиентов
-function ClientsList({ activeClients, completedDeals, newAssignments = [] }) {
-    const theme = useTheme();
+function ClientsList({ activeClients: initialActiveClients, completedDeals: initialCompletedDeals, newAssignments = [] }) {
+  const theme = useTheme();
   const navigate = useNavigate();
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [tabValue, setTabValue] = useState(0);
+  
+  // Используем новый хук для работы с API клиентов
+  const {
+    customers, 
+    loading, 
+    error,
+    pagination,
+    filters,
+    updateFilters,
+    updatePagination,
+    deleteCustomer,
+    successMessage,
+    resetSuccessMessage
+  } = useCustomers({
+    fetchOnMount: true,
+    defaultLimit: 5
+  });
+  
+  // Состояние для поля поиска
+  const [searchText, setSearchText] = useState('');
+  
+  // Используем начальные данные, если переданы, иначе данные из API
+  const activeClients = customers.length > 0 ? customers : initialActiveClients;
+  const completedDeals = initialCompletedDeals;
   
   // Функции-обработчики для действий
   const handleEdit = (id) => {
     console.log('Edit client', id);
-    // navigate(`/dashboard/client/${id}/edit`);
+    navigate(paths.dashboard.sales.client.edit(id));
   };
   
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     console.log('Delete client', id);
+    
+    if (window.confirm('Вы уверены, что хотите удалить этого клиента?')) {
+      const success = await deleteCustomer(id);
+      if (success) {
+        console.log('Клиент успешно удален');
+      }
+    }
   };
   
   const handleCall = (id) => {
     console.log('Call client', id);
+    // Здесь может быть интеграция с телефонией или форма звонка
   };
   
   const handleEmail = (id) => {
     console.log('Email client', id);
+    // Здесь может быть открытие почтового клиента или формы письма
   };
+  
   
   const handleMeeting = (id) => {
     console.log('Schedule meeting with client', id);
+    // Здесь может быть интеграция с календарем или формой встречи
   };
   
   const handleAcceptAssignment = (id) => {
     console.log('Accept assignment', id);
+    // Здесь обработка принятия назначения клиента
   };
   
   const handlePageChange = (_, newPage) => {
-    setPage(newPage);
+    updatePagination({ page: newPage + 1 });
   };
   
   const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    const newLimit = parseInt(event.target.value, 10);
+    updatePagination({ limit: newLimit, page: 1 });
   };
   
   const handleTabChange = (_, newValue) => {
     setTabValue(newValue);
   };
   
+  // Обработка поискового запроса с задержкой
+  const handleSearchChange = (event) => {
+    const search = event.target.value;
+    setSearchText(search);
+    
+    // Используем setTimeout для предотвращения слишком частых запросов при вводе
+    const timeoutId = setTimeout(() => {
+      updateFilters({ search });
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  };
+  
+  const handleStatusFilterChange = (status) => {
+    updateFilters({ status });
+  };
+  
+  const handleSortChange = (orderBy, order) => {
+    updateFilters({ orderBy, order });
+  };
+  
   // Выводим соответствующую таблицу в зависимости от выбранной вкладки
   return (
     <Card sx={{ borderRadius: 2, boxShadow: theme.customShadows?.z8 }}>
+      {/* Показываем сообщение об успехе, если есть */}
+      {successMessage && (
+        <Alert 
+          severity="success" 
+          onClose={resetSuccessMessage}
+          sx={{ mx: 3, mt: 2 }}
+        >
+          {successMessage}
+        </Alert>
+      )}
+      
+      {/* Показываем сообщение об ошибке, если есть */}
+      {error && (
+        <Alert 
+          severity="error" 
+          onClose={() => {}}
+          sx={{ mx: 3, mt: 2 }}
+        >
+          {error}
+        </Alert>
+      )}
+      
+      {/* Отображаем новые назначения */}
       {newAssignments.length > 0 && (
         <Box sx={{ px: 3, pt: 3 }}>
           <NewAssignmentCard 
@@ -381,19 +464,23 @@ function ClientsList({ activeClients, completedDeals, newAssignments = [] }) {
         title="Мои клиенты"
         action={
           <Stack direction="row" spacing={1}>
-            <Button 
-              size="small" 
-              variant="outlined" 
-              startIcon={Icons.Filter}
-            >
-              Фильтр
-            </Button>
+            {/* Поле поиска */}
+            <TextField
+              size="small"
+              placeholder="Поиск клиентов..."
+              value={searchText}
+              onChange={handleSearchChange}
+              InputProps={{
+                startAdornment: <Box component="span" sx={{ mr: 1 }}>{Icons.Filter}</Box>,
+              }}
+              sx={{ minWidth: 200 }}
+            />
             
             <Button 
               size="small" 
               variant="contained" 
               startIcon={Icons.Add}
-              onClick={() => navigate(paths.dashboard.client?.new || '/dashboard/client/new')}
+              onClick={() => navigate(paths.dashboard.sales.client.new)}
             >
               Новый клиент
             </Button>
@@ -424,78 +511,105 @@ function ClientsList({ activeClients, completedDeals, newAssignments = [] }) {
           <TableContainer>
             <Table>
               <TableBody>
-                {activeClients.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((client) => (
-                  <TableRow 
-                    key={client.id} 
-                    hover
-                    sx={{ 
-                      '&:hover': { bgcolor: 'background.neutral' },
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => navigate(`/dashboard/client/${client.id}`)}
-                  >
-                    <TableCell>
-                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <Link 
-                          component="button"
-                          variant="subtitle2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/dashboard/client/${client.id}`);
-                          }}
-                          sx={{ 
-                            textAlign: 'left',
-                            color: 'text.primary',
-                            mb: 0.5
-                          }}
-                        >
-                          {client.name}
-                        </Link>
-                        
-                        <StatusChip status={client.status} />
-                      </Box>
-                    </TableCell>
-                    
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <UrgencyIndicator urgency={client.urgency} />
-                        <Typography variant="body2">{client.urgency}</Typography>
-                      </Box>
-                    </TableCell>
-                    
-                    <TableCell align="right">
-                      <Typography variant="subtitle2">
-                        {fCurrency(client.potential_amount)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Вероятность: {client.probability}%
-                      </Typography>
-                    </TableCell>
-                    
-                    <TableCell align="right">
-                      <ActionsMenu
-                        onEdit={() => handleEdit(client.id)}
-                        onDelete={() => handleDelete(client.id)}
-                        onCall={() => handleCall(client.id)}
-                        onEmail={() => handleEmail(client.id)}
-                        onMeeting={() => handleMeeting(client.id)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {loading && activeClients.length === 0 ? (
+                  // Показываем скелетон загрузки, если данные загружаются и еще нет результатов
+                  Array.from(new Array(pagination.limit)).map((_, index) => (
+                    <TableRow key={`skeleton-${index}`}>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Skeleton variant="text" width="80%" height={24} />
+                          <Skeleton variant="text" width="40%" height={20} />
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton variant="text" width="100%" />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Skeleton variant="text" width="100%" />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Skeleton variant="circular" width={24} height={24} />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  // Показываем реальные данные
+                  activeClients.map((client) => (
+                    <TableRow 
+                      key={client.id} 
+                      hover
+                      sx={{ 
+                        '&:hover': { bgcolor: 'background.neutral' },
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => navigate(paths.dashboard.sales.client.details(client.id))}
+                    >
+                      <TableCell>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <Link 
+                            component="button"
+                            variant="subtitle2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(paths.dashboard.sales.client.details(client.id));
+                            }}
+                            sx={{ 
+                              textAlign: 'left',
+                              color: 'text.primary',
+                              mb: 0.5
+                            }}
+                          >
+                            {client.name}
+                          </Link>
+                          
+                          <StatusChip status={client.status} />
+                        </Box>
+                      </TableCell>
+                      
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <UrgencyIndicator urgency={client.urgency} />
+                          <Typography variant="body2">{client.urgency}</Typography>
+                        </Box>
+                      </TableCell>
+                      
+                      <TableCell align="right">
+                        <Typography variant="subtitle2">
+                          {fCurrency(client.potential_amount)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          Вероятность: {client.probability}%
+                        </Typography>
+                      </TableCell>
+                      
+                      <TableCell align="right">
+                        <ActionsMenu
+                          onEdit={() => handleEdit(client.id)}
+                          onDelete={() => handleDelete(client.id)}
+                          onCall={() => handleCall(client.id)}
+                          onEmail={() => handleEmail(client.id)}
+                          onMeeting={() => handleMeeting(client.id)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
                 
-                {activeClients.length === 0 && (
+                {!loading && activeClients.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
                       <Typography variant="body2" color="text.secondary">
-                        У вас пока нет активных клиентов
+                        {filters.search ? 
+                          'Клиенты не найдены. Попробуйте изменить параметры поиска.' : 
+                          'У вас пока нет активных клиентов'
+                        }
                       </Typography>
                       <Button 
                         variant="outlined" 
                         size="small" 
                         startIcon={Icons.Add}
                         sx={{ mt: 1 }}
-                        onClick={() => navigate(paths.dashboard.client?.new || '/dashboard/client/new')}
+                        onClick={() => navigate(paths.dashboard.sales.client.new)}
                       >
                         Добавить клиента
                       </Button>
@@ -508,14 +622,15 @@ function ClientsList({ activeClients, completedDeals, newAssignments = [] }) {
           
           <TablePagination
             component="div"
-            count={activeClients.length}
-            page={page}
+            count={pagination.total}
+            page={pagination.page - 1}
             onPageChange={handlePageChange}
-            rowsPerPage={rowsPerPage}
+            rowsPerPage={pagination.limit}
             onRowsPerPageChange={handleRowsPerPageChange}
             rowsPerPageOptions={[5, 10, 25]}
             labelRowsPerPage="Строк на странице:"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} из ${count}`}
+            disabled={loading}
           />
         </>
       )}
@@ -526,7 +641,7 @@ function ClientsList({ activeClients, completedDeals, newAssignments = [] }) {
           <TableContainer>
             <Table>
               <TableBody>
-                {completedDeals.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((deal) => (
+                {completedDeals.map((deal) => (
                   <TableRow 
                     key={deal.id}
                     hover
@@ -597,15 +712,28 @@ function ClientsList({ activeClients, completedDeals, newAssignments = [] }) {
           <TablePagination
             component="div"
             count={completedDeals.length}
-            page={page}
-            onPageChange={handlePageChange}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleRowsPerPageChange}
+            page={0}
+            onPageChange={() => {}} // Пока не реализовано для завершенных сделок
+            rowsPerPage={5}
+            onRowsPerPageChange={() => {}} // Пока не реализовано для завершенных сделок
             rowsPerPageOptions={[5, 10, 25]}
             labelRowsPerPage="Строк на странице:"
             labelDisplayedRows={({ from, to, count }) => `${from}-${to} из ${count}`}
           />
         </>
+      )}
+      
+      {/* Индикатор загрузки при первичной загрузке данных */}
+      {loading && activeClients.length === 0 && !activeClients.some(c => true) && (
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            py: 3 
+          }}
+        >
+          <CircularProgress size={24} />
+        </Box>
       )}
     </Card>
   );

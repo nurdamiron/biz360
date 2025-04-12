@@ -127,9 +127,16 @@ export function useSalesData(options = {}) {
   
   // Загрузка данных при монтировании компонента
   useEffect(() => {
+    const controller = new AbortController();
+    
     if (fetchOnMount) {
       fetchData();
     }
+    
+    return () => {
+      controller.abort(); // Отменяем текущий запрос
+      isMounted.current = false;
+    };
   }, [fetchOnMount, fetchData]);
   
   // Вспомогательные геттеры для удобного доступа к данным

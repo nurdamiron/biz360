@@ -25,48 +25,75 @@ export default function SalesEmployeeDashboardPage() {
   const [salesData, setSalesData] = useState(null);
   const [error, setError] = useState(null);
   
-  // Получаем ID сотрудника (из параметра или текущего пользователя)
   const getEmployeeId = () => {
     if (id && id !== 'me') return id;
-    return user?.id;
+    return user?.employee?.id || user?.id; 
   };
   
-  // Загрузка данных сотрудника
   useEffect(() => {
     const employeeId = getEmployeeId();
+    
+    if (!employeeId) {
+      console.error('No employee ID found');
+      setError('Не удалось определить ID сотрудника');
+      setLoading(false);
+      return;
+    }
     
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Загружаем данные сотрудника
-        const employeeResponse = await employeeService.getEmployeeById(employeeId);
-        setEmployeeData(employeeResponse.data);
+        // Используйте Promise.allSettled для более надежной обработки
+        const [employeeResponse, metricsResponse, salesResponse] = await Promise.allSettled([
+          employeeService.getEmployeeById(employeeId),
+          metricsService.getEmployeeMetrics(employeeId),
+          employeeService.getEmployeeSalesData(employeeId)
+        ]);
         
-        // Загружаем метрики сотрудника
-        const metricsResponse = await metricsService.getEmployeeMetrics(employeeId);
-        setMetrics(metricsResponse.data);
+        // Проверяем каждый ответ
+        if (employeeResponse.status === 'fulfilled') {
+          setEmployeeData(employeeResponse.value.data);
+        } else {
+          throw employeeResponse.reason;
+        }
         
-        // Загружаем данные продаж
-        const salesResponse = await employeeService.getEmployeeSalesData(employeeId);
-        setSalesData(salesResponse.data);
+        if (metricsResponse.status === 'fulfilled') {
+          setMetrics(metricsResponse.value.data);
+        } else {
+          throw metricsResponse.reason;
+        }
+        
+        if (salesResponse.status === 'fulfilled') {
+          setSalesData(salesResponse.value.data);
+        } else {
+          throw salesResponse.reason;
+        }
         
       } catch (err) {
-        console.error('Error fetching employee data:', error);
-        setError(error.message || 'Не удалось загрузить данные сотрудника');
-        enqueueSnackbar('Не удалось загрузить данные сотрудника', { variant: 'error' });
+        console.error('Detailed error fetching data:', err);
+        setError(err.message || 'Не удалось загрузить данные сотрудника');
+        enqueueSnackbar(err.message || 'Не удалось загрузить данные сотрудника', { variant: 'error' });
       } finally {
         setLoading(false);
       }
     };
     
-    if (employeeId) {
-      fetchData();
-    }
+    fetchData();
   }, [id, user, enqueueSnackbar]);
   
-  // Отображаем индикатор загрузки в центре экрана
+  // Добавим дополнительный лог
+  useEffect(() => {
+    console.log('Render state:', { 
+      loading, 
+      employeeData, 
+      metrics, 
+      salesData, 
+      error 
+    });
+  });
+  
   if (loading && !employeeData) {
     return (
       <Box 
@@ -82,7 +109,6 @@ export default function SalesEmployeeDashboardPage() {
     );
   }
   
-  // Используем свойство key для полной перезагрузки компонента при изменении ID
   return (
     <Container maxWidth={false} disableGutters>
       <SalesEmployeeDashboard

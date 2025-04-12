@@ -6,6 +6,24 @@ import { generateEmployeeFullMetrics } from 'src/utils/mockData';
 // Базовый URL API для метрик
 const METRICS_API_URL = `${API_URL}/metrics`;
 
+const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal  
+    });
+    
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
 // Сервис для работы с метриками
 const metricsService = {
   /**

@@ -3,7 +3,7 @@
 import { lazy } from 'react';
 import { Loadable } from 'src/components/loadable/index.jsx';
 import { AuthGuard } from 'src/auth/guard';
-import RoleDepartmentGuard from 'src/auth/RoleDepartmentGuard';
+import RoleDepartmentGuard from 'src/auth/RoleDepartmentGuard.jsx';
 import { DashboardLayout } from 'src/layouts/dashboard';
 import { Navigate, Outlet } from 'react-router-dom';
 
@@ -20,6 +20,14 @@ const SalesClientsPage = Loadable(
 
 const SalesClientDetailPage = Loadable(
   lazy(() => import('src/pages/sales/sales-client-detail'))
+);
+
+const SalesClientNewPage = Loadable(
+  lazy(() => import('src/pages/sales/sales-client-new'))
+);
+
+const SalesClientEditPage = Loadable(
+  lazy(() => import('src/pages/sales/sales-client-edit'))
 );
 
 const SalesDevelopmentPage = Loadable(
@@ -94,7 +102,9 @@ export const salesRoutes = [
     children: [
       { element: <SalesEmployeeDashboardPage />, index: true },
       { path: 'clients', element: <SalesClientsPage /> },
+      { path: 'client/new', element: <SalesClientNewPage /> },
       { path: 'client/:id', element: <SalesClientDetailPage /> },
+      { path: 'client/:id/edit', element: <SalesClientEditPage /> },
       { path: 'development', element: <SalesDevelopmentPage /> },
       { path: 'bonuses', element: <SalesBonusesPage /> },
       { path: 'leads', element: <SalesLeadsPage /> },

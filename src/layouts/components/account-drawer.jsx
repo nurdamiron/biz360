@@ -34,7 +34,7 @@ export function AccountDrawer({ data = [], sx, ...other }) {
   const pathname = usePathname();
   const authContext = useAuthContext();
 
-  const user = authContext.user;
+  const user = authContext.employee;
 
   console.log('AccountDrawer full authContext:', authContext);
   console.log('AccountDrawer user data:', user);
@@ -151,20 +151,20 @@ export function AccountDrawer({ data = [], sx, ...other }) {
             {renderAvatar()}
 
             <Typography variant="subtitle1" noWrap>
-            {authContext.user ? 
-    `${authContext.user.first_name || ''} ${authContext.user.last_name || ''}`.trim() || 'Пользователь' 
-    : 'Пользователь'}
-</Typography>
+              {user ? 
+                `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Пользователь' 
+                : 'Пользователь'}
+            </Typography>
 
-<Typography variant="body2" color="text.secondary" noWrap>
-{authContext.user && (
-    <>
-      {authContext.user.employee?.role}
-      {authContext.user.employee?.department ? ` • ${authContext.user.employee.department}` : ''}
-      {authContext.user.company?.name ? ` • ${authContext.user.company.name}` : ''}
-    </>
-  )}
-</Typography>
+            <Typography variant="body2" color="text.secondary" noWrap>
+              {user && (
+                <>
+                  {user.employee?.role || user.role}
+                  {user.employee?.department ? ` • ${user.employee.department}` : (user.department ? ` • ${user.department}` : '')}
+                  {user.company?.name ? ` • ${user.company.name}` : ''}
+                </>
+              )}
+            </Typography>
 
           </Box>
 

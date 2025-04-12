@@ -103,7 +103,11 @@ export const paths = {
     sales: {
       root: `${ROOTS.DASHBOARD}/sales`,
       clients: `${ROOTS.DASHBOARD}/sales/clients`,
-      client: (id) => `${ROOTS.DASHBOARD}/sales/client/${id}`,
+      client: {
+        new: `${ROOTS.DASHBOARD}/sales/client/new`,
+        details: (id) => `${ROOTS.DASHBOARD}/sales/client/${id}`,
+        edit: (id) => `${ROOTS.DASHBOARD}/sales/client/${id}/edit`,
+      },
       development: `${ROOTS.DASHBOARD}/sales/development`,
       bonuses: `${ROOTS.DASHBOARD}/sales/bonuses`,
       leads: `${ROOTS.DASHBOARD}/sales/leads`,

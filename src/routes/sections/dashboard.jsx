@@ -8,7 +8,7 @@ import { AccountLayout } from 'src/sections/account/account-layout';
 import { AuthGuard } from 'src/auth/guard';
 import { usePathname } from '../hooks';
 import { useAuth } from 'src/auth/hooks';
-import RoleDepartmentGuard from 'src/auth/RoleDepartmentGuard';
+import RoleDepartmentGuard from 'src/auth/RoleDepartmentGuard.jsx';
 import { hasAccessToDepartment, hasAccessByRole, isAdmin, isDepartmentHead } from 'src/auth/utils';
 import { Navigate } from 'react-router-dom';
 
@@ -100,6 +100,8 @@ const UserProfileView = lazy(() => import('src/sections/user/view/user-profile-v
 const SalesEmployeeDashboardPage = lazy(() => import('src/pages/sales/sales-employee-dashboard'));
 const SalesClientsPage = lazy(() => import('src/pages/sales/sales-clients'));
 const SalesClientDetailPage = lazy(() => import('src/pages/sales/sales-client-detail'));
+const SalesClientNewPage = lazy(() => import('src/pages/sales/sales-client-new'));
+const SalesClientEditPage = lazy(() => import('src/pages/sales/sales-client-edit'));
 const SalesDevelopmentPage = lazy(() => import('src/pages/sales/sales-development'));
 const SalesBonusesPage = lazy(() => import('src/pages/sales/sales-bonuses'));
 const SalesLeadsPage = lazy(() => import('src/pages/sales/sales-leads'));
@@ -109,30 +111,48 @@ const SalesLeadsDistributionPage = lazy(() => import('src/pages/sales/sales-lead
 
 // Компонент для умного редиректа после авторизации
 function DepartmentRedirectComponent() {
-  const { user } = useAuth();
+  const authContext = useAuth();
+  const employee = authContext.employee;
   
-  if (!user) {
+  console.log("DepartmentRedirectComponent - employee data:", employee);
+  
+  if (!employee) {
+    console.log("No employee data, redirecting to login");
     return <Navigate to="/auth/jwt/sign-in" replace />;
   }
   
   // Определяем редирект в зависимости от отдела
-  if (user.department === 'sales') {
+  // Сначала проверяем структуру employee.employee
+  const department = 
+    (employee.department) || 
+    (employee.employee && employee.employee.department) || 
+    'sales';
+  
+  const role = 
+    (employee.role) || 
+    (employee.employee && employee.employee.role) || 
+    'employee';
+    
+  console.log(`Redirecting based on department: ${department}, role: ${role}`);
+    
+  // Редирект по отделам
+  if (department === 'sales') {
     return <Navigate to="/dashboard/sales/employee/me" replace />;
-  } else if (user.department === 'accounting') {
+  } else if (department === 'accounting') {
     return <Navigate to="/dashboard/accounting/employee/me" replace />;
-  } else if (user.department === 'logistics') {
+  } else if (department === 'logistics') {
     return <Navigate to="/dashboard/logistics/employee/me" replace />;
-  } else if (user.department === 'manufacture') {
+  } else if (department === 'manufacture') {
     return <Navigate to="/dashboard/manufacture/employee/me" replace />;
   }
   
   // Для администраторов и не указанных отделов
-  if (user.role === 'admin' || user.role === 'head' || user.role === 'owner') {
-    return <Navigate to="/dashboard" replace />;
+  if (role === 'admin' || role === 'head' || role === 'owner') {
+    return <Navigate to="/dashboard/sales" replace />;
   }
   
   // Запасной вариант
-  return <Navigate to="/dashboard/metrics/employee/me" replace />;
+  return <Navigate to="/dashboard/sales/employee/me" replace />;
 }
 
 function SuspenseOutlet() {
@@ -276,6 +296,17 @@ export const dashboardRoutes = [
             ) 
           },
           { 
+            path: 'client/new', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesClientNewPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
             path: 'client/:id', 
             element: (
               <RoleDepartmentGuard
@@ -283,6 +314,17 @@ export const dashboardRoutes = [
                 accessDeniedPath="/dashboard/metrics/employee/me"
               >
                 <SalesClientDetailPage />
+              </RoleDepartmentGuard>
+            ) 
+          },
+          { 
+            path: 'client/:id/edit', 
+            element: (
+              <RoleDepartmentGuard
+                hasPermission={(user) => isAdmin(user) || hasAccessToDepartment(user, 'sales')}
+                accessDeniedPath="/dashboard/metrics/employee/me"
+              >
+                <SalesClientEditPage />
               </RoleDepartmentGuard>
             ) 
           },

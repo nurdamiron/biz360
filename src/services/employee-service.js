@@ -7,6 +7,24 @@ import { fetchAllMockData } from 'src/sections/sales/_mock/sales-mock-data';
 // Базовый URL API для сотрудников
 const EMPLOYEE_API_URL = `${API_URL}/employees`;
 
+const fetchWithTimeout = async (url, options = {}, timeout = 10000) => {
+  try {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal  
+    });
+    
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
 // Сервис для работы с данными сотрудников
 const employeeService = {
   /**

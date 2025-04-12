@@ -1,11 +1,19 @@
 // src/sections/sales/components/lead-distribution/smartLeadDistributionService.js
-import { shouldUseMockData, mockApiCall } from './leadDistributionService';
+import { shouldUseMockData } from 'src/global-config';  // Импортируем правильно из global-config
 import { leadDistributionService } from './leadDistributionService';
 
 /**
  * Класс для интеллектуального распределения лидов с учетом множества факторов
  * Расширяет базовый сервис распределения лидов
  */
+
+
+const mockApiCall = async (data, delay = 500) => {
+  await new Promise(resolve => setTimeout(resolve, delay));
+  return data;
+};
+
+
 class SmartLeadDistributionService {
   constructor() {
     this._leadDistributionService = leadDistributionService;
@@ -16,6 +24,7 @@ class SmartLeadDistributionService {
     this._employeePerformanceMetrics = {};
     this._isLoading = false;
     this._error = null;
+    this._lastFetch = 0;
   }
 
   /**
@@ -23,24 +32,45 @@ class SmartLeadDistributionService {
    */
   async initialize() {
     try {
+      const now = Date.now();
+      
+      // Более строгая проверка кэша
+      if (this._employees.length > 0 && this._leads.length > 0 && 
+          now - this._lastFetch < 5000) {
+        return true;
+      }
+  
       this._isLoading = true;
       this._error = null;
       
-      // Загружаем сотрудников и лидов из базового сервиса
-      this._employees = await this._leadDistributionService.fetchEmployees(true);
-      this._leads = await this._leadDistributionService.fetchLeads(true);
+      // Параллельная загрузка данных
+      const [employees, leads] = await Promise.all([
+        this._leadDistributionService.fetchSalesEmployees(false),
+        this._leadDistributionService.fetchLeads(false)
+      ]);
+  
+      // Проверяем полученные данные
+      if (!employees || !leads) {
+        throw new Error('Не удалось загрузить данные');
+      }
+  
+      this._employees = employees;
+      this._leads = leads;
       
-      // Загружаем дополнительные данные
-      await this._loadClientHistory();
-      await this._loadEmployeeSpecializations();
-      await this._loadEmployeePerformanceMetrics();
+      // Параллельная загрузка доп. данных
+      await Promise.all([
+        this._loadClientHistory(),
+        this._loadEmployeeSpecializations(),
+        this._loadEmployeePerformanceMetrics()
+      ]);
       
+      this._lastFetch = now;
       this._isLoading = false;
       return true;
     } catch (error) {
       this._isLoading = false;
       this._error = error.message || 'Ошибка при инициализации сервиса';
-      console.error('Error initializing smart service:', error);
+      console.error('Detailed error in initialize:', error);
       throw new Error(this._error);
     }
   }
@@ -50,15 +80,20 @@ class SmartLeadDistributionService {
    * @private
    */
   async _loadClientHistory() {
-    if (shouldUseMockData()) {
-      // Имитация загрузки истории клиентов
-      this._clientHistory = await this._getMockClientHistory();
-    } else {
-      // Реальный API запрос для получения истории клиентов
-      const response = await fetch('/api/sales/client-history');
-      this._clientHistory = await response.json();
+    try {
+      if (shouldUseMockData()) {
+        this._clientHistory = await this._getMockClientHistory() || [];
+      } else {
+        const response = await fetch('/api/sales/client-history');
+        this._clientHistory = await response.json() || [];
+      }
+    } catch (error) {
+      console.error('Error in _loadClientHistory:', error);
+      this._clientHistory = [];
     }
   }
+  
+  // Аналогично для _loadEmployeeSpecializations и _loadEmployeePerformanceMetrics
 
   /**
    * Загрузка специализаций сотрудников
@@ -298,57 +333,63 @@ class SmartLeadDistributionService {
    * Получить и рассчитать статистику сотрудников для интеллектуального распределения
    * @returns {Promise<Object>} - Расширенная статистика по сотрудникам
    */
-  async getEmployeeStats() {
-    try {
-      // Получаем базовую статистику
-      const baseStats = await this._leadDistributionService.getDistributionStats();
-      
-      // Рассчитываем дополнительные метрики
-      const urgentRequireAction = this._getUrgentLeadsCount();
-      const totalPotentialValue = this._calculateTotalPotentialValue();
-      const assignedValue = this._calculateAssignedValue();
-      const assignedValuePercentage = totalPotentialValue > 0 
-        ? (assignedValue / totalPotentialValue) * 100 
-        : 0;
-      
-      // Расширяем статистику дополнительными данными
-      const enhancedStats = {
+  // В smartLeadDistributionService.js
+async getEmployeeStats() {
+  try {
+    // Более безопасное получение базовых статистик
+    const baseStats = await this._leadDistributionService.getDistributionStats() || {};
+    
+    // Безопасные проверки данных
+    if (!baseStats.byEmployee) {
+      return {
         ...baseStats,
-        urgentRequireAction,
-        totalPotentialValue,
-        assignedValue,
-        assignedValuePercentage,
-        employeeDetails: await Promise.all(
-          baseStats.byEmployee.map(async (employee) => {
-            // Получаем историю клиентов для этого сотрудника
-            const clientHistory = this._clientHistory.filter(h => h.employeeId === employee.id);
-            
-            // Получаем метрики производительности
-            const metrics = this._employeePerformanceMetrics[employee.id] || {};
-            
-            // Получаем специализации
-            const specializations = this._employeeSpecializations[employee.id] || {};
-            
-            // Расширяем статистику
-            return {
-              ...employee,
-              clientsCount: clientHistory.length,
-              returnClientRate: metrics.returnClientRate || 0,
-              avgDealValue: metrics.averageDealValue || 0,
-              conversionRate: metrics.conversion || 0,
-              specializations: specializations.industries || [],
-              leadAssignmentScore: this._calculateAssignmentScore(employee.id)
-            };
-          })
-        )
+        employeeDetails: []
       };
-      
-      return enhancedStats;
-    } catch (error) {
-      console.error('Error getting enhanced employee stats:', error);
-      throw new Error('Ошибка при получении расширенной статистики сотрудников');
     }
+
+    const employeeDetails = baseStats.byEmployee.map(employee => {
+      // Безопасное получение истории и метрик
+      const clientHistory = this._clientHistory.filter(h => h.employeeId === employee.id) || [];
+      const metrics = this._employeePerformanceMetrics[employee.id] || {};
+      const specializations = this._employeeSpecializations[employee.id] || {};
+
+      return {
+        ...employee,
+        clientsCount: clientHistory.length,
+        returnClientRate: metrics.returnClientRate || 0,
+        avgDealValue: metrics.averageDealValue || 0,
+        conversionRate: metrics.conversion || 0,
+        specializations: specializations.industries || [],
+        leadAssignmentScore: this._calculateAssignmentScore(employee.id)
+      };
+    });
+
+    return {
+      ...baseStats,
+      urgentRequireAction: this._getUrgentLeadsCount(),
+      totalPotentialValue: this._calculateTotalPotentialValue(),
+      assignedValue: this._calculateAssignedValue(),
+      assignedValuePercentage: this._calculateAssignedValuePercentage(),
+      employeeDetails
+    };
+  } catch (error) {
+    console.error('Detailed error in getEmployeeStats:', error);
+    return {
+      employeeDetails: [],
+      error: error.message
+    };
   }
+}
+
+// Добавить метод для процента назначенной стоимости
+_calculateAssignedValuePercentage() {
+  const totalPotentialValue = this._calculateTotalPotentialValue();
+  const assignedValue = this._calculateAssignedValue();
+  
+  return totalPotentialValue > 0 
+    ? Math.round((assignedValue / totalPotentialValue) * 100)
+    : 0;
+}
 
   /**
    * Рассчитать оценку для назначения лидов сотруднику

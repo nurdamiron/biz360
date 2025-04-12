@@ -33,12 +33,7 @@ export const CONFIG = {
 export const USE_MOCK_DATA = CONFIG.useMockData;
 export const API_URL = CONFIG.apiUrl;
 
+// global-config.js
 export const shouldUseMockData = () => {
-  // В production всегда используем реальное API
-  if (import.meta.env.PROD) {
-    return false;
-  }
-  
-  // В остальных случаях используем настройку
-  return USE_MOCK_DATA;
+  process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
 };

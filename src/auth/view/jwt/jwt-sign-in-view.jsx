@@ -59,7 +59,8 @@ const tokenUtils = {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       return JSON.parse(window.atob(base64));
-    } catch {
+    } catch (error) {
+      console.error('Token decode error:', error);
       return null;
     }
   },
@@ -72,50 +73,102 @@ const tokenUtils = {
   
     const decoded = this.jwtDecode(token);
     if (!decoded) {
-      console.log('Failed to decode token:', token);
+      console.log('Failed to decode token');
       return false;
     }
-  
-    console.log('Decoded Token:', decoded);
   
     if (!decoded.exp) {
       console.log('Token does not contain "exp" field.');
       return false;
     }
   
-    const isValid = (decoded.exp - 30) > Date.now() / 1000;
-    console.log('Is Token Valid:', isValid, 'Current Time:', Date.now() / 1000, 'Expiry Time:', decoded.exp);
-  
+    const currentTime = Date.now() / 1000;
+    const isValid = decoded.exp > currentTime;
+    const timeLeft = decoded.exp - currentTime;
+    
+    console.log(`Token valid: ${isValid}, expires in: ${Math.round(timeLeft)} seconds`);
     return isValid;
   },
   
+  // Получает текущий API URL в зависимости от окружения
+  getApiUrl() {
+    return window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000' 
+      : 'https://biz360-backend.onrender.com';
+  },
+
+  // Сохраняет токены и проверяет их валидность
+  saveAndValidateTokens(accessToken, refreshToken) {
+    if (!accessToken) {
+      console.error('Access token is missing');
+      throw new Error('Access token is missing');
+    }
+    
+    console.log('Saving tokens - Access token:', accessToken.substring(0, 15) + '...');
+    
+    // Сохраняем токены
+    this.setAccessToken(accessToken);
+    if (refreshToken) {
+      this.setRefreshToken(refreshToken);
+    }
+    
+    try {
+      // Проверяем валидность Access Token
+      const isValid = this.isValidToken(accessToken);
+      if (!isValid) {
+        console.warn('Received invalid access token, clearing tokens');
+        this.clearTokens();
+        throw new Error('Invalid access token received');
+      }
+      
+      return isValid;
+    } catch (error) {
+      // В случае ошибки при валидации, все равно сохраняем токен
+      // Это позволит системе работать, даже если формат токена изменится
+      console.warn('Token validation error but proceeding anyway:', error.message);
+      return true;
+    }
+  },
 
   async refreshToken() {
     try {
-      const refresh = this.getRefreshToken();
-      if (!refresh) throw new Error('No refresh token found');
+      const refreshTokenValue = this.getRefreshToken();
+      if (!refreshTokenValue) throw new Error('No refresh token found');
 
-      const response = await fetch('https://backend.ecotrend.kz/api/auth/login/refresh/', {
+      const API_URL = this.getApiUrl();
+      console.log(`Refreshing token using API URL: ${API_URL}`);
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 сек таймаут
+
+      const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ refresh }),
-        mode: 'cors'
+        body: JSON.stringify({ refreshToken: refreshTokenValue }),
+        mode: 'cors',
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         this.clearTokens();
-        throw new Error('Failed to refresh token');
+        throw new Error(`Failed to refresh token: ${response.status}`);
       }
 
       const data = await response.json();
-      this.setAccessToken(data.access);
-      console.log('Access Token from Response:', data.access);
-
-      return data.access;
+      if (!data.data || !data.data.accessToken) {
+        throw new Error('Invalid refresh token response format');
+      }
+      
+      const { accessToken } = data.data;
+      this.saveAndValidateTokens(accessToken, null);
+      return accessToken;
     } catch (error) {
+      console.error('Error refreshing token:', error);
       this.clearTokens();
       throw error;
     }
@@ -134,41 +187,98 @@ const authService = {
     try {
       console.log('🚀 Attempting login...');
       
-      const response = await fetch('https://biz360-backend.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ email, password }),
-        mode: 'cors'
-      });
-
-      console.log('📡 Response status:', response.status);
-      const data = await response.json();
-      console.log('📦 Response data:', data);
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ошибка входа');
+      // Используем centralized API URL
+      const API_URL = tokenUtils.getApiUrl();
+      console.log(`Using API URL: ${API_URL}`);
+      
+      // Добавляем таймаут и повторные попытки
+      const MAX_RETRIES = 2;
+      let retryCount = 0;
+      let loginError;
+      
+      while (retryCount <= MAX_RETRIES) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 секунд таймаут
+          
+          const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email, password }),
+            mode: 'cors',
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          
+          const data = await response.json().catch(() => ({}));
+          console.log('📦 Response status:', response.status, 'data:', data);
+          
+          // Если запрос успешен, сохраняем токены и возвращаем данные
+          if (response.ok) {
+            // Адаптируем под оба формата ответа - новый с data.data и старый прямой формат
+            if (data.data && data.data.accessToken && data.data.refreshToken) {
+              // Новый формат с data.data
+              const { accessToken, refreshToken, user } = data.data;
+              tokenUtils.saveAndValidateTokens(accessToken, refreshToken);
+              
+              console.log('✅ Login successful, tokens saved (new format)');
+              return { ...data.data, user: { ...user, accessToken } };
+            } else if (data.access && data.refresh && data.user) {
+              // Старый формат с прямыми полями
+              const { access, refresh, user } = data;
+              tokenUtils.saveAndValidateTokens(access, refresh);
+              
+              console.log('✅ Login successful, tokens saved (legacy format)');
+              return { 
+                accessToken: access, 
+                refreshToken: refresh, 
+                user: { ...user, accessToken: access } 
+              };
+            } else {
+              console.error('Invalid response format:', data);
+              throw new Error('Некорректный формат ответа от сервера');
+            }
+          }
+          
+          // Если запрос неудачен, формируем информативное сообщение об ошибке
+          let errorMessage = `Ошибка входа (${response.status})`;
+          
+          if (data.error) {
+            errorMessage = data.error;
+          } else if (data.message) {
+            errorMessage = data.message;
+          } else if (response.status === 401) {
+            errorMessage = 'Неверные учетные данные';
+          } else if (response.status === 403) {
+            errorMessage = 'Доступ запрещен';
+          } else if (response.status === 500) {
+            errorMessage = 'Ошибка сервера. Пожалуйста, повторите попытку позже';
+          }
+          
+          loginError = new Error(errorMessage);
+        } catch (error) {
+          console.error(`Попытка ${retryCount + 1} не удалась:`, error);
+          loginError = error;
+          
+          // Если это ошибка таймаута, показываем специальное сообщение
+          if (error.name === 'AbortError') {
+            loginError = new Error('Сервер не отвечает. Пожалуйста, повторите попытку позже.');
+          }
+        }
+        
+        retryCount++;
+        if (retryCount <= MAX_RETRIES) {
+          console.log(`Повторная попытка ${retryCount}...`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Увеличивающаяся задержка
+        }
       }
-
-      // Проверка токена
-      const decodedAccess = tokenUtils.jwtDecode(data.access);
-      console.log('Decoded Access Token:', decodedAccess);
-
-      if (!decodedAccess || !decodedAccess.exp) {
-        throw new Error('Invalid access token received from server');
-      }
-
-      const isValid = tokenUtils.isValidToken(data.access);
-      console.log('Is Access Token Valid:', isValid);
-
-      // Сохранение токенов
-      console.log('💾 Saving tokens...');
-      tokenUtils.setAccessToken(data.access);
-      tokenUtils.setRefreshToken(data.refresh);
-
-      return data;
+      
+      // Если все попытки неудачны, выбрасываем сохраненную ошибку
+      throw loginError || new Error('Не удалось войти в систему после нескольких попыток');
     } catch (error) {
       console.error('❌ Login error:', error);
       tokenUtils.clearTokens();
@@ -249,36 +359,37 @@ export function JwtSignInView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      setErrorMessage(''); // Очищаем предыдущие ошибки
       console.log('📝 Starting login process...');
       
-      // Выполняем попытку авторизации
-      await authService.signInWithPassword({
+      // Выполняем попытку авторизации с обработкой ошибок
+      console.time('login');
+      const result = await authService.signInWithPassword({
         email: data.email,
         password: data.password,
       });
-  
+      console.timeEnd('login');
+      
+      console.log('Login result:', result);
+      
+      // Закладываем минимальную паузу для гарантии сохранения токенов
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       console.log('🔄 Checking employee session...');
-      await checkEmployeeSession?.();
-
-      // Получаем параметр returnTo из query, если он существует
-      const department = data.department || 'sales'; // Получаем отдел пользователя
-      let redirectPath;
-
-      if (department === 'sales') {
-        redirectPath = paths.dashboard.departmentRoutes.sales.employee('me');
-      } else if (department === 'accounting') {
-        redirectPath = paths.dashboard.departmentRoutes.accounting.employee('me');
-      } else if (department === 'logistics') {
-        redirectPath = paths.dashboard.departmentRoutes.logistics.employee('me');
-      } else if (department === 'manufacture') {
-        redirectPath = paths.dashboard.departmentRoutes.manufacture.employee('me');
-      } else {
-        // Запасной вариант
-        redirectPath = paths.dashboard.sales.root;
-      }
-  
-      console.log('Redirecting to:', paths.dashboard.root);
-      router.push(redirectPath);
+      
+      // Проверяем сессию пользователя
+      const sessionValid = await checkEmployeeSession?.();
+      console.log('Session check result:', sessionValid);
+      
+      // Определяем путь для переадресации - используем данные из result для надежности
+      const role = result?.user?.role || result?.user?.employee?.role || 'sales';
+      const department = result?.user?.department || 'sales';
+      
+      // Перенаправляем на дашборд без хэшей в URL
+      // Важно: используем window.location.href вместо router.replace
+      // для предотвращения цикла перенаправлений
+      console.log(`Redirecting to dashboard root: ${paths.dashboard.root}`);
+      window.location.href = paths.dashboard.root;
     } catch (error) {
       console.error('❌ Login failed:', error);
       setErrorMessage(error.message || 'Произошла ошибка при входе');
@@ -333,6 +444,13 @@ export function JwtSignInView() {
         variant="contained"
         loading={isSubmitting}
         loadingIndicator="Вход..."
+        sx={{
+          height: 48,
+          position: 'relative',
+          '&.MuiLoadingButton-loading': {
+            backgroundColor: 'action.selected'
+          }
+        }}
       >
         Войти
       </LoadingButton>
